@@ -1,0 +1,7 @@
+{
+  "crons": [
+    { "path": "/api/cron/sincronizar", "schedule": "*/15 * * * *" },
+    { "path": "/api/cron/publicar", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/escuchar", "schedule": "*/5 * * * *" }
+  ]
+}

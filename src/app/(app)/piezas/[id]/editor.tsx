@@ -1,0 +1,205 @@
+'use client'
+
+import { useState } from 'react'
+import { generarVariantes, normalizar } from '@/lib/dominio/clave'
+import { guardarAutomatizacion, guardarPieza, resolverPieza } from '@/app/acciones/piezas'
+import type { EnlaceRastreado, PalabraClave, Pieza, PlantillaDm, Recurso, RolApp } from '@/lib/database.types'
+import { Tarjeta } from '@/app/ui'
+
+type Props = {
+  pieza: Pieza
+  clave: PalabraClave | null
+  plantilla: PlantillaDm | null
+  enlace: EnlaceRastreado | null
+  recursos: Recurso[]
+  whatsapp: string
+  rol: RolApp
+}
+
+export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, rol }: Props) {
+  const [aviso, setAviso] = useState<{ ok: boolean; mensaje: string } | null>(null)
+  const [palabra, setPalabra] = useState(clave?.palabra ?? '')
+
+  const puedeEditar = rol === 'editora' || rol === 'audiovisual'
+  const puedeAutomatizar = rol === 'editora'
+  const puedeResolver = rol === 'editora' || rol === 'aprobadora'
+
+  const propuestas = palabra.trim() === '' ? [] : generarVariantes(palabra)
+
+  async function correr(accion: (datos: FormData) => Promise<{ ok: boolean; mensaje: string }>, datos: FormData) {
+    setAviso(await accion(datos))
+  }
+
+  return (
+    <div className="space-y-4">
+      {aviso ? (
+        <p
+          className={`rounded-lg px-4 py-3 text-sm ${
+            aviso.ok ? 'bg-emerald-50 text-emerald-900' : 'bg-red-50 text-red-900'
+          }`}
+        >
+          {aviso.mensaje}
+        </p>
+      ) : null}
+
+      <Tarjeta titulo="Contenido">
+        <form action={(datos) => correr(guardarPieza, datos)} className="space-y-3">
+          <input type="hidden" name="piezaId" value={pieza.id} />
+
+          <Campo etiqueta="Tema">
+            <input name="tema" defaultValue={pieza.tema} required className={ENTRADA} disabled={!puedeEditar} />
+          </Campo>
+
+          <Campo etiqueta="Hook">
+            <input name="hook" defaultValue={pieza.hook ?? ''} className={ENTRADA} disabled={!puedeEditar} />
+          </Campo>
+
+          <Campo etiqueta="Caption">
+            <textarea
+              name="captionBase"
+              defaultValue={pieza.caption_base ?? ''}
+              rows={6}
+              className={ENTRADA}
+              disabled={!puedeEditar}
+            />
+          </Campo>
+
+          <div className="grid grid-cols-3 gap-3">
+            <Campo etiqueta="Fecha">
+              <input
+                type="date"
+                name="fecha"
+                defaultValue={pieza.fecha_publicacion ?? ''}
+                className={ENTRADA}
+                disabled={!puedeEditar}
+              />
+            </Campo>
+            <Campo etiqueta="Hora (Bogotá)">
+              <input
+                type="time"
+                name="hora"
+                defaultValue={pieza.hora_publicacion?.slice(0, 5) ?? ''}
+                className={ENTRADA}
+                disabled={!puedeEditar}
+              />
+            </Campo>
+            <Campo etiqueta="Recurso que se entrega">
+              <select name="recursoId" defaultValue={pieza.resource_id ?? ''} className={ENTRADA} disabled={!puedeEditar}>
+                <option value="">sin recurso</option>
+                {recursos.map((recurso) => (
+                  <option key={recurso.id} value={recurso.id}>
+                    {recurso.titulo}
+                  </option>
+                ))}
+              </select>
+            </Campo>
+          </div>
+
+          <button type="submit" className={BOTON} disabled={!puedeEditar}>
+            Guardar contenido
+          </button>
+        </form>
+      </Tarjeta>
+
+      <Tarjeta titulo="Automatización de comentarios">
+        <form action={(datos) => correr(guardarAutomatizacion, datos)} className="space-y-3">
+          <input type="hidden" name="piezaId" value={pieza.id} />
+
+          <Campo etiqueta="Palabra clave">
+            <input
+              name="palabra"
+              value={palabra}
+              onChange={(e) => setPalabra(e.target.value)}
+              className={ENTRADA}
+              disabled={!puedeAutomatizar}
+            />
+            {palabra ? (
+              <p className="mt-1 text-xs text-neutral-500">Se guarda como {normalizar(palabra)}</p>
+            ) : null}
+          </Campo>
+
+          <Campo etiqueta="Variantes que también responden">
+            <textarea
+              name="variantes"
+              defaultValue={clave?.variantes.join(', ') ?? ''}
+              rows={2}
+              placeholder={propuestas.slice(0, 8).join(', ')}
+              className={ENTRADA}
+              disabled={!puedeAutomatizar}
+            />
+            <p className="mt-1 text-xs text-neutral-500">
+              Vacío deja las que el sistema deriva solo. La coincidencia ya ignora tildes, mayúsculas, signos y
+              letras repetidas, así que aquí van las que se escriben distinto de verdad.
+            </p>
+          </Campo>
+
+          <Campo etiqueta="Mensaje directo">
+            <textarea
+              name="mensaje"
+              defaultValue={plantilla?.mensaje ?? ''}
+              rows={4}
+              placeholder="Usa {enlace} y {palabra} donde quieras que entren"
+              className={ENTRADA}
+              disabled={!puedeAutomatizar}
+            />
+          </Campo>
+
+          <Campo etiqueta="WhatsApp de destino">
+            <input
+              name="destinoWhatsapp"
+              defaultValue={plantilla?.destino_url ?? whatsapp}
+              className={ENTRADA}
+              disabled={!puedeAutomatizar}
+            />
+          </Campo>
+
+          {enlace ? (
+            <p className="text-xs text-neutral-500">
+              Enlace rastreado: /r/{enlace.slug} · {enlace.clics} clics
+            </p>
+          ) : null}
+
+          <button type="submit" className={BOTON} disabled={!puedeAutomatizar}>
+            Guardar automatización
+          </button>
+        </form>
+      </Tarjeta>
+
+      {puedeResolver ? (
+        <Tarjeta titulo="Revisión">
+          <form action={(datos) => correr(resolverPieza, datos)} className="space-y-3">
+            <input type="hidden" name="piezaId" value={pieza.id} />
+            <Campo etiqueta="Comentario, obligatorio al devolver">
+              <input name="comentario" className={ENTRADA} />
+            </Campo>
+            <div className="flex gap-2">
+              <button type="submit" name="accion" value="aprobar" className={BOTON}>
+                Aprobar
+              </button>
+              <button
+                type="submit"
+                name="accion"
+                value="devolver"
+                className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium"
+              >
+                Devolver
+              </button>
+            </div>
+          </form>
+        </Tarjeta>
+      ) : null}
+    </div>
+  )
+}
+
+const ENTRADA = 'w-full rounded-md border border-neutral-300 px-3 py-2 text-sm disabled:bg-neutral-50'
+const BOTON = 'rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-40'
+
+function Campo({ etiqueta, children }: { etiqueta: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="text-xs font-medium text-neutral-600">{etiqueta}</span>
+      <div className="mt-1">{children}</div>
+    </label>
+  )
+}
