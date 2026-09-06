@@ -5,10 +5,13 @@
 # Aplica las migraciones en orden, corre el seed y comprueba que todo quedó en
 # su sitio. Se puede correr varias veces: si algo ya existe, lo dice y sigue.
 #
-#   ./scripts/arrancar.sh "postgresql://postgres:CLAVE@db.xxx.supabase.co:5432/postgres"
+# Dos formas:
 #
-# La cadena de conexión está en Supabase, en Project Settings, Database,
-# Connection string, pestaña URI. La contraseña es la del proyecto.
+#   ./scripts/arrancar.sh abcdefghijklmnop        ← el ref del proyecto, pide la clave
+#   ./scripts/arrancar.sh "postgresql://..."      ← la cadena completa
+#
+# El ref del proyecto es lo que va entre "db." y ".supabase.co", y también
+# aparece en la dirección del panel: supabase.com/dashboard/project/EL-REF
 
 set -uo pipefail
 
@@ -22,12 +25,31 @@ verde() { printf '\033[32m%s\033[0m\n' "$1"; }
 gris() { printf '\033[90m%s\033[0m\n' "$1"; }
 
 if [ -z "$CONEXION" ]; then
-  rojo "Falta la cadena de conexión."
+  rojo "Falta decir a qué proyecto conectarse."
   echo ""
-  echo "  ./scripts/arrancar.sh \"postgresql://postgres:CLAVE@db.xxx.supabase.co:5432/postgres\""
+  echo "  ./scripts/arrancar.sh abcdefghijklmnop"
   echo ""
-  echo "Está en Supabase → Project Settings → Database → Connection string → URI."
+  echo "Ese es el ref del proyecto: aparece en la dirección del panel de Supabase,"
+  echo "en supabase.com/dashboard/project/EL-REF"
   exit 1
+fi
+
+# Con solo el ref, la contraseña se pide aquí y no queda en el historial de la
+# terminal ni a la vista de nadie.
+if [[ "$CONEXION" != postgresql://* ]]; then
+  REF="$CONEXION"
+  printf "Contraseña de la base del proyecto %s: " "$REF"
+  read -rs CLAVE
+  echo ""
+
+  if [ -z "$CLAVE" ]; then
+    rojo "Sin contraseña no se puede entrar."
+    exit 1
+  fi
+
+  # Se escapa lo que rompería la cadena: @, #, /, ? y demás.
+  CLAVE_ESCAPADA="$(printf '%s' "$CLAVE" | python3 -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.stdin.read(), safe=""))')"
+  CONEXION="postgresql://postgres:${CLAVE_ESCAPADA}@db.${REF}.supabase.co:5432/postgres"
 fi
 
 command -v psql >/dev/null || { rojo "Falta psql. brew install postgresql@17"; exit 1; }

@@ -19,13 +19,16 @@ Tarda un par de minutos en aprovisionarse.
 
 ## 2. Arranca la base · 1 comando
 
-En Supabase: **Project Settings → Database → Connection string → URI**. Copia esa
-cadena y reemplaza `[YOUR-PASSWORD]` por la contraseña del paso 1.
+El ref del proyecto es lo que aparece en la dirección del panel:
+`supabase.com/dashboard/project/`**`ESTO`**
 
 ```
 cd ~/Projects/motor-organico-saleads
-./scripts/arrancar.sh "postgresql://postgres:TU-CLAVE@db.xxxxx.supabase.co:5432/postgres"
+./scripts/arrancar.sh EL-REF-DE-TU-PROYECTO
 ```
+
+Te pide la contraseña del paso 1, sin mostrarla, y arma la conexión sola. Así la
+contraseña no queda en el historial de la terminal.
 
 Aplica las once migraciones, crea las dos marcas y comprueba que las quince
 tablas, el RLS y los nueve triggers quedaron en su sitio. Se puede correr las
