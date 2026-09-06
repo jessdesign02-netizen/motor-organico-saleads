@@ -8,6 +8,12 @@ import { captionDeLaRed } from '@/lib/dominio/caption'
 import { instanteDe } from '@/lib/dominio/hora'
 import { destinoPermitido } from '@/lib/seguridad'
 import { generarVariantes, normalizar } from '@/lib/dominio/clave'
+import {
+  esquemaAutomatizacion,
+  esquemaPieza,
+  esquemaRevision,
+  partirVariantes,
+} from './esquemas'
 import { envolver, exigirEscritura, type Respuesta } from './comunes'
 
 /**
@@ -17,15 +23,6 @@ import { envolver, exigirEscritura, type Respuesta } from './comunes'
  * escrito, y los triggers atrapan lo que llegue por otro camino.
  */
 
-const esquemaPieza = z.object({
-  piezaId: z.string().uuid(),
-  tema: z.string().min(3, 'El tema necesita al menos tres letras'),
-  hook: z.string().optional(),
-  captionBase: z.string().optional(),
-  recursoId: z.string().uuid().nullable().optional(),
-  fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'La fecha va en formato AAAA-MM-DD').nullable().optional(),
-  hora: z.string().regex(/^\d{2}:\d{2}$/, 'La hora va en formato HH:MM').nullable().optional(),
-})
 
 export async function guardarPieza(datos: FormData): Promise<Respuesta> {
   return envolver('Guardar la pieza', async () => {
@@ -64,13 +61,6 @@ export async function guardarPieza(datos: FormData): Promise<Respuesta> {
   })
 }
 
-const esquemaClave = z.object({
-  piezaId: z.string().uuid(),
-  palabra: z.string().min(3, 'La palabra clave necesita al menos tres letras'),
-  variantes: z.string().optional(),
-  mensaje: z.string().min(10, 'El mensaje directo necesita al menos diez letras'),
-  destinoWhatsapp: z.string().url('El destino de WhatsApp va como enlace completo'),
-})
 
 /** Slug corto y estable para el enlace rastreado. */
 function slugDe(palabra: string, piezaId: string): string {
@@ -81,7 +71,7 @@ export async function guardarAutomatizacion(datos: FormData): Promise<Respuesta>
   return envolver('Guardar la automatización', async () => {
     await exigirRol('editora')
 
-    const entrada = esquemaClave.parse({
+    const entrada = esquemaAutomatizacion.parse({
       piezaId: datos.get('piezaId'),
       palabra: datos.get('palabra'),
       variantes: datos.get('variantes') || undefined,
@@ -93,8 +83,7 @@ export async function guardarAutomatizacion(datos: FormData): Promise<Respuesta>
     if (palabra === '') throw new Error('La palabra clave queda vacía después de normalizar')
 
     // Las variantes escritas a mano mandan. Sin ellas, se derivan solas.
-    const manuales = (entrada.variantes ?? '')
-      .split(/[,\n]/)
+    const manuales = partirVariantes(entrada.variantes)
       .map((v) => normalizar(v))
       .filter((v) => v !== '' && v !== palabra)
     const variantes = manuales.length > 0 ? [...new Set(manuales)] : generarVariantes(palabra)
@@ -176,13 +165,7 @@ export async function resolverPieza(datos: FormData): Promise<Respuesta> {
   return envolver('Resolver la pieza', async () => {
     const perfil = await exigirRol(...PUEDE_APROBAR)
 
-    const entrada = z
-      .object({
-        piezaId: z.string().uuid(),
-        accion: z.enum(['aprobar', 'devolver']),
-        comentario: z.string().optional(),
-      })
-      .parse({
+    const entrada = esquemaRevision.parse({
         piezaId: datos.get('piezaId'),
         accion: datos.get('accion'),
         comentario: datos.get('comentario') || undefined,

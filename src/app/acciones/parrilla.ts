@@ -7,6 +7,7 @@ import { exigirRol, PUEDE_APROBAR, PUEDE_EDITAR } from '@/lib/sesion'
 import { excedeLaRed, limpiarCaptions } from '@/lib/dominio/caption'
 import { lunesDe, recalcularSemana } from '@/lib/dominio/semana'
 import type { RedSocial } from '@/lib/database.types'
+import { esquemaNuevaPieza, esquemaRecurso } from './esquemas'
 import { envolver, exigirEscritura, type Respuesta } from './comunes'
 
 /**
@@ -20,13 +21,7 @@ export async function crearPieza(datos: FormData): Promise<Respuesta> {
   return envolver('Crear la pieza', async () => {
     await exigirRol(...PUEDE_EDITAR)
 
-    const entrada = z
-      .object({
-        marcaId: z.string().uuid(),
-        tema: z.string().min(3, 'El tema necesita al menos tres letras'),
-        fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
-      })
-      .parse({
+    const entrada = esquemaNuevaPieza.parse({
         marcaId: datos.get('marcaId'),
         tema: datos.get('tema'),
         fecha: datos.get('fecha') || null,
@@ -312,16 +307,7 @@ export async function crearRecurso(datos: FormData): Promise<Respuesta> {
   return envolver('Crear el recurso', async () => {
     await exigirRol(...PUEDE_EDITAR)
 
-    const entrada = z
-      .object({
-        marcaId: z.string().uuid(),
-        titulo: z.string().min(3, 'El título necesita al menos tres letras'),
-        tipo: z.enum(['pdf', 'skill', 'html', 'artefacto', 'video']),
-        url: z.string().url('El recurso va con su enlace completo'),
-        seccion: z.string().optional(),
-        descripcion: z.string().optional(),
-      })
-      .parse({
+    const entrada = esquemaRecurso.parse({
         marcaId: datos.get('marcaId'),
         titulo: datos.get('titulo'),
         tipo: datos.get('tipo'),
