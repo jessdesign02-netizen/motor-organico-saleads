@@ -1,0 +1,153 @@
+# Diagnóstico QA · Entrega 11 · Auditoría de integración
+
+Los defectos que aparecen entre módulos, cuando cada pieza funciona sola y
+juntas no. Continúa a [diagnostico.md](diagnostico.md) y
+[diagnostico-fases-2-3.md](diagnostico-fases-2-3.md).
+
+**Estado global.** Puerta en verde: **124 pruebas automáticas** y **73 reglas
+verificadas** contra Postgres. Tipos, lint y compilación limpios.
+
+---
+
+## Los dos defectos que impedían operar
+
+### H13 · Publicar desde el enlace de Drive habría fallado siempre
+
+**Gravedad: crítica.** Es el defecto que habría dejado el sistema sin publicar
+una sola pieza, con todo lo demás en verde.
+
+Instagram, TikTok y YouTube descargan el video por su cuenta desde una URL. El
+trabajo de publicación entregaba `pieces.drive_url`, que es el enlace que el
+equipo pega en la hoja. Ese enlace pide sesión de Google y devuelve una página
+HTML, así que Meta habría recibido una página en lugar de un archivo de video.
+
+El esquema ya preveía `storage_path` para la copia pública, y nada la llenaba:
+el campo existía y el camino que lo usaba nunca se construyó.
+
+**Corrección.** El módulo que faltaba, completo:
+
+- `descargarDeDrive` baja el archivo con la cuenta de servicio, y reconoce las
+  tres formas en que Drive comparte un enlace. **7 pruebas.**
+- `prepararVideoDePieza` sube la copia a un bucket público, guarda su ruta y el
+  peso, y deja escrito en la pieza cualquier fallo para que la pantalla lo diga.
+- El trabajo se adelanta seis horas a la salida, porque un video grande tarda y
+  la cola de publicación corre cada cinco minutos.
+- La publicación exige la copia lista. Sin ella, reintenta con espera creciente
+  en lugar de mandar un enlace que la plataforma no puede abrir.
+- La copia se marca para borrarse 24 horas después de publicar, y un trabajo por
+  hora la retira. El original vive en Drive: esta copia existe solo para el
+  momento de salir.
+
+También aparecieron dos límites que ahora se comprueban antes de intentar: el
+techo de 1 GB de un Reel, y que el archivo de Drive sea de verdad un video.
+
+### H14 · Cambiar la fecha hacía desaparecer la pieza
+
+**Gravedad: alta.** Callado, que es lo peor.
+
+La parrilla busca por `pieces.semana`. Al crear una pieza, la semana se calculaba
+desde la fecha. Al cambiar la fecha desde el editor, no: la pieza conservaba la
+semana vieja y dejaba de aparecer en la parrilla de su nueva fecha, sin aviso.
+Seguía existiendo, seguía programándose, y nadie la veía.
+
+**Corrección.** Un trigger deriva la semana de la fecha en cada inserción y en
+cada actualización, así que ningún camino puede desincronizarlas: ni el editor,
+ni la sincronización, ni el recorrido de fechas, ni lo que se escriba después.
+La migración repara de paso lo que ya estuviera torcido.
+
+**4 pruebas contra la base**: la semana se corrige aunque llegue mal, mover la
+fecha mueve la semana, el domingo pertenece a la semana que empezó el lunes, y
+quitar la fecha conserva la semana para que la pieza quede en su columna.
+
+---
+
+## Los otros tres
+
+### H15 · El desfase horario estaba escrito a mano
+
+`programarDia` armaba el instante con `-05:00` pegado al texto. Funciona
+mientras Colombia no cambie de horario y ninguna marca opere desde otro país, y
+deja de funcionar en silencio el día que alguna de las dos cosas pase.
+
+**Corrección.** `instanteDe` convierte con la zona por nombre, tomada de
+`ZONA_HORARIA`. **8 pruebas**, incluidas dos que comprueban el horario de verano
+de una zona que sí lo usa, para que la conversión quede probada de verdad y no
+solo en la zona que nunca cambia.
+
+### H16 · Las marcas se creaban a mano en la base
+
+El arranque dependía de alguien con acceso al SQL, y la especificación pone el
+alta de marcas dentro del trabajo de la editora.
+
+**Corrección.** Alta y ajuste de marcas desde Ajustes, con el mapa de columnas
+por defecto ya cargado.
+
+### H17 · Los roles no se podían cambiar desde la app
+
+La matriz de permisos estaba construida y probada, y asignarlos exigía volver a
+la base.
+
+**Corrección.** Cambio de rol desde Ajustes, con una regla propia: nadie cambia
+su propio rol. Una editora que se degrada por error dejaría el sistema sin quien
+apruebe, y recuperarlo pediría entrar por SQL.
+
+---
+
+## Prueba de humo sobre la app levantada
+
+| Camino | Esperado | Obtenido |
+|---|---|---|
+| `/api/cron/video` sin cabecera | Rechazo | 401 |
+| `/api/cron/video` con `CRON_SECRET` | Pasa | 200 |
+| `/api/cron/limpiar` sin cabecera | Rechazo | 401 |
+| `/api/cron/limpiar` con `CRON_SECRET` | Pasa | 200 |
+| `/api/cron/avisos` sin cabecera | Rechazo | 401 |
+| `/api/cron/avisos` con `CRON_SECRET` | Pasa | 200 |
+| `/ajustes` sin sesión | Redirección | 307 a la entrada |
+| `/recursos` sin sesión | Redirección | 307 a la entrada |
+
+---
+
+## Cobertura acumulada
+
+| Capa | Comprobaciones |
+|---|---|
+| Palabra clave y coincidencia | 28 |
+| Motor de comentarios | 18 |
+| Guardia de rutas | 14 |
+| Ingesta de la parrilla | 13 |
+| Analítica de resultados | 10 |
+| Caption por red | 8 |
+| Zona horaria | 8 |
+| Enlaces de Drive | 7 |
+| TikTok | 6 |
+| Firma del webhook | 6 |
+| Calendario | 6 |
+| **Pruebas automáticas** | **124** |
+| Reglas de negocio en la base | 33 |
+| Matriz de roles | 23 |
+| Entrega 8 | 9 |
+| Entrega 11 | 8 |
+| **Reglas contra Postgres** | **73** |
+
+---
+
+## Balance de la auditoría completa
+
+Diecisiete defectos encontrados y corregidos en once entregas. Cuatro habrían
+impedido operar: la publicación desde un enlace que la plataforma no puede
+abrir, dos mensajes a la misma persona, la palabra clave repetida entrando a la
+base, y la pieza que desaparecía de la parrilla al cambiarle la fecha.
+
+El patrón que más se repitió fue el silencio: RLS que deniega sin error, un
+trigger que rechaza por la razón equivocada, una excepción que borra el
+comentario del resumen, un campo derivado que se queda atrás. Ninguno se veía
+desde la pantalla, y todos se veían desde una prueba que preguntara por el
+motivo y no solo por el resultado.
+
+## Lo que sigue dependiendo de trámites
+
+Verificación de negocio en Meta, App Review de mensajería, auditoría de TikTok
+Content Posting, y las credenciales de las cinco cuentas. El código de las tres
+fases está completo, y cada casilla se enciende el día que llega su aprobación.
+El paso a paso está en [docs/puesta-en-marcha.md](../puesta-en-marcha.md).

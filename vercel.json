@@ -5,12 +5,20 @@
       "schedule": "*/15 * * * *"
     },
     {
+      "path": "/api/cron/video",
+      "schedule": "*/30 * * * *"
+    },
+    {
       "path": "/api/cron/publicar",
       "schedule": "*/5 * * * *"
     },
     {
       "path": "/api/cron/escuchar",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/limpiar",
+      "schedule": "0 * * * *"
     },
     {
       "path": "/api/cron/avisos",

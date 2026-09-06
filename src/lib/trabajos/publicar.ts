@@ -4,6 +4,7 @@ import { adaptadorDe } from '@/lib/redes'
 import type { CredencialCuenta } from '@/lib/redes'
 import { INTENTOS_MAXIMOS, proximoIntentoAt } from '@/lib/dominio/cola'
 import { avisar } from './avisos'
+import { prepararVideoDePieza } from './video'
 import type { CuentaSocial } from '@/lib/database.types'
 
 /**
@@ -116,12 +117,34 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
       .eq('id', publicacion.piece_id)
       .single()
 
-    const videoUrl = pieza?.storage_path ?? pieza?.drive_url
-    if (!pieza || !videoUrl) {
+    if (!pieza) {
       resumen.fallidas++
-      resumen.detalle.push({ publicacion: publicacion.id, estado: 'fallida', nota: 'la pieza llega sin video' })
+      resumen.detalle.push({ publicacion: publicacion.id, estado: 'fallida', nota: 'la pieza ya no existe' })
       continue
     }
+
+    // La plataforma descarga el video por su cuenta, así que necesita una URL
+    // pública. El enlace de Drive pide sesión y devuelve una página, no el
+    // archivo: la copia en Storage es lo único que sirve aquí.
+    const copia = await prepararVideoDePieza(pieza.id)
+    if (!copia.ok) {
+      const intentos = publicacion.intentos + 1
+      const siguiente = proximoIntentoAt(intentos, ahora)
+      await supabase
+        .from('publications')
+        .update({
+          estado: 'fallido',
+          intentos,
+          proximo_intento_at: siguiente ? siguiente.toISOString() : null,
+          ultimo_error: `El video no quedó listo: ${copia.error}`,
+        })
+        .eq('id', publicacion.id)
+
+      resumen.fallidas++
+      resumen.detalle.push({ publicacion: publicacion.id, estado: 'fallida', nota: copia.error })
+      continue
+    }
+    const videoUrl = copia.url
 
     await supabase.from('publications').update({ estado: 'publicando' }).eq('id', publicacion.id)
 
@@ -143,6 +166,13 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
           ultimo_error: null,
         })
         .eq('id', publicacion.id)
+      // La copia cumplió. Se marca para borrarla en 24 horas, con margen por si
+      // la plataforma vuelve a pedir el archivo mientras procesa.
+      await supabase
+        .from('pieces')
+        .update({ storage_expira_at: new Date(ahora.getTime() + 86_400_000).toISOString() })
+        .eq('id', pieza.id)
+
       resumen.publicadas++
       resumen.detalle.push({ publicacion: publicacion.id, estado: 'publicada' })
       continue

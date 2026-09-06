@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { clienteServidor } from '@/lib/supabase/server'
 import { exigirRol, PUEDE_APROBAR, PUEDE_EDITAR } from '@/lib/sesion'
 import { captionDeLaRed } from '@/lib/dominio/caption'
+import { instanteDe } from '@/lib/dominio/hora'
 import { generarVariantes, normalizar } from '@/lib/dominio/clave'
 import { envolver, exigirEscritura, type Respuesta } from './comunes'
 
@@ -238,7 +239,7 @@ export async function programarDia(datos: FormData): Promise<Respuesta> {
         continue
       }
 
-      const programadoAt = new Date(`${fecha}T${pieza.hora_publicacion ?? '18:00'}:00-05:00`).toISOString()
+      const programadoAt = instanteDe(fecha, pieza.hora_publicacion).toISOString()
 
       for (const cuenta of cuentas ?? []) {
         const captionFinal = captionDeLaRed(cuenta.red, pieza.captions_red, pieza.caption_base)

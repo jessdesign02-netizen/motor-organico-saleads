@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diasDeLaSemana, hoyEnBogota, lunesDe, recalcularSemana } from './semana'
+import { diasDeLaSemana, hoyDelEquipo, lunesDe, recalcularSemana } from './semana'
 
 describe('calendario', () => {
   it('lleva cualquier día a su lunes', () => {
@@ -16,7 +16,7 @@ describe('calendario', () => {
 
   it('da el día de Bogotá, no el del servidor', () => {
     // Medianoche UTC es todavía el día anterior en Bogotá.
-    expect(hoyEnBogota(new Date('2026-09-10T02:00:00Z'))).toBe('2026-09-09')
+    expect(hoyDelEquipo(new Date('2026-09-10T02:00:00Z'))).toBe('2026-09-09')
   })
 })
 

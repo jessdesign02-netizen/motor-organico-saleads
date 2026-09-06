@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
-import { hoyEnBogota } from '@/lib/dominio/semana'
+import { hoyDelEquipo } from '@/lib/dominio/semana'
 import { Etiqueta, Tarjeta, Vacio } from '@/app/ui'
 import { AprobarDia } from './aprobar'
 
@@ -14,7 +14,7 @@ export default async function PanelDelDia({
   searchParams: Promise<{ fecha?: string }>
 }) {
   const { fecha } = await searchParams
-  const dia = fecha ?? hoyEnBogota()
+  const dia = fecha ?? hoyDelEquipo()
   const perfil = await perfilActual()
   const supabase = await clienteServidor()
 

@@ -14,7 +14,10 @@ Las tres fases construidas, en diez entregas, cada una auditada.
 - [docs/qa/diagnostico.md](docs/qa/diagnostico.md): Fase 1, seis defectos corregidos
 - [docs/qa/diagnostico-fases-2-3.md](docs/qa/diagnostico-fases-2-3.md): fases 2 y 3, cinco más
 
-En total: **109 pruebas automáticas** y **65 reglas verificadas** contra Postgres.
+En total: **124 pruebas automáticas** y **73 reglas verificadas** contra Postgres.
+
+El paso a paso para dejarlo operando está en
+[docs/puesta-en-marcha.md](docs/puesta-en-marcha.md).
 
 Lo que falta para operar depende de trámites: verificación de negocio en Meta,
 App Review de mensajería, auditoría de TikTok, y las credenciales de las cuentas.
@@ -28,8 +31,9 @@ almacenamiento, Tailwind 4, Zod, y Vercel Cron para los trabajos programados.
 
 1. `npm install`
 2. Copia `.env.example` a `.env.local` y llena lo de Supabase.
-3. En Supabase, corre `supabase/migrations` en orden: `0001`, `0002`, y `0003`
-   después de crear tu usuario en Authentication.
+3. En Supabase, corre `supabase/migrations` en orden, más `supabase/seed.sql`.
+   `0003` va al final, después de crear tu usuario en Authentication.
+   El paso a paso completo está en [docs/puesta-en-marcha.md](docs/puesta-en-marcha.md).
 4. `npm run dev` y entra a http://localhost:3000
 5. Abre `/diagnostico`: recorre las siete entregas y dice qué falta, con la
    instrucción para resolverlo.
@@ -66,8 +70,10 @@ Ema, Diego e Iván trabajan sobre la hoja de cálculo, así que no necesitan cue
 | Ruta | Cadencia | Qué hace |
 |---|---|---|
 | `/api/cron/sincronizar` | cada 15 min | Lee la hoja y crea o actualiza piezas |
+| `/api/cron/video` | cada 30 min | Baja de Drive el video de lo que sale pronto y lo deja en Storage |
 | `/api/cron/publicar` | cada 5 min | Publica lo que ya tiene hora, con reintentos de 2, 8 y 30 minutos |
 | `/api/cron/escuchar` | cada 5 min | Respalda al webhook releyendo comentarios recientes |
+| `/api/cron/limpiar` | cada hora | Borra las copias de video que ya cumplieron |
 | `/api/cron/avisos` | cada día a las 8 | Revisa los accesos por vencer y deja el aviso |
 
 ## Rutas abiertas
@@ -94,7 +100,8 @@ src/
   lib/
     dominio/      palabra clave, ventana, cola, calendario, ingesta, caption, analítica
     redes/        Instagram, YouTube, TikTok tras una misma interfaz
-    trabajos/     sincronizar, publicar, escuchar, motor de comentarios
+    google/       hoja de cálculo y descarga de Drive, con cuenta de servicio
+    trabajos/     sincronizar, video, publicar, escuchar, motor de comentarios, avisos
     supabase/     clientes de sesión, de servicio y de navegador
   proxy.ts        refresco de sesión y guardia de rutas
 supabase/migrations/   esquema, RLS y accesos

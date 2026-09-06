@@ -32,6 +32,7 @@ export default async function Diagnostico() {
     { count: piezas },
     { count: recursos },
     { count: cuentasTiktokDirectas },
+    { count: piezasConError },
     { data: sync },
   ] = await Promise.all([
     supabase.from('brands').select('id', { count: 'exact', head: true }),
@@ -43,6 +44,7 @@ export default async function Diagnostico() {
       .select('id', { count: 'exact', head: true })
       .eq('red', 'tiktok')
       .eq('publicacion_directa', true),
+    supabase.from('pieces').select('id', { count: 'exact', head: true }).not('video_error', 'is', null),
     supabase.from('sync_logs').select('*').order('corrio_at', { ascending: false }).limit(1),
   ])
 
@@ -120,6 +122,19 @@ export default async function Diagnostico() {
       asunto: 'Credenciales de YouTube',
       listo: variable('YOUTUBE_CLIENT_ID') && variable('YOUTUBE_CLIENT_SECRET'),
       comoSeArregla: 'Carga YOUTUBE_CLIENT_ID y YOUTUBE_CLIENT_SECRET desde Google Cloud',
+    },
+    {
+      entrega: '11 · Video',
+      asunto: 'Acceso a Drive para bajar el video',
+      listo: variable('GOOGLE_SERVICE_ACCOUNT_KEY'),
+      comoSeArregla:
+        'La misma cuenta de servicio de la hoja necesita acceso de lectura a la carpeta de Drive con los videos',
+    },
+    {
+      entrega: '11 · Video',
+      asunto: 'Piezas con el video listo para salir',
+      listo: (piezasConError ?? 0) === 0,
+      comoSeArregla: 'Alguna pieza guarda un error al bajar el video. Ábrela para ver el motivo',
     },
     {
       entrega: 'Fase 3 · Biblioteca',

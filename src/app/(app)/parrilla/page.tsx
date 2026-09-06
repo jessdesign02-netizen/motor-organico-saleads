@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
-import { diasDeLaSemana, hoyEnBogota, lunesDe } from '@/lib/dominio/semana'
+import { diasDeLaSemana, hoyDelEquipo, lunesDe } from '@/lib/dominio/semana'
 import { Vacio } from '@/app/ui'
 import { SemanaDeLaMarca } from './semana'
 import { NuevaPieza } from './nueva'
@@ -16,7 +16,7 @@ export default async function Parrilla({
   const { semana } = await searchParams
   const lunes = semana ?? lunesDe(new Date())
   const dias = diasDeLaSemana(lunes)
-  const hoy = hoyEnBogota()
+  const hoy = hoyDelEquipo()
 
   const perfil = await perfilActual()
   const supabase = await clienteServidor()

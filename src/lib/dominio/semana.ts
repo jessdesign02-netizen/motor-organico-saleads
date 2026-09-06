@@ -1,4 +1,6 @@
-/** Utilidades de calendario en hora de Bogotá, que es donde trabaja el equipo. */
+import { zonaDelEquipo } from './hora'
+
+/** Utilidades de calendario en la hora del equipo, que por defecto es Bogotá. */
 
 export const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'] as const
 
@@ -18,9 +20,9 @@ export function diasDeLaSemana(lunesIso: string): string[] {
   })
 }
 
-export function hoyEnBogota(ahora: Date = new Date()): string {
+export function hoyDelEquipo(ahora: Date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Bogota',
+    timeZone: zonaDelEquipo(),
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

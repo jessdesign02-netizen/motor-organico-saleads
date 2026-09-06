@@ -2,6 +2,7 @@ import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
 import { Tarjeta, Vacio } from '@/app/ui'
 import { Canales, NuevaCuenta } from './canales'
+import { Equipo, Marcas } from './equipo'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,15 +39,20 @@ export default async function Ajustes() {
 
       {esEditora && (marcas ?? []).length > 0 ? <NuevaCuenta marcas={marcas ?? []} /> : null}
 
+      <Tarjeta titulo="Marcas">
+        <Marcas marcas={marcas ?? []} puedeAjustar={esEditora} />
+      </Tarjeta>
+
       <Tarjeta titulo="Equipo">
-        <ul className="divide-y divide-neutral-100 text-sm">
-          {(equipo ?? []).map((persona) => (
-            <li key={persona.id} className="flex justify-between py-2">
-              <span>{persona.nombre ?? persona.email}</span>
-              <span className="text-neutral-500">{persona.rol}</span>
-            </li>
-          ))}
-        </ul>
+        <Equipo
+          equipo={equipo ?? []}
+          yo={perfil?.id ?? ''}
+          puedeAjustar={esEditora}
+        />
+        <p className="mt-3 text-xs text-neutral-500">
+          Se entra por invitación: crea la persona en Supabase, en Authentication, y aquí le das su rol. Ema, Diego e
+          Iván trabajan sobre la hoja, así que no necesitan cuenta.
+        </p>
       </Tarjeta>
 
       <Tarjeta titulo="Cómo se guardan las credenciales">

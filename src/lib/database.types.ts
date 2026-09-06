@@ -91,6 +91,11 @@ export type Pieza = {
   formato: string | null
   drive_url: string | null
   storage_path: string | null
+  /** Cuándo se puede borrar la copia pública del video. */
+  storage_expira_at: string | null
+  video_bytes: number | null
+  /** Lo último que salió mal al bajar el video, para que la pantalla lo diga. */
+  video_error: string | null
   caption_base: string | null
   resource_id: string | null
   fecha_publicacion: string | null
