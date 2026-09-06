@@ -1,5 +1,6 @@
 import 'server-only'
 import { clienteAdmin } from '@/lib/supabase/admin'
+import { referenciaValida } from '@/lib/seguridad'
 import { adaptadorDe } from '@/lib/redes'
 import type { CredencialCuenta } from '@/lib/redes'
 import { INTENTOS_MAXIMOS, proximoIntentoAt } from '@/lib/dominio/cola'
@@ -30,6 +31,11 @@ export type ResumenPublicacion = {
  * token nunca queda en la base ni viaja al navegador.
  */
 function credencialDe(cuenta: CuentaSocial): CredencialCuenta | null {
+  // La referencia viene de la base y aquí se usa para leer una variable de
+  // entorno. Sin esta comprobación, una referencia mal puesta en Ajustes haría
+  // que el sistema enviara un secreto del sistema a la plataforma.
+  if (!referenciaValida(cuenta.credential_ref)) return null
+
   const token = process.env[cuenta.credential_ref]
   if (!token) return null
   const pageId = process.env[`${cuenta.credential_ref}_PAGE_ID`]

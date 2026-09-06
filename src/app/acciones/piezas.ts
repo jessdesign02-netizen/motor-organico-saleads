@@ -6,6 +6,7 @@ import { clienteServidor } from '@/lib/supabase/server'
 import { exigirRol, PUEDE_APROBAR, PUEDE_EDITAR } from '@/lib/sesion'
 import { captionDeLaRed } from '@/lib/dominio/caption'
 import { instanteDe } from '@/lib/dominio/hora'
+import { destinoPermitido } from '@/lib/seguridad'
 import { generarVariantes, normalizar } from '@/lib/dominio/clave'
 import { envolver, exigirEscritura, type Respuesta } from './comunes'
 
@@ -103,6 +104,12 @@ export async function guardarAutomatizacion(datos: FormData): Promise<Respuesta>
 
     // El texto prellenado de WhatsApp lleva la palabra: así el equipo comercial
     // sabe de qué pieza viene la persona.
+    // El enlace rastreado lleva el dominio de SaleADS, así que su destino queda
+    // dentro del embudo propio. El redirector lo comprueba otra vez al abrirlo.
+    if (!destinoPermitido(entrada.destinoWhatsapp)) {
+      throw new Error('El destino va a WhatsApp o a un dominio de SaleADS, y por https')
+    }
+
     const destino = new URL(entrada.destinoWhatsapp)
     destino.searchParams.set('text', `Hola, vengo por ${palabra}`)
 

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { clienteAdmin } from '@/lib/supabase/admin'
+import { destinoPermitido } from '@/lib/seguridad'
 
 /**
  * Redirector propio. El mensaje entrega este enlace, y no el de WhatsApp
@@ -8,6 +9,10 @@ import { clienteAdmin } from '@/lib/supabase/admin'
  */
 
 export const dynamic = 'force-dynamic'
+
+function inicio(): URL {
+  return new URL('/', process.env.APP_URL ?? 'http://localhost:3000')
+}
 
 export async function GET(_peticion: Request, contexto: { params: Promise<{ slug: string }> }) {
   const { slug } = await contexto.params
@@ -19,8 +24,14 @@ export async function GET(_peticion: Request, contexto: { params: Promise<{ slug
     .eq('slug', slug)
     .maybeSingle()
 
-  if (!enlace) {
-    return NextResponse.redirect(new URL('/', process.env.APP_URL ?? 'http://localhost:3000'))
+  if (!enlace) return NextResponse.redirect(inicio(), { status: 302 })
+
+  // El enlace lleva el dominio de SaleADS, así que un destino fuera del embudo
+  // convertiría ese dominio en trampolín hacia cualquier parte. Se comprueba
+  // aquí además de al guardarlo: el destino puede haber cambiado después.
+  if (!destinoPermitido(enlace.destino_url)) {
+    console.error('[redirector] destino fuera de la lista:', enlace.id)
+    return NextResponse.redirect(inicio(), { status: 302 })
   }
 
   await supabase

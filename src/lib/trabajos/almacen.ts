@@ -25,6 +25,32 @@ const A_ESTADO: Record<ResueltoComentario, EstadoComentario> = {
 export function almacenReal(keywordId: string | null): AlmacenMotor {
   const supabase = clienteAdmin()
 
+  /**
+   * Autores ya atendidos, por publicación.
+   *
+   * Preguntar uno por uno costaba una consulta por comentario: en el pico de
+   * 300 eran 300 viajes a la base solo para esta comprobación. La lista entera
+   * de una publicación cabe en una consulta, y el motor responde a los 300
+   * comentarios sin volver a preguntar.
+   */
+  const atendidosPorPublicacion = new Map<string, Set<string>>()
+
+  async function autoresAtendidos(publicationId: string): Promise<Set<string>> {
+    const enMemoria = atendidosPorPublicacion.get(publicationId)
+    if (enMemoria) return enMemoria
+
+    const { data } = await supabase
+      .from('comments')
+      .select('autor_external_id')
+      .eq('publication_id', publicationId)
+      .eq('estado', 'respondido')
+      .not('autor_external_id', 'is', null)
+
+    const conjunto = new Set((data ?? []).map((c) => c.autor_external_id).filter((id): id is string => id !== null))
+    atendidosPorPublicacion.set(publicationId, conjunto)
+    return conjunto
+  }
+
   return {
     async registrar(publicationId, comentario: ComentarioEntrante, coincidio) {
       const { data, error } = await supabase
@@ -58,17 +84,27 @@ export function almacenReal(keywordId: string | null): AlmacenMotor {
 
     async autorYaAtendido(publicationId, autorExternalId) {
       if (!autorExternalId) return false
-      const { count } = await supabase
-        .from('comments')
-        .select('id', { count: 'exact', head: true })
-        .eq('publication_id', publicationId)
-        .eq('autor_external_id', autorExternalId)
-        .eq('estado', 'respondido')
-      return (count ?? 0) > 0
+      return (await autoresAtendidos(publicationId)).has(autorExternalId)
     },
 
     async marcar(comentarioId, estado, motivo) {
       const destino = A_ESTADO[estado] ?? 'detectado'
+
+      // La lista en memoria se actualiza con lo que acaba de responderse: sin
+      // esto, dos comentarios del mismo autor dentro del lote la verían vieja.
+      if (destino === 'respondido') {
+        const { data } = await supabase
+          .from('comments')
+          .select('publication_id, autor_external_id')
+          .eq('id', comentarioId)
+          .single()
+
+        if (data?.autor_external_id) {
+          const conjunto = atendidosPorPublicacion.get(data.publication_id)
+          if (conjunto) conjunto.add(data.autor_external_id)
+        }
+      }
+
       await supabase
         .from('comments')
         .update({

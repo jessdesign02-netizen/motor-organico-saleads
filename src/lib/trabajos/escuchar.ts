@@ -1,5 +1,6 @@
 import 'server-only'
 import { clienteAdmin } from '@/lib/supabase/admin'
+import { referenciaValida } from '@/lib/seguridad'
 import { adaptadorDe, type ComentarioEntrante, type CredencialCuenta } from '@/lib/redes'
 import { almacenReal } from './almacen'
 import { procesarComentarios, type Automatizacion, type ResumenMotor } from './motor'
@@ -34,6 +35,11 @@ async function contextoDePublicacion(publicationId: string): Promise<Contexto | 
     .eq('id', publicacion.social_account_id)
     .single()
   if (!cuenta) return null
+
+  // La referencia viene de la base y aquí se usa para leer una variable de
+  // entorno. Sin esta comprobación, una referencia mal puesta en Ajustes haría
+  // que el sistema enviara un secreto del sistema a la plataforma.
+  if (!referenciaValida(cuenta.credential_ref)) return null
 
   const token = process.env[cuenta.credential_ref]
   if (!token) return null
@@ -118,15 +124,35 @@ export async function sondearComentarios(ahora: Date = new Date()): Promise<Resu
     .order('publicado_at', { ascending: false })
     .limit(60)
 
+  /**
+   * Las palabras clave, de una sola vez.
+   *
+   * Armar el contexto de cada publicación cuesta cinco consultas, y este
+   * trabajo corre cada cinco minutos sobre sesenta publicaciones: eran
+   * trescientos viajes a la base por corrida, casi todos para descubrir que la
+   * palabra clave ya venció y no había nada que hacer. Ese descarte ahora sale
+   * de una sola consulta, y el contexto completo solo se arma para las que
+   * siguen vivas.
+   */
+  const piezas = [...new Set((publicaciones ?? []).map((p) => p.piece_id))]
+  const { data: claves } = piezas.length
+    ? await supabase.from('keywords').select('piece_id, activa_hasta').in('piece_id', piezas)
+    : { data: [] }
+
+  const vigentes = new Set(
+    (claves ?? [])
+      .filter((k) => !k.activa_hasta || new Date(k.activa_hasta) > ahora)
+      .map((k) => k.piece_id),
+  )
+
   for (const publicacion of publicaciones ?? []) {
+    if (!vigentes.has(publicacion.piece_id)) continue
+
     const contexto = await contextoDePublicacion(publicacion.id)
     if (!contexto) continue
 
     const adaptador = adaptadorDe(contexto.automatizacion.red)
     if (!adaptador.leerComentarios) continue
-
-    const { claveActivaHasta } = contexto.automatizacion
-    if (claveActivaHasta && claveActivaHasta <= ahora) continue
 
     // Solo los últimos siete días: más atrás, la ventana de respuesta ya cerró.
     const desde = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000)

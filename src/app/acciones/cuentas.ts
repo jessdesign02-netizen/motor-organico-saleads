@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { clienteServidor } from '@/lib/supabase/server'
 import { exigirRol } from '@/lib/sesion'
+import { motivoDeReferenciaInvalida, referenciaValida } from '@/lib/seguridad'
 import { envolver, exigirEscritura, type Respuesta } from './comunes'
 
 /**
@@ -25,9 +26,13 @@ export async function registrarCuenta(datos: FormData): Promise<Respuesta> {
         red: z.enum(['instagram', 'tiktok', 'youtube']),
         handle: z.string().min(2, 'El handle necesita al menos dos letras'),
         externalAccountId: z.string().min(1, 'Falta el id de la cuenta en la plataforma'),
-        credentialRef: z
-          .string()
-          .regex(/^[A-Z][A-Z0-9_]*$/, 'La referencia va como nombre de variable: MAYÚSCULAS y guion bajo'),
+        // Se valida contra la lista de prefijos de plataforma: una referencia
+        // como SUPABASE_SERVICE_ROLE_KEY haría que el sistema enviara la llave
+        // maestra de la base a Meta creyendo que es un token de Instagram.
+        credentialRef: z.string().superRefine((referencia, control) => {
+          if (referenciaValida(referencia)) return
+          control.addIssue({ code: 'custom', message: motivoDeReferenciaInvalida(referencia) })
+        }),
         tokenExpiraAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
       })
       .parse({

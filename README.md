@@ -14,8 +14,9 @@ Las tres fases construidas, en diez entregas, cada una auditada.
 - [docs/qa/diagnostico.md](docs/qa/diagnostico.md): Fase 1, seis defectos corregidos
 - [docs/qa/diagnostico-fases-2-3.md](docs/qa/diagnostico-fases-2-3.md): fases 2 y 3, seis más
 - [docs/qa/diagnostico-integracion.md](docs/qa/diagnostico-integracion.md): los defectos entre módulos, seis más
+- [docs/qa/diagnostico-seguridad.md](docs/qa/diagnostico-seguridad.md): seguridad y rendimiento, tres más
 
-En total: **124 pruebas automáticas** y **85 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
+En total: **138 pruebas automáticas** y **85 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
 
 El paso a paso para dejarlo operando está en
 [docs/puesta-en-marcha.md](docs/puesta-en-marcha.md), y lo que hay que presentar
