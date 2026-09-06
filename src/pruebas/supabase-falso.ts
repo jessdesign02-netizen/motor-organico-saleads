@@ -15,6 +15,21 @@ type Filtro = (fila: Fila) => boolean
 
 export type TablasFalsas = Record<string, Fila[]>
 
+/**
+ * Las restricciones únicas que la base sí tiene. Sin ellas, el doble aceptaría
+ * escrituras que en producción revientan, y las pruebas darían por bueno lo que
+ * no lo es.
+ */
+const UNICOS: Record<string, string[][]> = {
+  comments: [['publication_id', 'external_comment_id']],
+  publications: [['piece_id', 'social_account_id']],
+  pieces: [['brand_id', 'sheet_row_id']],
+  keywords: [['piece_id']],
+  dm_templates: [['piece_id']],
+  tracked_links: [['piece_id'], ['slug']],
+  notices: [['clave']],
+}
+
 function comparar(valor: unknown, esperado: unknown): boolean {
   if (valor instanceof Date) return valor.toISOString() === esperado
   return valor === esperado
@@ -163,6 +178,17 @@ class Consulta implements PromiseLike<{ data: unknown; error: { message: string 
             Object.assign(existente, fila, { id: existente['id'] })
             escritas.push(existente)
             continue
+          }
+        }
+
+        const choque = (UNICOS[this.tabla] ?? []).find((llave) =>
+          llave.every((campo) => fila[campo] !== undefined && fila[campo] !== null) &&
+          this.filas.some((f) => llave.every((campo) => comparar(f[campo], fila[campo]))),
+        )
+        if (choque) {
+          return {
+            data: null,
+            error: { message: `duplicate key value violates unique constraint (${choque.join(', ')})` },
           }
         }
 

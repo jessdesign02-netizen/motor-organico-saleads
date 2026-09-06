@@ -207,3 +207,66 @@ motivo equivocado es peor que una en rojo.
 | Calendario | 6 |
 | **Pruebas automáticas** | **277** |
 | **Reglas contra Postgres** | **90** |
+
+---
+
+## Entrega 18 · El sondeo y el reintento
+
+Las dos últimas funciones sin pruebas, y las dos están en la ruta por donde
+entra cada lead. **12 pruebas.**
+
+### C4 · El trabajo de reintento no reintentaba nada
+
+**Gravedad: alta.** El trabajo existía, corría cada cinco minutos, y no servía
+para nada.
+
+La entrega 13 añadió el reintento de mensajes rechazados por límite de tasa:
+el comentario cuenta sus intentos, espera, y vuelve a la cola. Lo que faltó ver
+es que el motor tiene cuatro barreras de idempotencia, y la segunda es
+"comentario ya registrado".
+
+Un comentario que se reintenta está registrado desde el primer intento. El motor
+lo veía, lo daba por duplicado y lo descartaba. Cada mensaje rechazado por un
+límite de tasa se perdía para siempre, con el sistema informando de reintentos
+que nunca ocurrían.
+
+**Corrección.** El almacén recibe la lista de lo que se está reintentando y los
+deja pasar. La idempotencia se conserva entera para todo lo demás: lo que llega
+por webhook o por sondeo sigue descartándose si ya estaba.
+
+### El doble que ocultaba media verdad
+
+Este hallazgo tiene una segunda parte que vale la pena anotar.
+
+El doble de Supabase de la entrega 17 aceptaba cualquier inserción. En
+producción, el registro repetido choca contra la restricción única; en el doble,
+creaba una segunda fila. Así que la prueba falló, pero por un síntoma distinto
+del real: un comentario duplicado en lugar de un comentario sin responder.
+
+El doble ahora reproduce las siete restricciones únicas que la base sí tiene. Un
+doble más permisivo que la base da por buenas escrituras que en producción
+revientan, y eso es peor que no tener doble.
+
+### Lo que quedó comprobado
+
+**Sondeo**, 7 pruebas. Responde al comentario con la palabra, manda el enlace
+propio y no el de WhatsApp directo, salta la publicación con la palabra vencida
+sin armar su contexto, pide solo los últimos siete días, sigue con las demás
+cuando una falla, se detiene ante una referencia de credencial que no vale, y
+atiende una sola vez lo que ya estaba registrado.
+
+**Reintento**, 5 pruebas. Vuelve a enviar lo que la plataforma rechazó, respeta
+el turno del que todavía no toca, vuelve a pasar por la ventana de siete días
+porque puede haberse cerrado mientras esperaba, agrupa por publicación para armar
+el contexto una sola vez, y deja quieto lo que ya está en la bandeja.
+
+---
+
+## Cobertura, al cierre
+
+**289 pruebas automáticas** y **90 reglas** contra Postgres.
+
+No queda una sola función del sistema sin pruebas: el dominio, los tres
+adaptadores de plataforma, la lectura del webhook, los esquemas de entrada, los
+cinco trabajos programados, el guardia de rutas, las barreras de seguridad, los
+triggers de la base, la matriz de roles y el recorrido completo de una pieza.

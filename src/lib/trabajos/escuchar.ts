@@ -227,8 +227,8 @@ export async function reintentarMensajes(ahora: Date = new Date()): Promise<Resu
       creadoEn: new Date(c.detectado_at),
     }))
 
-    // El registro ya existe, así que se reabre para que el motor lo tome como
-    // pendiente en lugar de descartarlo por duplicado.
+    // El registro existe desde el primer intento. Se reabre el estado, y el
+    // almacén recibe la lista para no descartarlos por duplicado.
     await supabase
       .from('comments')
       .update({ estado: 'detectado' })
@@ -240,7 +240,7 @@ export async function reintentarMensajes(ahora: Date = new Date()): Promise<Resu
         contexto.automatizacion,
         adaptadorDe(contexto.automatizacion.red),
         contexto.credencial,
-        almacenReal(contexto.keywordId),
+        almacenReal(contexto.keywordId, new Set(entrantes.map((c) => c.externalCommentId))),
         { ahora },
       ),
     )

@@ -23,7 +23,15 @@ const A_ESTADO: Record<ResueltoComentario, EstadoComentario> = {
   fallido: 'fallido',
 }
 
-export function almacenReal(keywordId: string | null): AlmacenMotor {
+/**
+ * @param reintentando Comentarios que ya están registrados y se están volviendo
+ * a intentar. Sin esta lista, el motor los descartaba por duplicado y el trabajo
+ * de reintento no reintentaba nada: el registro existe desde el primer intento.
+ */
+export function almacenReal(
+  keywordId: string | null,
+  reintentando: ReadonlySet<string> = new Set(),
+): AlmacenMotor {
   const supabase = clienteAdmin()
 
   /**
@@ -71,7 +79,7 @@ export function almacenReal(keywordId: string | null): AlmacenMotor {
 
       if (!error && data) return { nuevo: true, comentarioId: data.id }
 
-      // 23505: la restricción única lo atrapó, así que otra pasada ya lo tiene.
+      // 23505: la restricción única lo atrapó, así que ya estaba registrado.
       const { data: existente } = await supabase
         .from('comments')
         .select('id')
@@ -79,8 +87,15 @@ export function almacenReal(keywordId: string | null): AlmacenMotor {
         .eq('external_comment_id', comentario.externalCommentId)
         .single()
 
-      if (existente) return { nuevo: false, comentarioId: existente.id }
-      throw new Error(error?.message ?? 'El comentario no se pudo registrar')
+      if (!existente) throw new Error(error?.message ?? 'El comentario no se pudo registrar')
+
+      // Un reintento sí tiene que seguir adelante: el registro existe desde el
+      // primer intento, y tratarlo como duplicado lo dejaría sin respuesta para
+      // siempre.
+      return {
+        nuevo: reintentando.has(comentario.externalCommentId),
+        comentarioId: existente.id,
+      }
     },
 
     async autorYaAtendido(publicationId, autorExternalId) {
