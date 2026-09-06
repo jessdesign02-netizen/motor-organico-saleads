@@ -10,9 +10,10 @@ const AHORA = new Date('2026-09-10T15:00:00Z')
  * único por (publicación, comentario externo) y un solo respondido por autor.
  * Si el motor se salta una regla, aquí revienta igual que en Postgres.
  */
-function almacenDePrueba(gastadasHoy = 0) {
+function almacenDePrueba(gastadasHoy = 0, intentosMaximos = 3) {
   const comentarios = new Map<string, { id: string; autor: string | null; estado: string }>()
   const envios: Array<{ comentarioId: string; estado: string }> = []
+  const intentos = new Map<string, number>()
   const respondidosPorAutor = new Set<string>()
   let secuencia = 0
 
@@ -44,9 +45,15 @@ function almacenDePrueba(gastadasHoy = 0) {
         valor.estado = estado
       }
     },
+    async anotarIntentoFallido(comentarioId) {
+      const llevados = (intentos.get(comentarioId) ?? 0) + 1
+      intentos.set(comentarioId, llevados)
+      return { quedanIntentos: llevados < intentosMaximos }
+    },
     async anotarEnvio(comentarioId, datos) {
-      if (envios.some((e) => e.comentarioId === comentarioId)) {
-        throw new Error('la base rechaza el segundo envío para el mismo comentario')
+      // La base admite varios intentos y un solo envío con resultado "enviado".
+      if (datos.estado === 'enviado' && envios.some((e) => e.comentarioId === comentarioId && e.estado === 'enviado')) {
+        throw new Error('la base rechaza el segundo mensaje entregado para el mismo comentario')
       }
       envios.push({ comentarioId, estado: datos.estado })
     },
@@ -55,7 +62,7 @@ function almacenDePrueba(gastadasHoy = 0) {
     },
   }
 
-  return { almacen, comentarios, envios, respondidosPorAutor }
+  return { almacen, comentarios, envios, respondidosPorAutor, intentos }
 }
 
 function adaptadorFalso(
@@ -328,6 +335,84 @@ describe('motor de comentarios · reglas una por una', () => {
     expect(resumen.respondidos).toBe(1)
     expect(enviados).toEqual(['C2'])
     expect(envios).toHaveLength(2)
+  })
+})
+
+describe('motor de comentarios · el mensaje que falla vuelve a la cola', () => {
+  it('el límite de tasa deja el caso en cola, no en la bandeja', async () => {
+    const { almacen, intentos } = almacenDePrueba()
+    const { adaptador } = adaptadorFalso({ fallaEn: () => true })
+
+    const resumen = await procesarComentarios(
+      [comentario({ externalCommentId: 'C1', autorExternalId: 'U1' })],
+      automatizacion,
+      adaptador,
+      credencial,
+      almacen,
+      { ahora: AHORA, dormir: sinEsperar },
+    )
+
+    expect(resumen.detalle[0]?.resultado).toBe('fallido')
+    expect(resumen.aBandejaManual).toBe(0)
+    expect([...intentos.values()][0]).toBe(1)
+  })
+
+  it('agotados los tres intentos, pasa a la bandeja', async () => {
+    const { almacen } = almacenDePrueba(0, 1)
+    const { adaptador } = adaptadorFalso({ fallaEn: () => true })
+
+    const resumen = await procesarComentarios(
+      [comentario({ externalCommentId: 'C1', autorExternalId: 'U1' })],
+      automatizacion,
+      adaptador,
+      credencial,
+      almacen,
+      { ahora: AHORA, dormir: sinEsperar },
+    )
+
+    expect(resumen.detalle[0]?.resultado).toBe('manual_pendiente')
+    expect(resumen.aBandejaManual).toBe(1)
+  })
+
+  it('lo que la plataforma rechaza de plano va directo a la bandeja', async () => {
+    const { almacen, intentos } = almacenDePrueba()
+    const adaptador: AdaptadorRed = {
+      red: 'instagram',
+      publicar: async () => ({ estado: 'fallido', error: 'sin uso', reintentable: false }),
+      leerComentarios: null,
+      responder: async () => ({ estado: 'fallido', error: 'la ventana ya cerró', reintentable: false }),
+      enviosPorSegundo: 2,
+      cupoDiarioRespuestas: null,
+    }
+
+    const resumen = await procesarComentarios(
+      [comentario({ externalCommentId: 'C1', autorExternalId: 'U1' })],
+      automatizacion,
+      adaptador,
+      credencial,
+      almacen,
+      { ahora: AHORA, dormir: sinEsperar },
+    )
+
+    expect(resumen.aBandejaManual).toBe(1)
+    // Reintentar lo que la plataforma rechaza de plano solo gasta llamadas.
+    expect(intentos.size).toBe(0)
+  })
+
+  it('el intento fallido queda escrito en la bitácora', async () => {
+    const { almacen, envios } = almacenDePrueba()
+    const { adaptador } = adaptadorFalso({ fallaEn: () => true })
+
+    await procesarComentarios(
+      [comentario({ externalCommentId: 'C1', autorExternalId: 'U1' })],
+      automatizacion,
+      adaptador,
+      credencial,
+      almacen,
+      { ahora: AHORA, dormir: sinEsperar },
+    )
+
+    expect(envios).toEqual([{ comentarioId: 'c1', estado: 'fallido' }])
   })
 })
 

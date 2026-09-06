@@ -182,6 +182,9 @@ export type Comentario = {
   estado: EstadoComentario
   /** Por qué quedó así: lo lee la persona en la bandeja manual. */
   motivo: string | null
+  /** Cuántas veces se intentó el mensaje. A los tres pasa a la bandeja. */
+  intentos_dm: number
+  proximo_intento_at: string | null
   detectado_at: string
   respondido_at: string | null
 }

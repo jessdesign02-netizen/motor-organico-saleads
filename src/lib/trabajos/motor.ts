@@ -60,6 +60,11 @@ export type ResumenMotor = {
 
 /** Puerto de persistencia. La implementación real vive en trabajos/almacen.ts. */
 export type AlmacenMotor = {
+  /**
+   * Anota que el envío falló, y devuelve si todavía quedan intentos.
+   * La espera creciente vive en la cola: 2, 8 y 30 minutos.
+   */
+  anotarIntentoFallido: (comentarioId: string, error: string) => Promise<{ quedanIntentos: boolean }>
   /** Registra el comentario. Devuelve false si ya estaba: así el sondeo repetido sale gratis. */
   registrar: (
     publicationId: string,
@@ -238,15 +243,23 @@ export async function procesarComentarios(
           return
         }
 
-        // Agotado el reintento, el caso pasa a la bandeja en lugar de perderse.
-        const destino: ResueltoComentario = salida.reintentable ? 'fallido' : 'manual_pendiente'
-        await almacen.marcar(comentarioId, destino, salida.error)
         await almacen.anotarEnvio(comentarioId, {
           destinatario: comentario.autorUsername,
           mensaje,
           estado: 'fallido',
           error: salida.error,
         })
+
+        // Un límite de tasa se resuelve solo en minutos, así que el caso vuelve
+        // a la cola. Lo que la plataforma rechaza de plano, y lo que agota los
+        // tres intentos, pasa a la bandeja en lugar de perderse.
+        let destino: ResueltoComentario = 'manual_pendiente'
+        if (salida.reintentable) {
+          const { quedanIntentos } = await almacen.anotarIntentoFallido(comentarioId, salida.error)
+          destino = quedanIntentos ? 'fallido' : 'manual_pendiente'
+        }
+
+        await almacen.marcar(comentarioId, destino, salida.error)
         anotar(comentario.externalCommentId, destino, salida.error)
       },
       {

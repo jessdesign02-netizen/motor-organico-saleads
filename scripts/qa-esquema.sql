@@ -216,10 +216,20 @@ select qa_afirmar(
 insert into dm_log (comment_id, destinatario, mensaje, estado)
 select id, 'ana', 'Te dejo la guía', 'enviado' from comments where external_comment_id = 'C1';
 
+-- Un intento fallido sí se vuelve a escribir: es lo que permite reintentar.
+insert into dm_log (comment_id, destinatario, mensaje, estado, error)
+select id, 'ana', 'primer intento', 'fallido', 'límite de la plataforma'
+  from comments where external_comment_id = 'C3';
+
+select qa_afirmar(
+  (select count(*) from dm_log l join comments c on c.id = l.comment_id
+    where c.external_comment_id = 'C3') = 1,
+  'cada intento queda escrito con su resultado');
+
 select qa_debe_fallar(
   $$insert into dm_log (comment_id, mensaje, estado)
     select id, 'segundo envío', 'enviado' from comments where external_comment_id = 'C1'$$,
-  'la bitácora admite un solo envío por comentario', 'dm_log_comment_id_key');
+  'la bitácora admite un solo mensaje entregado por comentario', 'dm_log_un_envio_bueno');
 
 -- ---------------------------------------------------------------------------
 -- Regla 8: la devolución regresa a revisión y libera la fecha

@@ -63,7 +63,11 @@ export default async function Bandeja() {
               comentarioId={comentario.id}
               autor={comentario.autor_username ?? 'sin autor'}
               texto={comentario.texto}
-              motivo={comentario.motivo ?? comentario.estado}
+              motivo={
+                comentario.intentos_dm > 0
+                  ? `${comentario.motivo ?? comentario.estado} · ${comentario.intentos_dm} intentos`
+                  : (comentario.motivo ?? comentario.estado)
+              }
               pieza={pieza?.tema ?? 'pieza sin nombre'}
               permalink={publicacion?.permalink ?? null}
               sugerida={sugerida}

@@ -84,6 +84,7 @@ export default async function Resultados({
   const detectados = (comentarios ?? []).filter((c) => c.keyword_id !== null).length
   const respondidos = (comentarios ?? []).filter((c) => c.estado === 'respondido').length
   const enBandeja = (comentarios ?? []).filter((c) => c.estado === 'manual_pendiente').length
+  const enCola = (comentarios ?? []).filter((c) => c.estado === 'fallido').length
   const clics = (enlaces ?? []).reduce((suma, enlace) => suma + enlace.clics, 0)
 
   return (
@@ -101,9 +102,10 @@ export default async function Resultados({
         <Dato etiqueta="Clics al enlace" valor={clics} />
       </div>
 
-      {enBandeja > 0 ? (
+      {enBandeja > 0 || enCola > 0 ? (
         <p className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {enBandeja} comentarios esperan en la bandeja manual.
+          {enBandeja > 0 ? `${enBandeja} comentarios esperan en la bandeja manual. ` : ''}
+          {enCola > 0 ? `${enCola} vuelven a intentarse solos.` : ''}
         </p>
       ) : null}
 

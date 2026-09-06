@@ -2,6 +2,7 @@ import 'server-only'
 import type { EstadoComentario, RedSocial } from '@/lib/database.types'
 import { clienteAdmin } from '@/lib/supabase/admin'
 import type { ComentarioEntrante } from '@/lib/redes'
+import { proximoIntentoAt } from '@/lib/dominio/cola'
 import type { AlmacenMotor, ResueltoComentario } from './motor'
 
 /**
@@ -113,6 +114,28 @@ export function almacenReal(keywordId: string | null): AlmacenMotor {
           motivo: motivo ?? null,
         })
         .eq('id', comentarioId)
+    },
+
+    async anotarIntentoFallido(comentarioId, error) {
+      const { data } = await supabase
+        .from('comments')
+        .select('intentos_dm')
+        .eq('id', comentarioId)
+        .single()
+
+      const intentos = (data?.intentos_dm ?? 0) + 1
+      const siguiente = proximoIntentoAt(intentos)
+
+      await supabase
+        .from('comments')
+        .update({
+          intentos_dm: intentos,
+          proximo_intento_at: siguiente ? siguiente.toISOString() : null,
+          motivo: error,
+        })
+        .eq('id', comentarioId)
+
+      return { quedanIntentos: siguiente !== null }
     },
 
     async anotarEnvio(comentarioId, datos) {

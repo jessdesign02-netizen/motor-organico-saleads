@@ -183,3 +183,68 @@ export async function sondearComentarios(ahora: Date = new Date()): Promise<Resu
 
   return salida
 }
+
+/**
+ * Reintento de los mensajes que fallaron.
+ *
+ * Un límite de tasa se resuelve solo en minutos: el comentario espera su turno
+ * con la espera creciente de la cola y se vuelve a intentar. A los tres intentos
+ * pasa a la bandeja manual con su motivo, que es lo que pide el caso especial de
+ * la sección 7 de la especificación.
+ */
+export async function reintentarMensajes(ahora: Date = new Date()): Promise<ResumenMotor[]> {
+  const supabase = clienteAdmin()
+  const salida: ResumenMotor[] = []
+
+  const { data: pendientes } = await supabase
+    .from('comments')
+    .select('*')
+    .eq('estado', 'fallido')
+    .lte('proximo_intento_at', ahora.toISOString())
+    .order('detectado_at', { ascending: true })
+    .limit(200)
+
+  // Se agrupan por publicación: el contexto se arma una vez para todo el grupo.
+  const porPublicacion = new Map<string, typeof pendientes>()
+  for (const comentario of pendientes ?? []) {
+    const grupo = porPublicacion.get(comentario.publication_id) ?? []
+    grupo.push(comentario)
+    porPublicacion.set(comentario.publication_id, grupo)
+  }
+
+  for (const [publicationId, comentarios] of porPublicacion) {
+    const contexto = await contextoDePublicacion(publicationId)
+    if (!contexto) continue
+
+    // Vuelven a entrar por la misma puerta, con las mismas barreras: la ventana
+    // de siete días puede haber cerrado mientras esperaban.
+    const entrantes: ComentarioEntrante[] = (comentarios ?? []).map((c) => ({
+      externalCommentId: c.external_comment_id,
+      externalPostId: contexto.automatizacion.externalPostId,
+      autorUsername: c.autor_username,
+      autorExternalId: c.autor_external_id,
+      texto: c.texto,
+      creadoEn: new Date(c.detectado_at),
+    }))
+
+    // El registro ya existe, así que se reabre para que el motor lo tome como
+    // pendiente en lugar de descartarlo por duplicado.
+    await supabase
+      .from('comments')
+      .update({ estado: 'detectado' })
+      .in('id', (comentarios ?? []).map((c) => c.id))
+
+    salida.push(
+      await procesarComentarios(
+        entrantes,
+        contexto.automatizacion,
+        adaptadorDe(contexto.automatizacion.red),
+        contexto.credencial,
+        almacenReal(contexto.keywordId),
+        { ahora },
+      ),
+    )
+  }
+
+  return salida
+}

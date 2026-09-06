@@ -15,8 +15,9 @@ Las tres fases construidas, en diez entregas, cada una auditada.
 - [docs/qa/diagnostico-fases-2-3.md](docs/qa/diagnostico-fases-2-3.md): fases 2 y 3, seis más
 - [docs/qa/diagnostico-integracion.md](docs/qa/diagnostico-integracion.md): los defectos entre módulos, seis más
 - [docs/qa/diagnostico-seguridad.md](docs/qa/diagnostico-seguridad.md): seguridad y rendimiento, tres más
+- [docs/qa/conformidad.md](docs/qa/conformidad.md): la especificación punto por punto contra el código
 
-En total: **138 pruebas automáticas** y **85 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
+En total: **142 pruebas automáticas** y **90 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
 
 El paso a paso para dejarlo operando está en
 [docs/puesta-en-marcha.md](docs/puesta-en-marcha.md), y lo que hay que presentar
@@ -75,7 +76,7 @@ Ema, Diego e Iván trabajan sobre la hoja de cálculo, así que no necesitan cue
 | `/api/cron/sincronizar` | cada 15 min | Lee la hoja y crea o actualiza piezas |
 | `/api/cron/video` | cada 30 min | Baja de Drive el video de lo que sale pronto y lo deja en Storage |
 | `/api/cron/publicar` | cada 5 min | Publica lo que ya tiene hora, con reintentos de 2, 8 y 30 minutos |
-| `/api/cron/escuchar` | cada 5 min | Respalda al webhook releyendo comentarios recientes |
+| `/api/cron/escuchar` | cada 5 min | Respalda al webhook, y reintenta los mensajes que la plataforma rechazó por límite |
 | `/api/cron/limpiar` | cada hora | Borra las copias de video que ya cumplieron |
 | `/api/cron/avisos` | cada día a las 8 | Revisa los accesos por vencer y deja el aviso |
 

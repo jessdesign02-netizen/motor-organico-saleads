@@ -205,5 +205,63 @@ select qa_afirmar(
   (select count(*) from keywords where palabra = 'AUTOMATIZA') = 2,
   'paso 15 · la palabra vuelve a estar libre para la semana siguiente');
 
+-- ---------------------------------------------------------------------------
+-- El caso especial que faltaba: el mensaje que falla por límites
+-- ---------------------------------------------------------------------------
+
+insert into comments (id, publication_id, external_comment_id, autor_username, autor_external_id,
+                      texto, estado, intentos_dm, proximo_intento_at)
+values ('c1000000-0000-0000-0000-000000000001', 'f0000000-0000-0000-0000-000000000001',
+        'C_LIMITE', 'sofia', 'U_SOFIA', 'automatiza', 'fallido', 1, now() - interval '5 minutes');
+
+insert into dm_log (comment_id, destinatario, mensaje, estado, error)
+values ('c1000000-0000-0000-0000-000000000001', 'sofia', 'primer intento', 'fallido',
+        'límite de la plataforma');
+
+select qa_afirmar(
+  (select count(*) from comments
+    where estado = 'fallido' and proximo_intento_at <= now()) = 1,
+  'el mensaje fallido queda en cola, esperando su turno');
+
+-- Segundo intento, otra vez con límite
+update comments set intentos_dm = 2, proximo_intento_at = now() - interval '1 minute'
+ where id = 'c1000000-0000-0000-0000-000000000001';
+
+insert into dm_log (comment_id, destinatario, mensaje, estado, error)
+values ('c1000000-0000-0000-0000-000000000001', 'sofia', 'segundo intento', 'fallido',
+        'límite de la plataforma');
+
+select qa_afirmar(
+  (select count(*) from dm_log where comment_id = 'c1000000-0000-0000-0000-000000000001') = 2,
+  'cada intento queda escrito en la bitácora, con su error');
+
+-- Tercer intento agotado: a la bandeja
+update comments set intentos_dm = 3, proximo_intento_at = null,
+                    estado = 'manual_pendiente', motivo = 'límite de la plataforma'
+ where id = 'c1000000-0000-0000-0000-000000000001';
+
+select qa_afirmar(
+  (select estado from comments where id = 'c1000000-0000-0000-0000-000000000001') = 'manual_pendiente',
+  'agotados los intentos, el caso pasa a la bandeja manual');
+
+select qa_afirmar(
+  (select count(*) from comments where estado = 'manual_pendiente') = 2,
+  'la bandeja reúne el caso vencido y el que agotó sus intentos');
+
+-- Y si el tercer intento sí sale, el mensaje se entrega una sola vez
+insert into comments (id, publication_id, external_comment_id, autor_username, autor_external_id,
+                      texto, estado, intentos_dm)
+values ('c1000000-0000-0000-0000-000000000002', 'f0000000-0000-0000-0000-000000000001',
+        'C_SEGUNDA', 'mario', 'U_MARIO', 'automatiza', 'respondido', 2);
+
+insert into dm_log (comment_id, destinatario, mensaje, estado, error)
+values ('c1000000-0000-0000-0000-000000000002', 'mario', 'intento 1', 'fallido', 'límite'),
+       ('c1000000-0000-0000-0000-000000000002', 'mario', 'intento 2', 'enviado', null);
+
+select qa_debe_fallar(
+  $$insert into dm_log (comment_id, mensaje, estado)
+    values ('c1000000-0000-0000-0000-000000000002', 'tercero', 'enviado')$$,
+  'el reintento que sale bien no admite un segundo mensaje entregado', 'dm_log_un_envio_bueno');
+
 \echo ''
-\echo '=== Recorrido completo: verificado ==='
+\echo '=== Recorrido completo y reintento: verificados ==='
