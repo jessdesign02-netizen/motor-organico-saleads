@@ -11,6 +11,7 @@ const TITULOS: Record<string, string> = {
   token_por_vencer: 'Acceso por vencer',
   bandeja_con_espera: 'Bandeja con espera',
   cupo_agotado: 'Cupo agotado',
+  pieza_devuelta: 'Pieza devuelta',
 }
 
 export default async function Avisos() {

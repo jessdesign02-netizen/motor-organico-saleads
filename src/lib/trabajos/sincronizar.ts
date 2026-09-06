@@ -25,6 +25,16 @@ export type ResumenSync = {
 
 const ESTADOS_INTOCABLES = new Set<Pieza['estado']>(['aprobado', 'programado', 'publicado'])
 
+/** Compara títulos como los escribe la gente: sin tildes, sin mayúsculas, sin espacios de sobra. */
+function normalizarTitulo(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+}
+
 function camposDePieza(pieza: PiezaDesdeHoja) {
   const fecha = pieza.fechaPublicacion
   return {
@@ -64,6 +74,20 @@ export async function sincronizarMarca(marca: Marca): Promise<ResumenSync> {
     .select('id, sheet_row_id, sheet_hash, estado')
     .eq('brand_id', marca.id)
 
+  // La columna Recursos de la hoja trae el nombre del material que se entrega.
+  // Se busca en la biblioteca de esa marca, comparando sin tildes ni mayúsculas.
+  const { data: biblioteca } = await supabase
+    .from('resources')
+    .select('id, titulo')
+    .eq('brand_id', marca.id)
+    .eq('activo', true)
+
+  const recursoPorNombre = (nombre: string | null): string | null => {
+    if (!nombre) return null
+    const buscado = normalizarTitulo(nombre)
+    return (biblioteca ?? []).find((r) => normalizarTitulo(r.titulo) === buscado)?.id ?? null
+  }
+
   const porFila = new Map((existentes ?? []).map((p) => [p.sheet_row_id ?? '', p]))
 
   for (const fila of filas) {
@@ -84,6 +108,7 @@ export async function sincronizarMarca(marca: Marca): Promise<ResumenSync> {
         origen: 'sheet',
         sheet_row_id: lectura.pieza.sheetRowId,
         estado: 'borrador',
+        resource_id: recursoPorNombre(lectura.pieza.recurso),
         ...campos,
       })
       if (error) {
@@ -91,6 +116,13 @@ export async function sincronizarMarca(marca: Marca): Promise<ResumenSync> {
         resumen.detalle.push({ fila: lectura.pieza.sheetRowId, motivo: error.message })
         continue
       }
+      if (lectura.pieza.recurso && !recursoPorNombre(lectura.pieza.recurso)) {
+        resumen.detalle.push({
+          fila: lectura.pieza.sheetRowId,
+          motivo: `el recurso "${lectura.pieza.recurso}" todavía no está en la biblioteca`,
+        })
+      }
+
       resumen.creadas++
       continue
     }
@@ -111,7 +143,11 @@ export async function sincronizarMarca(marca: Marca): Promise<ResumenSync> {
       continue
     }
 
-    const { error } = await supabase.from('pieces').update(campos).eq('id', existente.id)
+    const recursoId = recursoPorNombre(lectura.pieza.recurso)
+    const { error } = await supabase
+      .from('pieces')
+      .update(recursoId ? { ...campos, resource_id: recursoId } : campos)
+      .eq('id', existente.id)
     if (error) {
       resumen.ignoradas++
       resumen.detalle.push({ fila: lectura.pieza.sheetRowId, motivo: error.message })

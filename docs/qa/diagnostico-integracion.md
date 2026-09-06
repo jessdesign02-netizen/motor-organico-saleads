@@ -4,7 +4,7 @@ Los defectos que aparecen entre módulos, cuando cada pieza funciona sola y
 juntas no. Continúa a [diagnostico.md](diagnostico.md) y
 [diagnostico-fases-2-3.md](diagnostico-fases-2-3.md).
 
-**Estado global.** Puerta en verde: **124 pruebas automáticas** y **73 reglas
+**Estado global.** Puerta en verde: **124 pruebas automáticas** y **77 reglas
 verificadas** contra Postgres. Tipos, lint y compilación limpios.
 
 ---
@@ -93,6 +93,44 @@ apruebe, y recuperarlo pediría entrar por SQL.
 
 ---
 
+## Entrega 12 · Los dos últimos puntos de la especificación
+
+### La devolución avisa
+
+El módulo 3 pide que la devolución notifique, y hasta ahora solo cambiaba el
+estado. El aviso se crea desde el mismo trigger que aplica la devolución, así
+que llega venga por donde venga: desde la parrilla, desde el editor, o desde
+cualquier camino que se escriba después.
+
+**3 reglas verificadas**: la devolución deja su aviso, el aviso lleva el motivo
+que escribió quien devolvió, y aprobar no genera ninguno.
+
+### H18 · El trigger nuevo dejaba a nadie devolver una pieza
+
+**Gravedad: alta.** Lo atrapó la batería de roles en la primera corrida.
+
+El trigger insertaba en `notices`, y la política de esa tabla permite leer y
+marcar como leído, no crear. Con la sesión de la aprobadora, el insert chocaba
+con RLS y hacía fallar la devolución entera: la regla ya probada
+"la aprobadora devuelve con comentario" pasó a rojo de inmediato.
+
+**Corrección.** El trigger corre con `security definer`, porque el aviso lo
+genera el sistema y no la persona. Nadie necesita permiso de escritura sobre los
+avisos para devolver una pieza.
+
+Vale anotar de dónde salió: ninguna prueba nueva lo encontró. Lo encontró una
+prueba vieja, al correr entera la batería después de un cambio que parecía
+tocar otra cosa.
+
+### El recurso de la hoja se vincula solo
+
+El módulo 1 lee la columna Recursos, y ese nombre se quedaba sin uso. Ahora la
+ingesta lo busca en la biblioteca de esa marca comparando sin tildes ni
+mayúsculas, y lo vincula a la pieza. El recurso nombrado que todavía no existe
+queda en el log de sincronización con su motivo, para que alguien lo cargue.
+
+---
+
 ## Prueba de humo sobre la app levantada
 
 | Camino | Esperado | Obtenido |
@@ -128,13 +166,14 @@ apruebe, y recuperarlo pediría entrar por SQL.
 | Matriz de roles | 23 |
 | Entrega 8 | 9 |
 | Entrega 11 | 8 |
-| **Reglas contra Postgres** | **73** |
+| Entrega 12 | 3 |
+| **Reglas contra Postgres** | **77** |
 
 ---
 
 ## Balance de la auditoría completa
 
-Diecisiete defectos encontrados y corregidos en once entregas. Cuatro habrían
+Dieciocho defectos encontrados y corregidos en doce entregas. Cuatro habrían
 impedido operar: la publicación desde un enlace que la plataforma no puede
 abrir, dos mensajes a la misma persona, la palabra clave repetida entrando a la
 base, y la pieza que desaparecía de la parrilla al cambiarle la fecha.

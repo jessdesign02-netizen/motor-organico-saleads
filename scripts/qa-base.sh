@@ -27,7 +27,9 @@ for archivo in \
   "$RAIZ/supabase/migrations/0002_rls.sql" \
   "$RAIZ/supabase/migrations/0004_caption_por_red.sql" \
   "$RAIZ/supabase/migrations/0005_fase2.sql" \
-  "$RAIZ/supabase/migrations/0006_video_y_semana.sql"; do
+  "$RAIZ/supabase/migrations/0006_video_y_semana.sql" \
+  "$RAIZ/supabase/migrations/0008_cierre.sql" \
+  "$RAIZ/supabase/migrations/0009_aviso_devolucion.sql"; do
   psql -h /tmp -p $PUERTO -U postgres -v ON_ERROR_STOP=1 -q -d motor_qa -f "$archivo"
 done
 

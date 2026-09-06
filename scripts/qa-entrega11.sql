@@ -71,5 +71,35 @@ select qa_afirmar(
   (select video_error from pieces where id = 'dddddddd-0000-0000-0000-000000000002') is not null,
   'el fallo al bajar el video queda escrito en la pieza');
 
+-- ---------------------------------------------------------------------------
+-- Entrega 12 · la devolución avisa
+-- ---------------------------------------------------------------------------
+
+insert into pieces (id, brand_id, semana, tema, estado, fecha_publicacion)
+values ('dddddddd-0000-0000-0000-00000000000c', 'aaaaaaaa-0000-0000-0000-000000000001',
+        '2026-09-07', 'Pieza que se devuelve', 'aprobado', '2026-09-11');
+
+insert into approvals (piece_id, usuario_id, accion, comentario)
+values ('dddddddd-0000-0000-0000-00000000000c', '22222222-2222-2222-2222-222222222222',
+        'devolver', 'El hook se cae en el segundo tres');
+
+select qa_afirmar(
+  (select count(*) from notices
+    where piece_id = 'dddddddd-0000-0000-0000-00000000000c' and tipo = 'pieza_devuelta') = 1,
+  'la devolución deja su aviso');
+
+select qa_afirmar(
+  (select detalle from notices where piece_id = 'dddddddd-0000-0000-0000-00000000000c')
+    = 'El hook se cae en el segundo tres',
+  'el aviso lleva el motivo que escribió quien devolvió');
+
+insert into approvals (piece_id, usuario_id, accion)
+values ('dddddddd-0000-0000-0000-00000000000c', '11111111-1111-1111-1111-111111111111', 'aprobar');
+
+select qa_afirmar(
+  (select count(*) from notices
+    where piece_id = 'dddddddd-0000-0000-0000-00000000000c') = 1,
+  'aprobar no genera aviso: solo la devolución pide atención');
+
 \echo ''
-\echo '=== Entrega 11: verificada ==='
+\echo '=== Entregas 11 y 12: verificadas ==='

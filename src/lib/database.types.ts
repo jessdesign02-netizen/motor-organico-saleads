@@ -57,6 +57,7 @@ export type TipoAviso =
   | 'token_por_vencer'
   | 'bandeja_con_espera'
   | 'cupo_agotado'
+  | 'pieza_devuelta'
 
 export type Aviso = {
   id: string
