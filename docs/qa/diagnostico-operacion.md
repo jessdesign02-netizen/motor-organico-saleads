@@ -75,3 +75,62 @@ vaciarlo todo de una vez.
 | El doble clic | El botón se bloquea, y la base tampoco admite publicar dos veces |
 | La pieza eliminada | La pantalla de no encontrado, en lugar de un error |
 | El sondeo con muchas publicaciones | Descarta por vigencia antes de armar contextos |
+
+---
+
+## Entrega 20 · Dos corridas del mismo trabajo
+
+Los seis trabajos corren cada pocos minutos. Cuando una corrida tarda más que su
+intervalo, la plataforma lanza la siguiente encima. Esta pasada mira qué pasa
+entonces.
+
+### O4 · Dos corridas podían publicar la misma pieza dos veces
+
+**Gravedad: crítica.** Se habría visto desde afuera, en la cuenta.
+
+El trabajo de publicación leía su lote y después marcaba cada fila como
+"publicando". Entre esas dos cosas hay una ventana, y publicar un reel la abre de
+par en par: crear el contenedor, esperar hasta dos minutos de procesado, publicar.
+Con el trabajo corriendo cada cinco minutos, una publicación lenta y la siguiente
+corrida leen el mismo lote, y las dos publican.
+
+Las restricciones de la base no lo evitan: es la misma fila, no dos.
+
+**Corrección.** La fila se toma con un update que exige que siga en el estado en
+que se leyó. La corrida que llega segunda toca cero filas y sigue de largo.
+
+### O5 · Lo mismo con los mensajes que esperaban reintento
+
+**Gravedad: alta.**
+
+El trabajo de reintento leía los comentarios en estado fallido y después los
+reabría. Dos corridas veían el mismo lote, y esa persona recibía dos mensajes,
+que es justo lo que las cuatro barreras de idempotencia existen para evitar.
+
+**Corrección.** El update es quien selecciona: toma y reabre en un solo paso, así
+que no queda ventana entre medias.
+
+### Comprobado donde ocurre
+
+El compare-and-swap solo vale si la base lo hace atómico, así que las dos
+comprobaciones corren contra Postgres, no contra el doble:
+
+| Comprobación | Resultado |
+|---|---|
+| La primera corrida toma la publicación | Pasa |
+| La segunda no encuentra la fila, y la pieza sale una sola vez | Pasa |
+| El reintento lo toma una sola corrida, y esa persona recibe un solo mensaje | Pasa |
+
+Más 5 pruebas en TypeScript sobre el mecanismo: que la fila quede en
+"publicando" mientras la plataforma responde, y que la segunda corrida no
+encuentre nada que hacer.
+
+**Sobre el alcance de estas pruebas.** El doble de Supabase es síncrono, así que
+no modela dos corridas de verdad simultáneas: lo que prueba es el mecanismo, y
+la atomicidad se comprueba contra Postgres, que es donde vive.
+
+---
+
+## Estado al cierre
+
+**300 pruebas automáticas** y **94 reglas** verificadas contra Postgres.

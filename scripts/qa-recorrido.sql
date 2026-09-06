@@ -263,5 +263,73 @@ select qa_debe_fallar(
     values ('c1000000-0000-0000-0000-000000000002', 'tercero', 'enviado')$$,
   'el reintento que sale bien no admite un segundo mensaje entregado', 'dm_log_un_envio_bueno');
 
+-- ---------------------------------------------------------------------------
+-- Dos corridas del mismo trabajo, sobre Postgres de verdad
+--
+-- El compare-and-swap solo vale si la base lo hace atómico. Aquí se comprueba
+-- contra Postgres, que es donde ocurre.
+-- ---------------------------------------------------------------------------
+
+insert into pieces (id, brand_id, semana, tema, estado, fecha_publicacion, hora_publicacion)
+values ('e0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001',
+        '2026-09-14', 'Pieza para dos corridas', 'aprobado', '2026-09-15', '18:00');
+
+insert into publications (id, piece_id, social_account_id, estado, programado_at)
+values ('f0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000003',
+        'b0000000-0000-0000-0000-000000000001', 'pendiente', now());
+
+-- Corrida A la toma.
+update publications set estado = 'publicando'
+ where id = 'f0000000-0000-0000-0000-000000000003' and estado = 'pendiente';
+
+select qa_afirmar(
+  (select estado from publications where id = 'f0000000-0000-0000-0000-000000000003') = 'publicando',
+  'la primera corrida toma la publicación');
+
+-- Corrida B llega con la misma lectura y no toca nada.
+do $$
+declare
+  tocadas int;
+begin
+  update publications set estado = 'publicando'
+   where id = 'f0000000-0000-0000-0000-000000000003' and estado = 'pendiente';
+  get diagnostics tocadas = row_count;
+
+  if tocadas = 0 then
+    raise notice 'PASA · la segunda corrida no encuentra la fila, y la pieza sale una sola vez';
+  else
+    raise exception 'FALLA · la segunda corrida tomó la misma publicación';
+  end if;
+end;
+$$;
+
+-- Lo mismo con los mensajes que esperan reintento.
+insert into comments (id, publication_id, external_comment_id, autor_username, autor_external_id,
+                      texto, estado, intentos_dm, proximo_intento_at)
+values ('c1000000-0000-0000-0000-000000000003', 'f0000000-0000-0000-0000-000000000001',
+        'C_CARRERA', 'lucia', 'U_LUCIA', 'automatiza', 'fallido', 1, now() - interval '1 minute');
+
+do $$
+declare
+  primera int;
+  segunda int;
+begin
+  -- El update es quien selecciona: no hay ventana entre leer y marcar.
+  update comments set estado = 'detectado'
+   where estado = 'fallido' and proximo_intento_at <= now();
+  get diagnostics primera = row_count;
+
+  update comments set estado = 'detectado'
+   where estado = 'fallido' and proximo_intento_at <= now();
+  get diagnostics segunda = row_count;
+
+  if primera = 1 and segunda = 0 then
+    raise notice 'PASA · el reintento lo toma una sola corrida, y esa persona recibe un solo mensaje';
+  else
+    raise exception 'FALLA · dos corridas tomaron el mismo reintento (% y %)', primera, segunda;
+  end if;
+end;
+$$;
+
 \echo ''
-\echo '=== Recorrido completo y reintento: verificados ==='
+\echo '=== Recorrido, reintento y concurrencia: verificados ==='

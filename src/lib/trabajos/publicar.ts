@@ -73,8 +73,6 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
     if (publicacion.proximo_intento_at && new Date(publicacion.proximo_intento_at) > ahora) continue
     if (publicacion.intentos >= INTENTOS_MAXIMOS) continue
 
-    resumen.intentadas++
-
     const { data: cuenta } = await supabase
       .from('social_accounts')
       .select('*')
@@ -152,7 +150,35 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
     }
     const videoUrl = copia.url
 
-    await supabase.from('publications').update({ estado: 'publicando' }).eq('id', publicacion.id)
+    /**
+     * Toma la publicación de forma atómica.
+     *
+     * Los trabajos corren cada cinco minutos, y publicar un reel puede tardar
+     * más que eso: el contenedor, el procesado de hasta dos minutos y la
+     * publicación. Cuando una corrida se pasa de su intervalo, la plataforma
+     * lanza la siguiente encima, y las dos leían el mismo lote.
+     *
+     * Este update solo toca la fila si sigue en el estado en que se leyó. La
+     * corrida que llega segunda toca cero filas y sigue de largo, en lugar de
+     * publicar la misma pieza otra vez.
+     */
+    const { data: tomadas } = await supabase
+      .from('publications')
+      .update({ estado: 'publicando' })
+      .eq('id', publicacion.id)
+      .eq('estado', publicacion.estado)
+      .select('id')
+
+    resumen.intentadas++
+
+    if ((tomadas ?? []).length === 0) {
+      resumen.detalle.push({
+        publicacion: publicacion.id,
+        estado: 'omitida',
+        nota: 'otra corrida la tomó primero',
+      })
+      continue
+    }
 
     const salida = await adaptadorDe(cuenta.red).publicar(
       credencial,

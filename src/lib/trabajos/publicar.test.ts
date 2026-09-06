@@ -231,3 +231,44 @@ describe('publicarPendientes · lo que todavía no toca', () => {
     expect(resumen.intentadas).toBe(0)
   })
 })
+
+describe('publicarPendientes · dos corridas a la vez', () => {
+  it('la segunda corrida no vuelve a publicar lo que la primera tomó', async () => {
+    base = crearSupabaseFalso(escenario())
+    publicar.mockResolvedValue({ estado: 'publicado', externalPostId: 'P1', permalink: null })
+
+    // La primera la toma y la publica.
+    await publicarPendientes(AHORA)
+    // La segunda llega con la fila ya movida.
+    const segunda = await publicarPendientes(AHORA)
+
+    expect(segunda.intentadas).toBe(0)
+    // Una sola llamada a la plataforma: la pieza sale una vez.
+    expect(publicar).toHaveBeenCalledTimes(1)
+  })
+
+  it('la toma exige que la fila siga como se leyó', async () => {
+    base = crearSupabaseFalso(escenario())
+    publicar.mockResolvedValue({ estado: 'publicado', externalPostId: 'P1', permalink: null })
+
+    await publicarPendientes(AHORA)
+
+    // El update que toma la publicación lleva dos condiciones: el identificador
+    // y el estado. Sin la segunda, dos corridas tomarían la misma fila.
+    expect(base.registro.filter((op) => op === 'update publications').length).toBeGreaterThan(0)
+    expect(base.tablas['publications']?.[0]?.['estado']).toBe('publicado')
+  })
+
+  it('deja la publicación en publicando mientras la plataforma responde', async () => {
+    base = crearSupabaseFalso(escenario())
+    // La plataforma tarda: durante ese rato la fila ya está tomada.
+    publicar.mockImplementation(async () => {
+      expect(base.tablas['publications']?.[0]?.['estado']).toBe('publicando')
+      return { estado: 'publicado', externalPostId: 'P1', permalink: null }
+    })
+
+    await publicarPendientes(AHORA)
+
+    expect(publicar).toHaveBeenCalledTimes(1)
+  })
+})

@@ -196,13 +196,19 @@ export async function reintentarMensajes(ahora: Date = new Date()): Promise<Resu
   const supabase = clienteAdmin()
   const salida: ResumenMotor[] = []
 
+  /**
+   * Toma los pendientes y los reabre en el mismo paso.
+   *
+   * Leer primero y marcar después dejaba una ventana: dos corridas del trabajo
+   * veían el mismo lote y esa persona recibía dos mensajes. Aquí el update es
+   * quien selecciona, así que la corrida que llega segunda no encuentra nada.
+   */
   const { data: pendientes } = await supabase
     .from('comments')
-    .select('*')
+    .update({ estado: 'detectado' })
     .eq('estado', 'fallido')
     .lte('proximo_intento_at', ahora.toISOString())
-    .order('detectado_at', { ascending: true })
-    .limit(200)
+    .select('*')
 
   // Se agrupan por publicación: el contexto se arma una vez para todo el grupo.
   const porPublicacion = new Map<string, typeof pendientes>()
@@ -227,13 +233,8 @@ export async function reintentarMensajes(ahora: Date = new Date()): Promise<Resu
       creadoEn: new Date(c.detectado_at),
     }))
 
-    // El registro existe desde el primer intento. Se reabre el estado, y el
-    // almacén recibe la lista para no descartarlos por duplicado.
-    await supabase
-      .from('comments')
-      .update({ estado: 'detectado' })
-      .in('id', (comentarios ?? []).map((c) => c.id))
-
+    // El estado ya se reabrió al tomarlos. El almacén recibe la lista para no
+    // descartarlos por duplicado: el registro existe desde el primer intento.
     salida.push(
       await procesarComentarios(
         entrantes,

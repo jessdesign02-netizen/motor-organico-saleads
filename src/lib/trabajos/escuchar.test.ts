@@ -240,3 +240,40 @@ describe('reintentarMensajes', () => {
     expect(await reintentarMensajes(AHORA)).toEqual([])
   })
 })
+
+describe('reintentarMensajes · dos corridas a la vez', () => {
+  const fallidoDoble = {
+    id: 'com-1',
+    publication_id: 'pub-1',
+    external_comment_id: 'C1',
+    autor_username: 'ana',
+    autor_external_id: 'ana',
+    texto: 'automatiza',
+    estado: 'fallido',
+    intentos_dm: 1,
+    proximo_intento_at: '2026-09-10T17:00:00Z',
+    detectado_at: '2026-09-10T16:00:00Z',
+  }
+
+  it('la segunda corrida no encuentra lo que la primera tomó', async () => {
+    base = crearSupabaseFalso(enVivo({ comentarios: [fallidoDoble] }))
+
+    await reintentarMensajes(AHORA)
+    const segunda = await reintentarMensajes(AHORA)
+
+    expect(segunda).toEqual([])
+    // Un solo mensaje: esa persona no recibe dos.
+    expect(responder).toHaveBeenCalledTimes(1)
+  })
+
+  it('toma y reabre en un solo paso, sin ventana entre medias', async () => {
+    base = crearSupabaseFalso(enVivo({ comentarios: [fallidoDoble] }))
+
+    await reintentarMensajes(AHORA)
+
+    // El update es quien selecciona: leer primero y marcar después dejaba una
+    // ventana en la que otra corrida veía el mismo lote.
+    const orden = base.registro.filter((op) => op.endsWith('comments'))
+    expect(orden[0]).toBe('update comments')
+  })
+})
