@@ -158,3 +158,32 @@ Sin cambios respecto al informe anterior: verificación de negocio en Meta, App
 Review de mensajería, auditoría de TikTok Content Posting, y las credenciales de
 las cinco cuentas. El código de las tres fases ya está, y cada casilla se
 enciende el día que llega su aprobación.
+
+---
+
+## Anexo · Prueba de humo sobre la app levantada
+
+Las puertas de entrada, comprobadas contra el servidor corriendo, más allá de lo
+que dicen los tipos y las pruebas.
+
+| Camino | Esperado | Obtenido |
+|---|---|---|
+| `/ingresar` | La pantalla de entrada | 200, con su título |
+| `/parrilla` sin sesión | Redirección a la entrada | 307 a `/ingresar?volver=/parrilla` |
+| `/api/cron/publicar` sin cabecera | Rechazo | 401 |
+| `/api/cron/publicar` con `CRON_SECRET` | Pasa el guardia | 200 |
+| Webhook con firma inválida | Rechazo | 401 |
+| Webhook con token de verificación incorrecto | Rechazo | 403 |
+| `/api/recursos` sin sesión | Pasa el guardia | Responde sin redirigir |
+| `/r/slug-inexistente` | Redirección en lugar de error | 307 |
+
+### H12 · La ruta pública devolvía el detalle interno
+
+**Gravedad: baja.** Salió de esta prueba, no de las anteriores.
+
+Con la base fuera de alcance, `/api/recursos` respondía 500 con el mensaje de
+error de Supabase. Es una ruta abierta a cualquiera, así que ese mensaje llegaba
+a quien lo pidiera.
+
+**Corrección.** El detalle se registra en el servidor, y hacia afuera va un 503
+con un mensaje que no habla de la base.

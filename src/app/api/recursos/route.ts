@@ -30,7 +30,12 @@ export async function GET(peticion: Request) {
   }
 
   const { data: recursos, error } = await consulta
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    // La ruta es pública, así que el detalle se queda en el servidor. Hacia
+    // afuera va un mensaje que no dice nada de la base.
+    console.error('[recursos] la consulta falló:', error.message)
+    return NextResponse.json({ error: 'la biblioteca no está disponible ahora' }, { status: 503 })
+  }
 
   const secciones = [...new Set((recursos ?? []).map((r) => r.seccion ?? 'Sin sección'))]
 
