@@ -4,7 +4,7 @@ Los defectos que aparecen entre módulos, cuando cada pieza funciona sola y
 juntas no. Continúa a [diagnostico.md](diagnostico.md) y
 [diagnostico-fases-2-3.md](diagnostico-fases-2-3.md).
 
-**Estado global.** Puerta en verde: **124 pruebas automáticas** y **77 reglas
+**Estado global.** Puerta en verde: **124 pruebas automáticas** y **85 reglas
 verificadas** contra Postgres. Tipos, lint y compilación limpios.
 
 ---
@@ -167,7 +167,36 @@ queda en el log de sincronización con su motivo, para que alguien lo cargue.
 | Entrega 8 | 9 |
 | Entrega 11 | 8 |
 | Entrega 12 | 3 |
-| **Reglas contra Postgres** | **77** |
+| Recorrido completo | 21 |
+| **Reglas contra Postgres** | **85** |
+
+---
+
+## El recorrido completo
+
+Las baterías anteriores prueban cada regla por separado. Esta prueba la costura:
+los siete triggers actuando juntos sobre una misma pieza, en el orden real, con
+todo lo que puede salir mal por el camino.
+
+**21 pasos verificados**, de la fila de la hoja al lead:
+
+| Paso | Qué comprueba |
+|---|---|
+| 1 | La pieza entra desde la hoja en borrador, y su semana se deriva sola |
+| 2 | Correr la sincronización dos veces no la duplica |
+| 4 | La palabra clave se guarda normalizada, venga como venga escrita |
+| 5 | Nada se programa sin la aprobación |
+| 6 | La devolución regresa a revisión, libera la fecha y deja su aviso |
+| 7 | La pieza corregida vuelve a quedar aprobada |
+| 8 | La escucha sigue apagada mientras la pieza no sale |
+| 10 | La publicación en vivo enciende la escucha sin que nadie la toque |
+| 11 | El comentario con la palabra recibe su mensaje, la entrega repetida del webhook no genera un segundo, la misma persona tampoco, y el comentario fuera de ventana pasa a la bandeja con su motivo |
+| 13 | La copia del video queda lista para borrarse |
+| 14 | La pieza cierra con un detectado, un mensaje enviado y un clic |
+| 15 | La palabra vuelve a estar libre para la semana siguiente |
+
+Ninguna regla nueva salió de aquí, y eso es el resultado: las reglas probadas por
+separado se sostienen cuando actúan juntas.
 
 ---
 

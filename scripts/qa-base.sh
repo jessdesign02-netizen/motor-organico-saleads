@@ -37,7 +37,8 @@ for bateria in \
   "$RAIZ/scripts/qa-esquema.sql" \
   "$RAIZ/scripts/qa-entrega8.sql" \
   "$RAIZ/scripts/qa-entrega11.sql" \
-  "$RAIZ/scripts/qa-rls.sql"; do
+  "$RAIZ/scripts/qa-rls.sql" \
+  "$RAIZ/scripts/qa-recorrido.sql"; do
   psql -h /tmp -p $PUERTO -U postgres -v ON_ERROR_STOP=1 -d motor_qa -f "$bateria" 2>&1 \
     | grep -E "PASA|FALLA|===" | sed 's/psql:[^ ]*: NOTICE:  //'
 done

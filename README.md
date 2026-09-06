@@ -15,10 +15,11 @@ Las tres fases construidas, en diez entregas, cada una auditada.
 - [docs/qa/diagnostico-fases-2-3.md](docs/qa/diagnostico-fases-2-3.md): fases 2 y 3, seis más
 - [docs/qa/diagnostico-integracion.md](docs/qa/diagnostico-integracion.md): los defectos entre módulos, seis más
 
-En total: **124 pruebas automáticas** y **77 reglas verificadas** contra Postgres.
+En total: **124 pruebas automáticas** y **85 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
 
 El paso a paso para dejarlo operando está en
-[docs/puesta-en-marcha.md](docs/puesta-en-marcha.md).
+[docs/puesta-en-marcha.md](docs/puesta-en-marcha.md), y lo que hay que presentar
+en cada plataforma, con el texto listo, en [docs/tramites/](docs/tramites/).
 
 Lo que falta para operar depende de trámites: verificación de negocio en Meta,
 App Review de mensajería, auditoría de TikTok, y las credenciales de las cuentas.
