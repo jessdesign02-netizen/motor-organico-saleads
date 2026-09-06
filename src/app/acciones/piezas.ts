@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { clienteServidor } from '@/lib/supabase/server'
 import { exigirRol, PUEDE_APROBAR, PUEDE_EDITAR } from '@/lib/sesion'
+import { captionDeLaRed } from '@/lib/dominio/caption'
 import { generarVariantes, normalizar } from '@/lib/dominio/clave'
 import { envolver, exigirEscritura, type Respuesta } from './comunes'
 
@@ -136,6 +137,33 @@ export async function guardarAutomatizacion(datos: FormData): Promise<Respuesta>
   })
 }
 
+/**
+ * El paso que faltaba entre la hoja y la revisión de Karen. Lo da quien carga
+ * el contenido, y por eso alcanza también al rol audiovisual.
+ */
+export async function enviarARevision(datos: FormData): Promise<Respuesta> {
+  return envolver('Enviar a revisión', async () => {
+    await exigirRol(...PUEDE_EDITAR)
+
+    const { piezaId } = z.object({ piezaId: z.string().uuid() }).parse({ piezaId: datos.get('piezaId') })
+
+    const supabase = await clienteServidor()
+    exigirEscritura(
+      await supabase
+        .from('pieces')
+        .update({ estado: 'revision' })
+        .eq('id', piezaId)
+        .eq('estado', 'borrador')
+        .select('id'),
+      'Enviar a revisión',
+    )
+
+    revalidatePath(`/piezas/${piezaId}`)
+    revalidatePath('/parrilla')
+    return 'Pieza enviada a revisión'
+  })
+}
+
 export async function resolverPieza(datos: FormData): Promise<Respuesta> {
   return envolver('Resolver la pieza', async () => {
     const perfil = await exigirRol(...PUEDE_APROBAR)
@@ -189,7 +217,7 @@ export async function programarDia(datos: FormData): Promise<Respuesta> {
 
     const { data: piezas, error } = await supabase
       .from('pieces')
-      .select('id, hora_publicacion, brand_id')
+      .select('id, hora_publicacion, brand_id, caption_base, captions_red')
       .eq('fecha_publicacion', fecha)
       .eq('estado', 'aprobado')
     if (error) throw new Error(error.message)
@@ -201,7 +229,7 @@ export async function programarDia(datos: FormData): Promise<Respuesta> {
     for (const pieza of piezas ?? []) {
       const { data: cuentas } = await supabase
         .from('social_accounts')
-        .select('id')
+        .select('id, red')
         .eq('brand_id', pieza.brand_id)
         .eq('activa', true)
 
@@ -213,10 +241,18 @@ export async function programarDia(datos: FormData): Promise<Respuesta> {
       const programadoAt = new Date(`${fecha}T${pieza.hora_publicacion ?? '18:00'}:00-05:00`).toISOString()
 
       for (const cuenta of cuentas ?? []) {
+        const captionFinal = captionDeLaRed(cuenta.red, pieza.captions_red, pieza.caption_base)
+
         await supabase
           .from('publications')
           .upsert(
-            { piece_id: pieza.id, social_account_id: cuenta.id, estado: 'pendiente', programado_at: programadoAt },
+            {
+              piece_id: pieza.id,
+              social_account_id: cuenta.id,
+              estado: 'pendiente',
+              programado_at: programadoAt,
+              caption_final: captionFinal,
+            },
             { onConflict: 'piece_id,social_account_id' },
           )
       }

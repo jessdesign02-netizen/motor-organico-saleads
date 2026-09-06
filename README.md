@@ -9,9 +9,12 @@ en [docs/ESPECIFICACION.md](docs/ESPECIFICACION.md).
 
 ## Estado
 
-Fase 1 construida, en siete entregas, cada una auditada. El detalle está en
-[docs/qa/diagnostico.md](docs/qa/diagnostico.md): seis defectos encontrados y
-corregidos, 68 pruebas automáticas y 47 reglas verificadas contra Postgres.
+Las tres fases construidas, en diez entregas, cada una auditada.
+
+- [docs/qa/diagnostico.md](docs/qa/diagnostico.md): Fase 1, seis defectos corregidos
+- [docs/qa/diagnostico-fases-2-3.md](docs/qa/diagnostico-fases-2-3.md): fases 2 y 3, cinco más
+
+En total: **109 pruebas automáticas** y **65 reglas verificadas** contra Postgres.
 
 Lo que falta para operar depende de trámites: verificación de negocio en Meta,
 App Review de mensajería, auditoría de TikTok, y las credenciales de las cuentas.
@@ -65,19 +68,31 @@ Ema, Diego e Iván trabajan sobre la hoja de cálculo, así que no necesitan cue
 | `/api/cron/sincronizar` | cada 15 min | Lee la hoja y crea o actualiza piezas |
 | `/api/cron/publicar` | cada 5 min | Publica lo que ya tiene hora, con reintentos de 2, 8 y 30 minutos |
 | `/api/cron/escuchar` | cada 5 min | Respalda al webhook releyendo comentarios recientes |
+| `/api/cron/avisos` | cada día a las 8 | Revisa los accesos por vencer y deja el aviso |
+
+## Rutas abiertas
+
+Tres rutas quedan fuera del login, cada una con su propia puerta.
+
+| Ruta | Quién la usa | Cómo se protege |
+|---|---|---|
+| `/api/webhooks/instagram` | Meta | Firma HMAC verificada en tiempo constante |
+| `/api/cron/*` | Vercel Cron | Cabecera con `CRON_SECRET` |
+| `/api/recursos` | La página pública de la biblioteca | Devuelve solo enlaces ya públicos |
+| `/r/[slug]` | Quien recibió el mensaje | Redirige y cuenta el clic |
 
 ## Estructura
 
 ```
 src/
   app/
-    (app)/        parrilla, piezas, día, bandeja, resultados, diagnóstico
+    (app)/        parrilla, piezas, día, bandeja, recursos, avisos, resultados, diagnóstico, ajustes
     acciones/     Server Actions, con validación de rol y de escritura
     api/cron/     trabajos programados
     api/webhooks/ webhook de comentarios de Instagram
     r/[slug]/     redirector propio que cuenta los clics
   lib/
-    dominio/      palabra clave, ventana, cola, calendario, ingesta
+    dominio/      palabra clave, ventana, cola, calendario, ingesta, caption, analítica
     redes/        Instagram, YouTube, TikTok tras una misma interfaz
     trabajos/     sincronizar, publicar, escuchar, motor de comentarios
     supabase/     clientes de sesión, de servicio y de navegador

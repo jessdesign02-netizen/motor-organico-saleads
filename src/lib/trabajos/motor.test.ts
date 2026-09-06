@@ -10,7 +10,7 @@ const AHORA = new Date('2026-09-10T15:00:00Z')
  * único por (publicación, comentario externo) y un solo respondido por autor.
  * Si el motor se salta una regla, aquí revienta igual que en Postgres.
  */
-function almacenDePrueba() {
+function almacenDePrueba(gastadasHoy = 0) {
   const comentarios = new Map<string, { id: string; autor: string | null; estado: string }>()
   const envios: Array<{ comentarioId: string; estado: string }> = []
   const respondidosPorAutor = new Set<string>()
@@ -51,7 +51,7 @@ function almacenDePrueba() {
       envios.push({ comentarioId, estado: datos.estado })
     },
     async respuestasDeHoy() {
-      return 0
+      return gastadasHoy
     },
   }
 
@@ -328,6 +328,57 @@ describe('motor de comentarios · reglas una por una', () => {
     expect(resumen.respondidos).toBe(1)
     expect(enviados).toEqual(['C2'])
     expect(envios).toHaveLength(2)
+  })
+})
+
+describe('motor de comentarios · cupo de la plataforma', () => {
+  it('el cupo de la cuenta manda sobre el de la red', async () => {
+    const { almacen } = almacenDePrueba()
+    const { adaptador, enviados } = adaptadorFalso({ cupo: 150 })
+
+    await procesarComentarios(
+      Array.from({ length: 4 }, (_, i) => comentario({ externalCommentId: `C${i}`, autorExternalId: `U${i}` })),
+      automatizacion,
+      adaptador,
+      { ...credencial, cupoRespuestasDia: 2 },
+      almacen,
+      { ahora: AHORA, dormir: sinEsperar },
+    )
+
+    expect(enviados).toHaveLength(2)
+  })
+
+  it('descuenta lo ya gastado en el día', async () => {
+    const { almacen } = almacenDePrueba(148)
+    const { adaptador, enviados } = adaptadorFalso({ cupo: 150 })
+
+    const resumen = await procesarComentarios(
+      Array.from({ length: 5 }, (_, i) => comentario({ externalCommentId: `C${i}`, autorExternalId: `U${i}` })),
+      automatizacion,
+      adaptador,
+      credencial,
+      almacen,
+      { ahora: AHORA, dormir: sinEsperar },
+    )
+
+    expect(enviados).toHaveLength(2)
+    expect(resumen.aBandejaManual).toBe(3)
+  })
+
+  it('la red sin cupo responde todo lo que llega', async () => {
+    const { almacen } = almacenDePrueba(5000)
+    const { adaptador, enviados } = adaptadorFalso({ cupo: null })
+
+    await procesarComentarios(
+      Array.from({ length: 3 }, (_, i) => comentario({ externalCommentId: `C${i}`, autorExternalId: `U${i}` })),
+      automatizacion,
+      adaptador,
+      credencial,
+      almacen,
+      { ahora: AHORA, dormir: sinEsperar },
+    )
+
+    expect(enviados).toHaveLength(3)
   })
 })
 

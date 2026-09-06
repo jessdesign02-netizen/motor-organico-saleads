@@ -78,7 +78,10 @@ export async function publicarEnTiktok(
 
 export const tiktok: AdaptadorRed = {
   red: 'tiktok',
-  publicar: (credencial, peticion) => publicarEnTiktok(credencial, peticion, false),
+  // La bandera viaja en la credencial, así que la casilla de la cuenta decide
+  // entre el buzón y la publicación directa sin tocar código.
+  publicar: (credencial, peticion) =>
+    publicarEnTiktok(credencial, peticion, credencial.publicacionDirecta === true),
   leerComentarios: null,
   responder: null,
   enviosPorSegundo: 1,

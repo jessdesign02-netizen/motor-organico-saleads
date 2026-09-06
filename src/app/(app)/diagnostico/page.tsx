@@ -26,10 +26,23 @@ async function corteDeAviso(): Promise<string> {
 export default async function Diagnostico() {
   const supabase = await clienteServidor()
 
-  const [{ count: marcas }, { count: cuentas }, { count: piezas }, { data: sync }] = await Promise.all([
+  const [
+    { count: marcas },
+    { count: cuentas },
+    { count: piezas },
+    { count: recursos },
+    { count: cuentasTiktokDirectas },
+    { data: sync },
+  ] = await Promise.all([
     supabase.from('brands').select('id', { count: 'exact', head: true }),
     supabase.from('social_accounts').select('id', { count: 'exact', head: true }),
     supabase.from('pieces').select('id', { count: 'exact', head: true }),
+    supabase.from('resources').select('id', { count: 'exact', head: true }),
+    supabase
+      .from('social_accounts')
+      .select('id', { count: 'exact', head: true })
+      .eq('red', 'tiktok')
+      .eq('publicacion_directa', true),
     supabase.from('sync_logs').select('*').order('corrio_at', { ascending: false }).limit(1),
   ])
 
@@ -93,7 +106,26 @@ export default async function Diagnostico() {
       entrega: '7 · Motor',
       asunto: 'Trabajos programados',
       listo: variable('CRON_SECRET'),
-      comoSeArregla: 'Define CRON_SECRET y despliega en Vercel para que corran los tres cron de vercel.json',
+      comoSeArregla: 'Define CRON_SECRET y despliega en Vercel para que corran los cuatro cron de vercel.json',
+    },
+    {
+      entrega: 'Fase 2 · TikTok',
+      asunto: 'Publicación directa habilitada',
+      listo: (cuentasTiktokDirectas ?? 0) > 0,
+      comoSeArregla:
+        'Mientras la auditoría de Content Posting no pase, el video va al buzón. Cuando pase, enciende la casilla en Ajustes',
+    },
+    {
+      entrega: 'Fase 2 · YouTube',
+      asunto: 'Credenciales de YouTube',
+      listo: variable('YOUTUBE_CLIENT_ID') && variable('YOUTUBE_CLIENT_SECRET'),
+      comoSeArregla: 'Carga YOUTUBE_CLIENT_ID y YOUTUBE_CLIENT_SECRET desde Google Cloud',
+    },
+    {
+      entrega: 'Fase 3 · Biblioteca',
+      asunto: 'Recursos publicados',
+      listo: (recursos ?? 0) > 0,
+      comoSeArregla: 'Carga recursos en /recursos. La página pública los lee desde /api/recursos',
     },
   ]
 

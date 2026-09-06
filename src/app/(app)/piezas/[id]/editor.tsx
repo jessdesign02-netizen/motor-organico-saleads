@@ -2,8 +2,17 @@
 
 import { useState } from 'react'
 import { generarVariantes, normalizar } from '@/lib/dominio/clave'
-import { guardarAutomatizacion, guardarPieza, resolverPieza } from '@/app/acciones/piezas'
-import type { EnlaceRastreado, PalabraClave, Pieza, PlantillaDm, Recurso, RolApp } from '@/lib/database.types'
+import { enviarARevision, guardarAutomatizacion, guardarPieza, resolverPieza } from '@/app/acciones/piezas'
+import { guardarCaptionsPorRed } from '@/app/acciones/parrilla'
+import type {
+  EnlaceRastreado,
+  PalabraClave,
+  Pieza,
+  PlantillaDm,
+  Recurso,
+  RedSocial,
+  RolApp,
+} from '@/lib/database.types'
 import { Tarjeta } from '@/app/ui'
 
 type Props = {
@@ -19,6 +28,7 @@ type Props = {
 export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, rol }: Props) {
   const [aviso, setAviso] = useState<{ ok: boolean; mensaje: string } | null>(null)
   const [palabra, setPalabra] = useState(clave?.palabra ?? '')
+  const [red, setRed] = useState<RedSocial>('instagram')
 
   const puedeEditar = rol === 'editora' || rol === 'audiovisual'
   const puedeAutomatizar = rol === 'editora'
@@ -97,6 +107,59 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
 
           <button type="submit" className={BOTON} disabled={!puedeEditar}>
             Guardar contenido
+          </button>
+        </form>
+
+        {pieza.estado === 'borrador' && puedeEditar ? (
+          <form action={(datos) => correr(enviarARevision, datos)} className="mt-3 border-t border-neutral-100 pt-3">
+            <input type="hidden" name="piezaId" value={pieza.id} />
+            <button type="submit" className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium">
+              Enviar a revisión
+            </button>
+          </form>
+        ) : null}
+      </Tarjeta>
+
+      <Tarjeta titulo="Caption por red">
+        <form action={(datos) => correr(guardarCaptionsPorRed, datos)} className="space-y-3">
+          <input type="hidden" name="piezaId" value={pieza.id} />
+
+          <div className="flex gap-1">
+            {REDES.map((opcion) => (
+              <button
+                key={opcion}
+                type="button"
+                onClick={() => setRed(opcion)}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium ${
+                  red === opcion ? 'bg-neutral-900 text-white' : 'border border-neutral-300'
+                }`}
+              >
+                {opcion}
+                {pieza.captions_red?.[opcion] ? ' ●' : ''}
+              </button>
+            ))}
+          </div>
+
+          {/* Los tres campos viven a la vez para que el guardado sea uno solo.
+              La pestaña decide cuál se ve. */}
+          {REDES.map((opcion) => (
+            <div key={opcion} className={red === opcion ? 'block' : 'hidden'}>
+              <textarea
+                name={opcion}
+                defaultValue={pieza.captions_red?.[opcion] ?? ''}
+                rows={6}
+                placeholder={pieza.caption_base ?? 'Vacío hereda el caption base'}
+                className={ENTRADA}
+                disabled={!puedeEditar}
+              />
+              <p className="mt-1 text-xs text-neutral-500">
+                {LIMITES[opcion]} · vacío hereda el caption base
+              </p>
+            </div>
+          ))}
+
+          <button type="submit" className={BOTON} disabled={!puedeEditar}>
+            Guardar captions por red
           </button>
         </form>
       </Tarjeta>
@@ -190,6 +253,15 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
       ) : null}
     </div>
   )
+}
+
+const REDES: RedSocial[] = ['instagram', 'tiktok', 'youtube']
+
+/** Lo que admite cada red, para que nadie escriba a ciegas. */
+const LIMITES: Record<RedSocial, string> = {
+  instagram: 'hasta 2.200 caracteres',
+  tiktok: 'hasta 2.200 caracteres',
+  youtube: 'título de 100 y descripción de 5.000',
 }
 
 const ENTRADA = 'w-full rounded-md border border-neutral-300 px-3 py-2 text-sm disabled:bg-neutral-50'

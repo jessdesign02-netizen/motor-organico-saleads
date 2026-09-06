@@ -8,13 +8,27 @@ import { createServerClient } from '@supabase/ssr'
  * Action. Esto solo evita que alguien sin sesión vea una pantalla en blanco.
  */
 
-const PUBLICAS = ['/ingresar', '/auth', '/api/webhooks', '/api/cron', '/r/']
+export const RUTAS_PUBLICAS = [
+  '/ingresar',
+  '/auth',
+  // El webhook lo firma Meta, y los cron llevan su propia cabecera.
+  '/api/webhooks',
+  '/api/cron',
+  // La biblioteca pública de recursos la consume bio.saleads.co, sin sesión.
+  '/api/recursos',
+  // El redirector lo abre quien recibió el mensaje.
+  '/r/',
+]
+
+export function esPublica(ruta: string): boolean {
+  return RUTAS_PUBLICAS.some((publica) => ruta.startsWith(publica))
+}
 
 export async function proxy(peticion: NextRequest) {
   const respuesta = NextResponse.next({ request: peticion })
   const ruta = peticion.nextUrl.pathname
 
-  if (PUBLICAS.some((publica) => ruta.startsWith(publica))) return respuesta
+  if (esPublica(ruta)) return respuesta
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -24,11 +24,16 @@ createdb -h /tmp -p $PUERTO -U postgres motor_qa
 for archivo in \
   "$RAIZ/scripts/qa-stub-supabase.sql" \
   "$RAIZ/supabase/migrations/0001_esquema.sql" \
-  "$RAIZ/supabase/migrations/0002_rls.sql"; do
+  "$RAIZ/supabase/migrations/0002_rls.sql" \
+  "$RAIZ/supabase/migrations/0004_caption_por_red.sql" \
+  "$RAIZ/supabase/migrations/0005_fase2.sql"; do
   psql -h /tmp -p $PUERTO -U postgres -v ON_ERROR_STOP=1 -q -d motor_qa -f "$archivo"
 done
 
-for bateria in "$RAIZ/scripts/qa-esquema.sql" "$RAIZ/scripts/qa-rls.sql"; do
+for bateria in \
+  "$RAIZ/scripts/qa-esquema.sql" \
+  "$RAIZ/scripts/qa-entrega8.sql" \
+  "$RAIZ/scripts/qa-rls.sql"; do
   psql -h /tmp -p $PUERTO -U postgres -v ON_ERROR_STOP=1 -d motor_qa -f "$bateria" 2>&1 \
     | grep -E "PASA|FALLA|===" | sed 's/psql:[^ ]*: NOTICE:  //'
 done

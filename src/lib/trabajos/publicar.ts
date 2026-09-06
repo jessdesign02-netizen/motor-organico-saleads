@@ -3,6 +3,8 @@ import { clienteAdmin } from '@/lib/supabase/admin'
 import { adaptadorDe } from '@/lib/redes'
 import type { CredencialCuenta } from '@/lib/redes'
 import { INTENTOS_MAXIMOS, proximoIntentoAt } from '@/lib/dominio/cola'
+import { avisar } from './avisos'
+import type { CuentaSocial } from '@/lib/database.types'
 
 /**
  * Módulo 4 · Publicación.
@@ -26,12 +28,7 @@ export type ResumenPublicacion = {
  * La credencial se guarda por referencia, y el valor vive en el entorno. Así el
  * token nunca queda en la base ni viaja al navegador.
  */
-function credencialDe(cuenta: {
-  id: string
-  red: 'instagram' | 'tiktok' | 'youtube'
-  external_account_id: string
-  credential_ref: string
-}): CredencialCuenta | null {
+function credencialDe(cuenta: CuentaSocial): CredencialCuenta | null {
   const token = process.env[cuenta.credential_ref]
   if (!token) return null
   const pageId = process.env[`${cuenta.credential_ref}_PAGE_ID`]
@@ -40,6 +37,8 @@ function credencialDe(cuenta: {
     red: cuenta.red,
     externalAccountId: cuenta.external_account_id,
     token,
+    publicacionDirecta: cuenta.publicacion_directa,
+    cupoRespuestasDia: cuenta.cupo_respuestas_dia,
     ...(pageId ? { pageId } : {}),
   }
 }
@@ -88,6 +87,13 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
         .from('publications')
         .update({ ultimo_error: 'El token de la cuenta venció. Renuévalo en Ajustes.' })
         .eq('id', publicacion.id)
+      await avisar({
+        tipo: 'token_por_vencer',
+        clave: `token-vencido:${cuenta.id}:${cuenta.token_expira_at}`,
+        titulo: `El acceso de ${cuenta.handle} venció`,
+        detalle: 'La cuenta quedó en pausa. Renueva el token y vuelve a activarla en Ajustes.',
+        brandId: cuenta.brand_id,
+      })
       resumen.pausadas++
       resumen.detalle.push({ publicacion: publicacion.id, estado: 'pausada', nota: 'token vencido' })
       continue
@@ -151,6 +157,14 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
           external_post_id: salida.referencia,
         })
         .eq('id', publicacion.id)
+      await avisar({
+        tipo: 'borrador_tiktok',
+        clave: `borrador:${publicacion.id}`,
+        titulo: `"${pieza.tema}" espera en el buzón de TikTok`,
+        detalle: salida.nota,
+        brandId: cuenta.brand_id,
+        pieceId: pieza.id,
+      })
       resumen.borradores++
       resumen.detalle.push({ publicacion: publicacion.id, estado: 'borrador', nota: salida.nota })
       continue
@@ -168,6 +182,18 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
         ultimo_error: salida.error,
       })
       .eq('id', publicacion.id)
+
+    // Solo avisa cuando ya no hay reintento: un fallo pasajero se resuelve solo.
+    if (!siguiente) {
+      await avisar({
+        tipo: 'publicacion_fallida',
+        clave: `fallida:${publicacion.id}:${intentos}`,
+        titulo: `"${pieza.tema}" no salió en ${cuenta.red}`,
+        detalle: salida.error,
+        brandId: cuenta.brand_id,
+        pieceId: pieza.id,
+      })
+    }
 
     resumen.fallidas++
     resumen.detalle.push({

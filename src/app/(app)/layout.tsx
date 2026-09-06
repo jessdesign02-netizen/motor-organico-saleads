@@ -6,8 +6,11 @@ const SECCIONES = [
   { href: '/parrilla', texto: 'Parrilla' },
   { href: '/dia', texto: 'El día' },
   { href: '/bandeja', texto: 'Bandeja' },
+  { href: '/avisos', texto: 'Avisos' },
+  { href: '/recursos', texto: 'Recursos' },
   { href: '/resultados', texto: 'Resultados' },
   { href: '/diagnostico', texto: 'Diagnóstico' },
+  { href: '/ajustes', texto: 'Ajustes' },
 ]
 
 export default async function LayoutApp({ children }: { children: ReactNode }) {

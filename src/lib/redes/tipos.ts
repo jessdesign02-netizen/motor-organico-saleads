@@ -7,6 +7,10 @@ export type CredencialCuenta = {
   token: string
   /** Instagram exige el id de la Página para la respuesta privada. */
   pageId?: string
+  /** TikTok: publicación directa en lugar de borrador al buzón. */
+  publicacionDirecta?: boolean
+  /** Cupo propio de esa cuenta, cuando la marca lo ajusta. */
+  cupoRespuestasDia?: number | null
 }
 
 export type PeticionPublicar = {

@@ -3,6 +3,7 @@ import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
 import { Etiqueta, Tarjeta } from '@/app/ui'
 import { Editor } from './editor'
+import { CambioDeHoja } from './hoja'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,10 +53,18 @@ export default async function DetallePieza({ params }: { params: Promise<{ id: s
       ) : null}
 
       {pieza.sheet_pendiente ? (
-        <p className="rounded-lg border border-sky-300 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-          La hoja de cálculo cambió después de que esta pieza quedó aprobada. El cambio está apartado y espera
-          confirmación.
-        </p>
+        <CambioDeHoja
+          piezaId={pieza.id}
+          cambio={pieza.sheet_pendiente}
+          actual={{
+            tema: pieza.tema,
+            hook: pieza.hook,
+            drive_url: pieza.drive_url,
+            fecha_publicacion: pieza.fecha_publicacion,
+            responsable: pieza.responsable,
+          }}
+          puedeResolver={perfil?.rol === 'editora' || perfil?.rol === 'aprobadora'}
+        />
       ) : null}
 
       <Editor

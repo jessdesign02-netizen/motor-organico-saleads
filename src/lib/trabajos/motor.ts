@@ -125,10 +125,12 @@ export async function procesarComentarios(
   }
 
   // Cupo diario, donde la cuota de la plataforma lo impone.
+  // El cupo de la cuenta manda sobre el valor por defecto de la red.
+  const cupoDelDia = credencial.cupoRespuestasDia ?? adaptador.cupoDiarioRespuestas
   let cupoRestante = Number.POSITIVE_INFINITY
-  if (adaptador.cupoDiarioRespuestas !== null) {
+  if (cupoDelDia !== null && cupoDelDia !== undefined) {
     const gastadas = await almacen.respuestasDeHoy(adaptador.red)
-    cupoRestante = Math.max(0, adaptador.cupoDiarioRespuestas - gastadas)
+    cupoRestante = Math.max(0, cupoDelDia - gastadas)
   }
 
   type Pendiente = { comentario: ComentarioEntrante; comentarioId: string }

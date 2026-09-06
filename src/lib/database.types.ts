@@ -44,6 +44,29 @@ export type CuentaSocial = {
   credential_ref: string
   token_expira_at: string | null
   activa: boolean
+  /** TikTok: se enciende el día que pasa la auditoría de Content Posting. */
+  publicacion_directa: boolean
+  /** Vacío usa el valor por defecto del adaptador de esa red. */
+  cupo_respuestas_dia: number | null
+  creado_at: string
+}
+
+export type TipoAviso =
+  | 'publicacion_fallida'
+  | 'borrador_tiktok'
+  | 'token_por_vencer'
+  | 'bandeja_con_espera'
+  | 'cupo_agotado'
+
+export type Aviso = {
+  id: string
+  tipo: TipoAviso
+  titulo: string
+  detalle: string | null
+  brand_id: string | null
+  piece_id: string | null
+  clave: string
+  leido_at: string | null
   creado_at: string
 }
 
@@ -80,8 +103,21 @@ export type Pieza = {
   sheet_row_id: string | null
   sheet_hash: string | null
   sheet_pendiente: Record<string, unknown> | null
+  /** Caption por red. Lo que falte hereda de caption_base. */
+  captions_red: Partial<Record<RedSocial, string>>
   creado_at: string
   actualizado_at: string
+}
+
+export type PropuestaCalendario = {
+  id: string
+  brand_id: string
+  semana: string
+  propuesta: Array<{ id: string; fecha: string; tema: string }>
+  motivo: string | null
+  creada_por: string | null
+  creada_at: string
+  aplicada_at: string | null
 }
 
 export type PalabraClave = {
@@ -190,6 +226,8 @@ export type Database = {
       dm_log: Fila<RegistroDm>
       approvals: Fila<Aprobacion>
       sync_logs: Fila<RegistroSync>
+      calendar_proposals: Fila<PropuestaCalendario>
+      notices: Fila<Aviso>
     }
     Views: Record<string, never>
     Functions: Record<string, never>
