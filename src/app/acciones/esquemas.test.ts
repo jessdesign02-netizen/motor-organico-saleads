@@ -123,7 +123,8 @@ describe('esquemaCuenta · la barrera de la credencial', () => {
 
   it('rechaza el token pegado en lugar de su nombre', () => {
     // El error más probable: pegar el token donde va el nombre de la variable.
-    const salida = esquemaCuenta.safeParse({ ...valida, credentialRef: 'EAAGm0PX4ZCpsBO1234abcd' })
+    // El valor es inventado, con la forma de un token de Meta pero sin serlo.
+    const salida = esquemaCuenta.safeParse({ ...valida, credentialRef: 'TOKEN-DE-EJEMPLO-NO-REAL-000' })
     expect(salida.success).toBe(false)
   })
 
