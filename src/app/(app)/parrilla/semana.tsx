@@ -6,6 +6,7 @@ import { aplicarCalendario, aprobarSeleccion, descartarCalendario, proponerCalen
 import { DIAS } from '@/lib/dominio/semana'
 import type { Marca, Pieza, PropuestaCalendario } from '@/lib/database.types'
 import { Etiqueta } from '@/app/ui'
+import { Aviso, Enviar } from '@/app/formulario'
 
 type Props = {
   marca: Marca
@@ -46,20 +47,14 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
             >
               {marcadas.length === aprobables.length ? 'Quitar la selección' : 'Marcar la semana'}
             </button>
-            <button
-              type="submit"
-              disabled={marcadas.length === 0}
-              className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
-            >
-              Aprobar {marcadas.length > 0 ? marcadas.length : ''}
-            </button>
+            <Enviar haciendo="Aprobando">
+              {marcadas.length > 0 ? `Aprobar ${marcadas.length}` : 'Aprobar'}
+            </Enviar>
           </form>
         ) : null}
       </div>
 
-      {aviso ? (
-        <p className={`text-sm ${aviso.ok ? 'text-emerald-700' : 'text-red-700'}`}>{aviso.mensaje}</p>
-      ) : null}
+      <Aviso resultado={aviso} />
 
       <div className="grid grid-cols-7 gap-2">
         {dias.map((dia, indice) => {
@@ -82,6 +77,7 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
                           <input
                             type="checkbox"
                             checked={marcadas.includes(pieza.id)}
+                            aria-label={`Marcar ${pieza.tema}`}
                             onChange={(e) =>
                               setMarcadas(
                                 e.target.checked
@@ -148,15 +144,13 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
           <div className="mt-3 flex gap-2">
             <form action={(datos) => correr(aplicarCalendario, datos)}>
               <input type="hidden" name="propuestaId" value={propuesta.id} />
-              <button type="submit" className="rounded-md bg-sky-900 px-3 py-1.5 text-xs font-medium text-white">
-                Confirmar el calendario
-              </button>
+              <Enviar haciendo="Aplicando">Confirmar el calendario</Enviar>
             </form>
             <form action={(datos) => correr(descartarCalendario, datos)}>
               <input type="hidden" name="propuestaId" value={propuesta.id} />
-              <button type="submit" className="rounded-md border border-sky-300 px-3 py-1.5 text-xs">
+              <Enviar variante="secundario" haciendo="Descartando">
                 Dejarlo como está
-              </button>
+              </Enviar>
             </form>
           </div>
         </div>
@@ -166,16 +160,20 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
         <form action={(datos) => correr(proponerCalendario, datos)} className="flex items-center gap-2">
           <input type="hidden" name="marcaId" value={marca.id} />
           <input type="hidden" name="semana" value={semana} />
-          <select name="devueltaId" className="rounded-md border border-neutral-300 px-2 py-1 text-xs">
+          <select
+            name="devueltaId"
+            aria-label="Pieza que volvió a revisión"
+            className="rounded-md border border-neutral-300 px-2 py-1 text-xs"
+          >
             {enRevision.map((pieza) => (
               <option key={pieza.id} value={pieza.id}>
                 {pieza.tema}
               </option>
             ))}
           </select>
-          <button type="submit" className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs">
+          <Enviar variante="secundario" haciendo="Calculando">
             Proponer nuevo calendario
-          </button>
+          </Enviar>
         </form>
       ) : null}
     </section>

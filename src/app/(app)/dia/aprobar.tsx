@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { programarDia } from '@/app/acciones/piezas'
+import { Aviso, Enviar } from '@/app/formulario'
 
 /** La aprobación del día en un clic, que es el punto de control del sistema. */
 export function AprobarDia({ fecha, cuantas }: { fecha: string; cuantas: number }) {
@@ -14,15 +15,12 @@ export function AprobarDia({ fecha, cuantas }: { fecha: string; cuantas: number 
       </p>
       <form
         action={async (datos) => setAviso(await programarDia(datos))}
-        className="mt-3 flex items-center gap-3"
+        className="mt-3 flex flex-wrap items-center gap-3"
+        aria-label="Aprobar el día"
       >
         <input type="hidden" name="fecha" value={fecha} />
-        <button type="submit" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white">
-          Aprobar el día y soltar
-        </button>
-        {aviso ? (
-          <span className={`text-sm ${aviso.ok ? 'text-emerald-700' : 'text-red-700'}`}>{aviso.mensaje}</span>
-        ) : null}
+        <Enviar haciendo="Programando">Aprobar el día y soltar</Enviar>
+        <Aviso resultado={aviso} />
       </form>
     </div>
   )

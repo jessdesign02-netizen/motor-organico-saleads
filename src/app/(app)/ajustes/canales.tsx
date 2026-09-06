@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ajustarCuenta, registrarCuenta } from '@/app/acciones/cuentas'
+import { Aviso, Campo, ENTRADA, Enviar } from '@/app/formulario'
 import type { CuentaSocial, Marca } from '@/lib/database.types'
 
 export function Canales({
@@ -17,15 +18,14 @@ export function Canales({
 
   return (
     <div className="space-y-3">
-      {aviso ? (
-        <p className={`text-sm ${aviso.ok ? 'text-emerald-700' : 'text-red-700'}`}>{aviso.mensaje}</p>
-      ) : null}
+      <Aviso resultado={aviso} />
 
       {cuentas.map((cuenta) => (
         <form
           key={cuenta.id}
           action={async (datos) => setAviso(await ajustarCuenta(datos))}
           className="flex flex-wrap items-center gap-4 rounded-lg border border-neutral-200 p-3 text-sm"
+          aria-label={`Canal ${cuenta.handle} en ${cuenta.red}`}
         >
           <input type="hidden" name="cuentaId" value={cuenta.id} />
 
@@ -74,9 +74,11 @@ export function Canales({
           </span>
 
           {puedeAjustar ? (
-            <button type="submit" className="ml-auto rounded-md border border-neutral-300 px-3 py-1.5 text-xs">
-              Guardar
-            </button>
+            <span className="ml-auto">
+              <Enviar variante="secundario" haciendo="Guardando">
+                Guardar
+              </Enviar>
+            </span>
           ) : null}
         </form>
       ))}
@@ -91,38 +93,48 @@ export function NuevaCuenta({ marcas }: { marcas: Marca[] }) {
     <form
       action={async (datos) => setAviso(await registrarCuenta(datos))}
       className="space-y-3 rounded-lg border border-dashed border-neutral-300 p-4"
+      aria-label="Conectar un canal"
     >
       <p className="text-sm font-medium">Conectar un canal</p>
       <div className="grid gap-3 md:grid-cols-3">
-        <select name="marcaId" className={ENTRADA} defaultValue={marcas[0]?.id ?? ''}>
-          {marcas.map((marca) => (
-            <option key={marca.id} value={marca.id}>
-              {marca.nombre}
-            </option>
-          ))}
-        </select>
-        <select name="red" className={ENTRADA} defaultValue="instagram">
-          {['instagram', 'tiktok', 'youtube'].map((red) => (
-            <option key={red} value={red}>
-              {red}
-            </option>
-          ))}
-        </select>
-        <input name="handle" placeholder="@cuenta" required className={ENTRADA} />
-        <input name="externalAccountId" placeholder="id en la plataforma" required className={ENTRADA} />
-        <input name="credentialRef" placeholder="META_TOKEN_SALEADS" required className={ENTRADA} />
-        <input type="date" name="tokenExpiraAt" className={ENTRADA} />
+        <Campo etiqueta="Marca">
+          <select name="marcaId" className={ENTRADA} defaultValue={marcas[0]?.id ?? ''}>
+            {marcas.map((marca) => (
+              <option key={marca.id} value={marca.id}>
+                {marca.nombre}
+              </option>
+            ))}
+          </select>
+        </Campo>
+        <Campo etiqueta="Red">
+          <select name="red" className={ENTRADA} defaultValue="instagram">
+            {['instagram', 'tiktok', 'youtube'].map((red) => (
+              <option key={red} value={red}>
+                {red}
+              </option>
+            ))}
+          </select>
+        </Campo>
+        <Campo etiqueta="Handle">
+          <input name="handle" placeholder="@cuenta" required className={ENTRADA} />
+        </Campo>
+        <Campo etiqueta="Id en la plataforma">
+          <input name="externalAccountId" required className={ENTRADA} />
+        </Campo>
+        <Campo
+          etiqueta="Referencia de la credencial"
+          ayuda="El nombre de la variable de entorno, no el token. Empieza por META_TOKEN_, TIKTOK_TOKEN_ o YOUTUBE_TOKEN_."
+        >
+          <input name="credentialRef" placeholder="META_TOKEN_SALEADS" required className={ENTRADA} />
+        </Campo>
+        <Campo etiqueta="Vence el">
+          <input type="date" name="tokenExpiraAt" className={ENTRADA} />
+        </Campo>
       </div>
       <div className="flex items-center gap-3">
-        <button type="submit" className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white">
-          Conectar
-        </button>
-        {aviso ? (
-          <span className={`text-sm ${aviso.ok ? 'text-emerald-700' : 'text-red-700'}`}>{aviso.mensaje}</span>
-        ) : null}
+        <Enviar haciendo="Conectando">Conectar</Enviar>
+        <Aviso resultado={aviso} />
       </div>
     </form>
   )
 }
-
-const ENTRADA = 'w-full rounded-md border border-neutral-300 px-3 py-2 text-sm'

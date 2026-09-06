@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ajustarMarca, cambiarRol, crearMarca } from '@/app/acciones/marcas'
+import { Aviso, Campo, Enviar } from '@/app/formulario'
 import type { Marca, Perfil, RolApp } from '@/lib/database.types'
 
 const ROLES: RolApp[] = ['editora', 'aprobadora', 'audiovisual', 'observador']
@@ -12,9 +13,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
 
   return (
     <div className="space-y-3">
-      {aviso ? (
-        <p className={`text-sm ${aviso.ok ? 'text-emerald-700' : 'text-red-700'}`}>{aviso.mensaje}</p>
-      ) : null}
+      <Aviso resultado={aviso} />
 
       {marcas.map((marca) => (
         <form
@@ -27,6 +26,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
           <input
             name="sheetId"
             defaultValue={marca.sheet_id ?? ''}
+            aria-label={`Id de la hoja de ${marca.nombre}`}
             placeholder="id de la hoja"
             className={`${ENTRADA} flex-1`}
             disabled={!puedeAjustar}
@@ -34,6 +34,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
           <input
             name="sheetTab"
             defaultValue={marca.sheet_tab}
+            aria-label={`Pestaña de la hoja de ${marca.nombre}`}
             placeholder="pestaña"
             className={`${ENTRADA} w-28`}
             disabled={!puedeAjustar}
@@ -41,14 +42,15 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
           <input
             name="whatsappUrl"
             defaultValue={marca.whatsapp_url ?? ''}
+            aria-label={`WhatsApp de ${marca.nombre}`}
             placeholder="https://wa.me/57..."
             className={`${ENTRADA} flex-1`}
             disabled={!puedeAjustar}
           />
           {puedeAjustar ? (
-            <button type="submit" className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs">
+            <Enviar variante="secundario" haciendo="Guardando">
               Guardar
-            </button>
+            </Enviar>
           ) : null}
         </form>
       ))}
@@ -72,13 +74,19 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
           }}
           className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-neutral-300 p-3"
         >
-          <input name="nombre" placeholder="Nombre" required className={ENTRADA} />
-          <input name="slug" placeholder="slug-de-la-marca" required className={ENTRADA} />
-          <input name="sheetId" placeholder="id de la hoja" className={ENTRADA} />
-          <input name="whatsappUrl" placeholder="https://wa.me/57..." className={`${ENTRADA} flex-1`} />
-          <button type="submit" className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white">
-            Crear
-          </button>
+          <Campo etiqueta="Nombre">
+            <input name="nombre" required className={ENTRADA} />
+          </Campo>
+          <Campo etiqueta="Slug">
+            <input name="slug" placeholder="slug-de-la-marca" required className={ENTRADA} />
+          </Campo>
+          <Campo etiqueta="Id de la hoja">
+            <input name="sheetId" className={ENTRADA} />
+          </Campo>
+          <Campo etiqueta="WhatsApp">
+            <input name="whatsappUrl" placeholder="https://wa.me/57..." className={ENTRADA} />
+          </Campo>
+          <Enviar haciendo="Creando">Crear</Enviar>
           <button type="button" onClick={() => setCreando(false)} className="text-sm text-neutral-500">
             Cancelar
           </button>
@@ -101,9 +109,7 @@ export function Equipo({
 
   return (
     <div className="space-y-2">
-      {aviso ? (
-        <p className={`text-sm ${aviso.ok ? 'text-emerald-700' : 'text-red-700'}`}>{aviso.mensaje}</p>
-      ) : null}
+      <Aviso resultado={aviso} />
 
       <ul className="divide-y divide-neutral-100 text-sm">
         {equipo.map((persona) => (
@@ -119,16 +125,21 @@ export function Equipo({
                 className="flex items-center gap-2"
               >
                 <input type="hidden" name="personaId" value={persona.id} />
-                <select name="rol" defaultValue={persona.rol} className={`${ENTRADA} text-xs`}>
+                <select
+                  name="rol"
+                  defaultValue={persona.rol}
+                  aria-label={`Rol de ${persona.nombre ?? persona.email}`}
+                  className={`${ENTRADA} text-xs`}
+                >
                   {ROLES.map((rol) => (
                     <option key={rol} value={rol}>
                       {rol}
                     </option>
                   ))}
                 </select>
-                <button type="submit" className="rounded-md border border-neutral-300 px-2 py-1 text-xs">
+                <Enviar variante="secundario" haciendo="Guardando">
                   Guardar
-                </button>
+                </Enviar>
               </form>
             ) : (
               <span className="text-neutral-500">{persona.rol}</span>
@@ -141,3 +152,4 @@ export function Equipo({
 }
 
 const ENTRADA = 'rounded-md border border-neutral-300 px-2 py-1.5 text-sm'
+

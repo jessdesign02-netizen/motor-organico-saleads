@@ -33,30 +33,41 @@ export function Formulario() {
 
   return (
     <form onSubmit={entrar} className="mt-8 space-y-3">
-      <input
-        type="email"
-        required
-        value={correo}
-        onChange={(e) => setCorreo(e.target.value)}
-        placeholder="tu correo"
-        className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
-      />
-      <input
-        type="password"
-        required
-        value={clave}
-        onChange={(e) => setClave(e.target.value)}
-        placeholder="tu clave"
-        className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
-      />
+      <label className="block">
+        <span className="text-xs font-medium text-neutral-600">Correo</span>
+        <input
+          type="email"
+          required
+          autoComplete="email"
+          value={correo}
+          onChange={(e) => setCorreo(e.target.value)}
+          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
+        />
+      </label>
+      <label className="block">
+        <span className="text-xs font-medium text-neutral-600">Clave</span>
+        <input
+          type="password"
+          required
+          autoComplete="current-password"
+          value={clave}
+          onChange={(e) => setClave(e.target.value)}
+          className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
+        />
+      </label>
       <button
         type="submit"
         disabled={enviando}
-        className="w-full rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+        aria-busy={enviando}
+        className="w-full rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
       >
         {enviando ? 'Entrando' : 'Entrar'}
       </button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
+      ) : null}
     </form>
   )
 }

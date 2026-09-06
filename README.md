@@ -20,8 +20,10 @@ Las tres fases construidas, en diez entregas, cada una auditada.
 En total: **142 pruebas automáticas** y **90 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
 
 El paso a paso para dejarlo operando está en
-[docs/puesta-en-marcha.md](docs/puesta-en-marcha.md), y lo que hay que presentar
-en cada plataforma, con el texto listo, en [docs/tramites/](docs/tramites/).
+[docs/puesta-en-marcha.md](docs/puesta-en-marcha.md), lo que usa cada persona del
+equipo en [docs/manual-del-equipo.md](docs/manual-del-equipo.md), y lo que hay
+que presentar en cada plataforma, con el texto listo, en
+[docs/tramites/](docs/tramites/).
 
 Lo que falta para operar depende de trámites: verificación de negocio en Meta,
 App Review de mensajería, auditoría de TikTok, y las credenciales de las cuentas.

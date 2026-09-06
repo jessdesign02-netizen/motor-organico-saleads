@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { crearRecurso } from '@/app/acciones/parrilla'
+import { Aviso, Campo, ENTRADA, Enviar } from '@/app/formulario'
 import type { Marca } from '@/lib/database.types'
 
 export function AltaRecurso({ marcas }: { marcas: Marca[] }) {
@@ -28,40 +29,47 @@ export function AltaRecurso({ marcas }: { marcas: Marca[] }) {
         if (salida.ok) setAbierto(false)
       }}
       className="space-y-3 rounded-lg border border-neutral-200 bg-white p-5"
+      aria-label="Agregar un recurso"
     >
       <div className="grid gap-3 md:grid-cols-2">
-        <input name="titulo" placeholder="Título" required className={ENTRADA} />
-        <input name="url" placeholder="https://" required className={ENTRADA} />
-        <select name="marcaId" required className={ENTRADA} defaultValue={marcas[0]?.id ?? ''}>
-          {marcas.map((marca) => (
-            <option key={marca.id} value={marca.id}>
-              {marca.nombre}
-            </option>
-          ))}
-        </select>
-        <select name="tipo" className={ENTRADA} defaultValue="pdf">
-          {['pdf', 'skill', 'html', 'artefacto', 'video'].map((tipo) => (
-            <option key={tipo} value={tipo}>
-              {tipo}
-            </option>
-          ))}
-        </select>
-        <input name="seccion" placeholder="Sección de la biblioteca" className={ENTRADA} />
-        <input name="descripcion" placeholder="Descripción" className={ENTRADA} />
+        <Campo etiqueta="Título">
+          <input name="titulo" required className={ENTRADA} />
+        </Campo>
+        <Campo etiqueta="Enlace del recurso">
+          <input name="url" type="url" placeholder="https://" required className={ENTRADA} />
+        </Campo>
+        <Campo etiqueta="Marca">
+          <select name="marcaId" required className={ENTRADA} defaultValue={marcas[0]?.id ?? ''}>
+            {marcas.map((marca) => (
+              <option key={marca.id} value={marca.id}>
+                {marca.nombre}
+              </option>
+            ))}
+          </select>
+        </Campo>
+        <Campo etiqueta="Tipo">
+          <select name="tipo" className={ENTRADA} defaultValue="pdf">
+            {['pdf', 'skill', 'html', 'artefacto', 'video'].map((tipo) => (
+              <option key={tipo} value={tipo}>
+                {tipo}
+              </option>
+            ))}
+          </select>
+        </Campo>
+        <Campo etiqueta="Sección de la biblioteca">
+          <input name="seccion" className={ENTRADA} />
+        </Campo>
+        <Campo etiqueta="Descripción">
+          <input name="descripcion" className={ENTRADA} />
+        </Campo>
       </div>
       <div className="flex items-center gap-3">
-        <button type="submit" className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white">
-          Guardar
-        </button>
+        <Enviar haciendo="Guardando">Guardar</Enviar>
         <button type="button" onClick={() => setAbierto(false)} className="text-sm text-neutral-500">
           Cancelar
         </button>
-        {aviso ? (
-          <span className={`text-sm ${aviso.ok ? 'text-emerald-700' : 'text-red-700'}`}>{aviso.mensaje}</span>
-        ) : null}
+        <Aviso resultado={aviso} />
       </div>
     </form>
   )
 }
-
-const ENTRADA = 'w-full rounded-md border border-neutral-300 px-3 py-2 text-sm'

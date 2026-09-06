@@ -14,6 +14,7 @@ import type {
   RolApp,
 } from '@/lib/database.types'
 import { Tarjeta } from '@/app/ui'
+import { Aviso, Campo, ENTRADA, Enviar } from '@/app/formulario'
 
 type Props = {
   pieza: Pieza
@@ -42,18 +43,10 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
 
   return (
     <div className="space-y-4">
-      {aviso ? (
-        <p
-          className={`rounded-lg px-4 py-3 text-sm ${
-            aviso.ok ? 'bg-emerald-50 text-emerald-900' : 'bg-red-50 text-red-900'
-          }`}
-        >
-          {aviso.mensaje}
-        </p>
-      ) : null}
+      <Aviso resultado={aviso} />
 
       <Tarjeta titulo="Contenido">
-        <form action={(datos) => correr(guardarPieza, datos)} className="space-y-3">
+        <form action={(datos) => correr(guardarPieza, datos)} className="space-y-3" aria-label="Contenido de la pieza">
           <input type="hidden" name="piezaId" value={pieza.id} />
 
           <Campo etiqueta="Tema">
@@ -105,30 +98,30 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
             </Campo>
           </div>
 
-          <button type="submit" className={BOTON} disabled={!puedeEditar}>
-            Guardar contenido
-          </button>
+          {puedeEditar ? <Enviar haciendo="Guardando">Guardar contenido</Enviar> : null}
         </form>
 
         {pieza.estado === 'borrador' && puedeEditar ? (
           <form action={(datos) => correr(enviarARevision, datos)} className="mt-3 border-t border-neutral-100 pt-3">
             <input type="hidden" name="piezaId" value={pieza.id} />
-            <button type="submit" className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium">
+            <Enviar variante="secundario" haciendo="Enviando">
               Enviar a revisión
-            </button>
+            </Enviar>
           </form>
         ) : null}
       </Tarjeta>
 
       <Tarjeta titulo="Caption por red">
-        <form action={(datos) => correr(guardarCaptionsPorRed, datos)} className="space-y-3">
+        <form action={(datos) => correr(guardarCaptionsPorRed, datos)} className="space-y-3" aria-label="Caption por red">
           <input type="hidden" name="piezaId" value={pieza.id} />
 
-          <div className="flex gap-1">
+          <div className="flex gap-1" role="tablist" aria-label="Red social">
             {REDES.map((opcion) => (
               <button
                 key={opcion}
                 type="button"
+                role="tab"
+                aria-selected={red === opcion}
                 onClick={() => setRed(opcion)}
                 className={`rounded-md px-3 py-1.5 text-xs font-medium ${
                   red === opcion ? 'bg-neutral-900 text-white' : 'border border-neutral-300'
@@ -158,14 +151,12 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
             </div>
           ))}
 
-          <button type="submit" className={BOTON} disabled={!puedeEditar}>
-            Guardar captions por red
-          </button>
+          {puedeEditar ? <Enviar haciendo="Guardando">Guardar captions por red</Enviar> : null}
         </form>
       </Tarjeta>
 
       <Tarjeta titulo="Automatización de comentarios">
-        <form action={(datos) => correr(guardarAutomatizacion, datos)} className="space-y-3">
+        <form action={(datos) => correr(guardarAutomatizacion, datos)} className="space-y-3" aria-label="Automatización de comentarios">
           <input type="hidden" name="piezaId" value={pieza.id} />
 
           <Campo etiqueta="Palabra clave">
@@ -222,21 +213,24 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
             </p>
           ) : null}
 
-          <button type="submit" className={BOTON} disabled={!puedeAutomatizar}>
-            Guardar automatización
-          </button>
+          {puedeAutomatizar ? <Enviar haciendo="Guardando">Guardar automatización</Enviar> : null}
         </form>
       </Tarjeta>
 
       {puedeResolver ? (
         <Tarjeta titulo="Revisión">
-          <form action={(datos) => correr(resolverPieza, datos)} className="space-y-3">
+          <form action={(datos) => correr(resolverPieza, datos)} className="space-y-3" aria-label="Revisión de la pieza">
             <input type="hidden" name="piezaId" value={pieza.id} />
             <Campo etiqueta="Comentario, obligatorio al devolver">
               <input name="comentario" className={ENTRADA} />
             </Campo>
             <div className="flex gap-2">
-              <button type="submit" name="accion" value="aprobar" className={BOTON}>
+              <button
+                type="submit"
+                name="accion"
+                value="aprobar"
+                className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white"
+              >
                 Aprobar
               </button>
               <button
@@ -264,14 +258,3 @@ const LIMITES: Record<RedSocial, string> = {
   youtube: 'título de 100 y descripción de 5.000',
 }
 
-const ENTRADA = 'w-full rounded-md border border-neutral-300 px-3 py-2 text-sm disabled:bg-neutral-50'
-const BOTON = 'rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-40'
-
-function Campo({ etiqueta, children }: { etiqueta: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="text-xs font-medium text-neutral-600">{etiqueta}</span>
-      <div className="mt-1">{children}</div>
-    </label>
-  )
-}
