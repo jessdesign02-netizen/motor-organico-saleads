@@ -27,20 +27,19 @@ npm run dev
 
 ## 2. La base
 
-En Supabase, SQL Editor, corre en orden:
+Un solo comando, con la cadena de conexión que da Supabase en Project Settings,
+Database, Connection string, URI:
 
-| Archivo | Qué deja |
-|---|---|
-| `0001_esquema.sql` | Trece tablas, tipos y triggers con las reglas duras |
-| `0002_rls.sql` | Políticas por rol |
-| `0004_caption_por_red.sql` | Caption por red y propuestas de calendario |
-| `0005_fase2.sql` | Publicación directa de TikTok, cupos y avisos |
-| `0006_video_y_semana.sql` | Semana derivada de la fecha, y la copia del video |
-| `0007_storage.sql` | Bucket público de videos |
-| `seed.sql` | Las dos marcas y un recurso de arranque |
+```
+./scripts/arrancar.sh "postgresql://postgres:TU-CLAVE@db.xxxxx.supabase.co:5432/postgres"
+```
+
+Aplica las once migraciones en orden, corre el seed y comprueba que las quince
+tablas, el RLS y los nueve triggers quedaron en su sitio. Se puede correr varias
+veces: lo que ya está aplicado lo dice y sigue.
 
 Después crea tu usuario en Authentication, Add user, con tu correo. Luego corre
-`0003_accesos.sql`, que te deja como editora.
+`0003_accesos.sql`, que te deja como editora. El script lo recuerda al terminar.
 
 **Comprobación.** Entras con tu correo y ves la parrilla vacía. `/ajustes`
 muestra SaleADS y Juanads.

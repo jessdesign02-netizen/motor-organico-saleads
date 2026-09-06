@@ -37,6 +37,9 @@ almacenamiento, Tailwind 4, Zod, y Vercel Cron para los trabajos programados.
 
 ## Cómo levantarlo
 
+El camino corto está en [EMPIEZA-AQUI.md](EMPIEZA-AQUI.md): tres pasos, unos
+quince minutos. En detalle:
+
 1. `npm install`
 2. Copia `.env.example` a `.env.local` y llena lo de Supabase.
 3. En Supabase, corre `supabase/migrations` en orden, más `supabase/seed.sql`.

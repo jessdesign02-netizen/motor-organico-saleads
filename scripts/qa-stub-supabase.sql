@@ -39,3 +39,23 @@ grant usage on schema public, auth to anon, authenticated, service_role;
 -- RLS decide encima de esto; sin los grants, la prueba mediría lo que no es.
 alter default privileges in schema public
   grant select, insert, update, delete on tables to authenticated;
+
+-- Storage, lo mínimo para que la migración del bucket corra fuera de Supabase.
+create schema if not exists storage;
+
+create table if not exists storage.buckets (
+  id                 text primary key,
+  name               text not null,
+  public             boolean not null default false,
+  file_size_limit    bigint,
+  allowed_mime_types text[]
+);
+
+create table if not exists storage.objects (
+  id        uuid primary key default gen_random_uuid(),
+  bucket_id text references storage.buckets(id),
+  name      text
+);
+
+alter table storage.objects enable row level security;
+grant usage on schema storage to anon, authenticated, service_role;
