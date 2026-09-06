@@ -214,7 +214,12 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
     }
 
     const intentos = publicacion.intentos + 1
-    const siguiente = salida.reintentable ? proximoIntentoAt(intentos, ahora) : null
+
+    // Hay tres esperas y tres intentos, así que en el tercero la espera todavía
+    // existe aunque ese intento ya sea el último: la cola lo descarta después
+    // por el tope. Mirar solo la espera dejaba el aviso sin dispararse nunca.
+    const quedanIntentos = salida.reintentable && intentos < INTENTOS_MAXIMOS
+    const siguiente = quedanIntentos ? proximoIntentoAt(intentos, ahora) : null
 
     await supabase
       .from('publications')
@@ -230,7 +235,7 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
       .eq('id', publicacion.id)
 
     // Solo avisa cuando ya no hay reintento: un fallo pasajero se resuelve solo.
-    if (!siguiente) {
+    if (!quedanIntentos) {
       await avisar({
         tipo: 'publicacion_fallida',
         clave: `fallida:${publicacion.id}:${intentos}`,

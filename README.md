@@ -18,7 +18,7 @@ Las tres fases construidas, en diez entregas, cada una auditada.
 - [docs/qa/diagnostico-cobertura.md](docs/qa/diagnostico-cobertura.md): webhook y esquemas de entrada, dos más
 - [docs/qa/conformidad.md](docs/qa/conformidad.md): la especificación punto por punto contra el código
 
-En total: **229 pruebas automáticas** y **90 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
+En total: **277 pruebas automáticas** y **90 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
 
 El paso a paso para dejarlo operando está en
 [docs/puesta-en-marcha.md](docs/puesta-en-marcha.md), lo que usa cada persona del
