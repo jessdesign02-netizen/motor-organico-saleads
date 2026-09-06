@@ -154,11 +154,17 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
 
     await supabase.from('publications').update({ estado: 'publicando' }).eq('id', publicacion.id)
 
-    const salida = await adaptadorDe(cuenta.red).publicar(credencial, {
-      videoUrl,
-      caption: publicacion.caption_final ?? pieza.caption_base ?? '',
-      titulo: pieza.tema,
-    })
+    const salida = await adaptadorDe(cuenta.red).publicar(
+      credencial,
+      {
+        videoUrl,
+        caption: publicacion.caption_final ?? pieza.caption_base ?? '',
+        titulo: pieza.tema,
+      },
+      // El contenedor de un intento anterior se retoma: subir el video otra vez
+      // gasta cuota y deja huérfano el anterior.
+      publicacion.container_id,
+    )
 
     if (salida.estado === 'publicado') {
       // El trigger de la base activa la palabra clave con este identificador.
@@ -169,6 +175,7 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
           external_post_id: salida.externalPostId,
           permalink: salida.permalink,
           publicado_at: new Date().toISOString(),
+          container_id: null,
           ultimo_error: null,
         })
         .eq('id', publicacion.id)
@@ -216,6 +223,9 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
         intentos,
         proximo_intento_at: siguiente ? siguiente.toISOString() : null,
         ultimo_error: salida.error,
+        // Se guarda para retomarlo, y se limpia cuando el contenedor quedó
+        // inservible: ahí el reintento tiene que partir de cero.
+        container_id: salida.contenedorId ?? null,
       })
       .eq('id', publicacion.id)
 

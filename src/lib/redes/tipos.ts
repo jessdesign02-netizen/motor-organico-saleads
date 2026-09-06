@@ -22,7 +22,13 @@ export type PeticionPublicar = {
 export type ResultadoPublicar =
   | { estado: 'publicado'; externalPostId: string; permalink: string | null }
   | { estado: 'borrador'; referencia: string; nota: string }
-  | { estado: 'fallido'; error: string; reintentable: boolean }
+  | {
+      estado: 'fallido'
+      error: string
+      reintentable: boolean
+      /** Instagram: contenedor que el reintento puede retomar. */
+      contenedorId?: string
+    }
 
 export type ComentarioEntrante = {
   externalCommentId: string
@@ -35,7 +41,13 @@ export type ComentarioEntrante = {
 
 export type ResultadoRespuesta =
   | { estado: 'enviado'; referencia: string | null }
-  | { estado: 'fallido'; error: string; reintentable: boolean }
+  | {
+      estado: 'fallido'
+      error: string
+      reintentable: boolean
+      /** Instagram: contenedor que el reintento puede retomar. */
+      contenedorId?: string
+    }
 
 /**
  * Lo que el motor necesita de cada red. Una red que carece de alguna capacidad
@@ -43,7 +55,12 @@ export type ResultadoRespuesta =
  */
 export type AdaptadorRed = {
   red: RedSocial
-  publicar: (credencial: CredencialCuenta, peticion: PeticionPublicar) => Promise<ResultadoPublicar>
+  publicar: (
+    credencial: CredencialCuenta,
+    peticion: PeticionPublicar,
+    /** Instagram: retoma un contenedor de un intento anterior. */
+    contenedorPrevio?: string | null,
+  ) => Promise<ResultadoPublicar>
   leerComentarios:
     | ((credencial: CredencialCuenta, externalPostId: string, desde: Date) => Promise<ComentarioEntrante[]>)
     | null

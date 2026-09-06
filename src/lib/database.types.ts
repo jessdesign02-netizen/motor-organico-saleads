@@ -161,6 +161,8 @@ export type Publicacion = {
   caption_final: string | null
   estado: EstadoPublicacion
   external_post_id: string | null
+  /** Contenedor de Instagram, para que el reintento retome en lugar de repetir. */
+  container_id: string | null
   permalink: string | null
   publicado_at: string | null
   programado_at: string | null

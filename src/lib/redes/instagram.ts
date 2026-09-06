@@ -56,23 +56,38 @@ async function esperar(ms: number) {
   await new Promise((listo) => setTimeout(listo, ms))
 }
 
+/**
+ * Publica un reel.
+ *
+ * `contenedorPrevio` retoma un intento que se cortó a mitad. Sin él, el reintento
+ * subía el video otra vez y dejaba el contenedor anterior huérfano; y si la
+ * publicación había llegado a Meta con la respuesta perdida en el camino, la
+ * pieza salía dos veces.
+ *
+ * Devuelve el contenedor en el fallo para que quien reintente pueda retomarlo.
+ */
 export async function publicarEnInstagram(
   credencial: CredencialCuenta,
   peticion: PeticionPublicar,
+  contenedorPrevio?: string | null,
 ): Promise<ResultadoPublicar> {
-  try {
-    const contenedor = await llamar(`${BASE}/${credencial.externalAccountId}/media`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        media_type: 'REELS',
-        video_url: peticion.videoUrl,
-        caption: peticion.caption,
-        access_token: credencial.token,
-      }),
-    })
+  let contenedorId: string | undefined = contenedorPrevio ?? undefined
 
-    const contenedorId = contenedor.id
+  try {
+    if (!contenedorId) {
+      const contenedor = await llamar(`${BASE}/${credencial.externalAccountId}/media`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          media_type: 'REELS',
+          video_url: peticion.videoUrl,
+          caption: peticion.caption,
+          access_token: credencial.token,
+        }),
+      })
+      contenedorId = contenedor.id
+    }
+
     if (!contenedorId) return { estado: 'fallido', error: 'Meta devolvió el contenedor sin id', reintentable: true }
 
     // El video pasa por un procesado que puede tardar. Publicar antes de tiempo
@@ -84,10 +99,16 @@ export async function publicarEnInstagram(
       )
       if (estado.status_code === 'FINISHED') break
       if (estado.status_code === 'ERROR') {
+        // El contenedor quedó inservible: el reintento parte de cero.
         return { estado: 'fallido', error: 'Meta rechazó el video al procesarlo', reintentable: false }
       }
       if (intento === INTENTOS_CONTENEDOR - 1) {
-        return { estado: 'fallido', error: 'El video sigue en proceso después de dos minutos', reintentable: true }
+        return {
+          estado: 'fallido',
+          error: 'El video sigue en proceso después de dos minutos',
+          reintentable: true,
+          contenedorId,
+        }
       }
     }
 
@@ -109,6 +130,7 @@ export async function publicarEnInstagram(
       estado: 'fallido',
       error: error instanceof Error ? error.message : String(error),
       reintentable: esReintentable(error),
+      ...(contenedorId ? { contenedorId } : {}),
     }
   }
 }
@@ -174,7 +196,8 @@ export async function responderPrivadoInstagram(
 
 export const instagram: AdaptadorRed = {
   red: 'instagram',
-  publicar: publicarEnInstagram,
+  publicar: (credencial, peticion, contenedorPrevio) =>
+    publicarEnInstagram(credencial, peticion, contenedorPrevio),
   leerComentarios: leerComentariosInstagram,
   responder: responderPrivadoInstagram,
   enviosPorSegundo: ENVIOS_POR_SEGUNDO_IG,

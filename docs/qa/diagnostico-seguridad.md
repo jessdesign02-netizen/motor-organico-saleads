@@ -157,3 +157,92 @@ Lo que los encontró no fue mirar el código con más cuidado, sino tres cosas
 concretas: preguntar a cada prueba por el motivo y no solo por el resultado,
 correr las baterías enteras después de cada cambio aunque pareciera tocar otra
 cosa, y levantar la aplicación para pedirle las rutas de verdad.
+
+---
+
+## Entrega 15 · Los adaptadores de plataforma, y la interfaz
+
+### Lo que faltaba probar
+
+TikTok tenía sus 6 pruebas desde la Fase 2. Instagram y YouTube, ninguna, y son
+los dos que hacen el trabajo: Instagram publica y responde en privado, YouTube
+publica y responde en público.
+
+**22 pruebas de Instagram** y **16 de YouTube**, sobre la secuencia real de cada
+API y sobre la clasificación de sus errores, que es lo que decide si un fallo se
+reintenta o se rinde.
+
+| Qué se comprobó | Instagram | YouTube |
+|---|---|---|
+| La secuencia completa de publicación | Contenedor, espera de procesado, publicación y permalink | Descarga del video, subida multiparte y enlace del Short |
+| Los límites de la plataforma | Título recortado a 100, descripción completa | El caption entero en la descripción |
+| El error que se reintenta | Límite de tasa, caída del servidor | Ritmo excedido, servidor caído |
+| El error que se rinde | Permiso ausente, video rechazado, ventana cerrada | Cuota diaria agotada |
+| La respuesta | Dirigida por `comment_id`, con el id de la Página | Dentro del hilo, con `parentId` |
+| La lectura de comentarios | Convierte y filtra por fecha, tolera el comentario sin autor | Convierte los hilos, descarta el que llega sin id |
+
+Distinguir el error que se reintenta del que se rinde importa más de lo que
+parece: reintentar una cuota agotada gasta los tres intentos en una hora, y
+rendirse ante un límite de ritmo pierde una publicación que habría salido sola.
+
+### H23 · El reintento subía el video otra vez
+
+**Gravedad: alta.** Salió de escribir las pruebas, y ninguna de ellas lo tocaba.
+
+Publicar en Instagram son dos llamadas con un procesado de hasta dos minutos en
+medio. Si el intento se cortaba ahí, el reintento empezaba de cero: subía el
+video otra vez y dejaba el contenedor anterior huérfano, gastando cuota de las
+100 diarias.
+
+El caso peor era otro. Si la publicación llegó a Meta y la respuesta se perdió en
+el camino, el reintento habría publicado **dos veces la misma pieza**. Las
+restricciones de la base protegen contra publicar dos veces desde el sistema, y
+no contra publicar dos veces en la plataforma.
+
+**Corrección.** El contenedor se guarda en la publicación y el reintento lo
+retoma en lugar de crear otro. Cuando Meta rechaza el video, el contenedor no se
+guarda: ese ya no sirve y el reintento parte de cero.
+
+**4 pruebas**: el contenedor vuelve en el fallo por procesado lento, se retoma
+sin crear otro, sobrevive también a una caída de red, y queda fuera cuando el
+video fue rechazado.
+
+### La interfaz
+
+Tres problemas, en la herramienta que el equipo usa cada día.
+
+**Ningún formulario se bloqueaba mientras enviaba.** Con diez formularios y
+acciones que tardan, el patrón es predecible: se pulsa, no se ve nada, se vuelve
+a pulsar. En "Crear pieza" eso creaba dos piezas.
+
+**Cero accesibilidad.** Veinte campos usaban el texto de relleno como única
+etiqueta, que desaparece al escribir. Ahora cada campo lleva la suya, los
+resultados se anuncian con `role` según hayan salido bien o mal, y las pestañas
+de red son pestañas también para un lector de pantalla.
+
+**El botón de copiar fallaba en silencio.** `navigator.clipboard` falla sin https
+o sin permiso, y no había manejo de ese caso. Ahora lo dice y recuerda que el
+texto está a la vista.
+
+---
+
+## Cobertura, al cierre
+
+| Capa | Comprobaciones |
+|---|---|
+| Palabra clave y coincidencia | 28 |
+| Motor de comentarios | 22 |
+| Instagram | 22 |
+| YouTube | 16 |
+| Guardia de rutas | 14 |
+| Seguridad | 14 |
+| Ingesta de la parrilla | 13 |
+| Analítica de resultados | 10 |
+| Caption por red | 8 |
+| Zona horaria | 8 |
+| Enlaces de Drive | 7 |
+| TikTok | 6 |
+| Firma del webhook | 6 |
+| Calendario | 6 |
+| **Pruebas automáticas** | **180** |
+| **Reglas contra Postgres** | **90** |
