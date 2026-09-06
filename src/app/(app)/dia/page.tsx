@@ -3,6 +3,7 @@ import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
 import { hoyDelEquipo } from '@/lib/dominio/semana'
 import { Etiqueta, Tarjeta, Vacio } from '@/app/ui'
+import { filas } from '@/lib/consulta'
 import { AprobarDia } from './aprobar'
 
 export const dynamic = 'force-dynamic'
@@ -18,13 +19,16 @@ export default async function PanelDelDia({
   const perfil = await perfilActual()
   const supabase = await clienteServidor()
 
-  const { data: piezas } = await supabase
-    .from('pieces')
-    .select('*')
-    .eq('fecha_publicacion', dia)
-    .order('hora_publicacion', { ascending: true })
+  const piezas = filas(
+    await supabase
+      .from('pieces')
+      .select('*')
+      .eq('fecha_publicacion', dia)
+      .order('hora_publicacion', { ascending: true }),
+    'las piezas del día',
+  )
 
-  const ids = (piezas ?? []).map((p) => p.id)
+  const ids = piezas.map((p) => p.id)
   const [{ data: claves }, { data: plantillas }, { data: publicaciones }, { data: marcas }] = await Promise.all([
     ids.length ? supabase.from('keywords').select('*').in('piece_id', ids) : { data: [] },
     ids.length ? supabase.from('dm_templates').select('*').in('piece_id', ids) : { data: [] },
@@ -32,7 +36,7 @@ export default async function PanelDelDia({
     supabase.from('brands').select('*'),
   ])
 
-  const listas = (piezas ?? []).filter((p) => p.estado === 'aprobado')
+  const listas = piezas.filter((p) => p.estado === 'aprobado')
 
   return (
     <div className="space-y-6">
@@ -46,9 +50,9 @@ export default async function PanelDelDia({
         </Link>
       </header>
 
-      {(piezas ?? []).length === 0 ? <Vacio>Nada programado para este día.</Vacio> : null}
+      {piezas.length === 0 ? <Vacio>Nada programado para este día.</Vacio> : null}
 
-      {(piezas ?? []).map((pieza) => {
+      {piezas.map((pieza) => {
         const clave = (claves ?? []).find((k) => k.piece_id === pieza.id)
         const plantilla = (plantillas ?? []).find((p) => p.piece_id === pieza.id)
         const suyas = (publicaciones ?? []).filter((p) => p.piece_id === pieza.id)

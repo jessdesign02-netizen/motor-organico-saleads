@@ -139,14 +139,20 @@ export async function prepararVideosProximos(
  * Borra las copias que ya cumplieron. Storage cuesta, y el video original vive
  * en Drive: esta copia solo existe para el momento de publicar.
  */
+/** Tope por corrida, para que el trabajo termine dentro de su ventana de tiempo. */
+const COPIAS_POR_CORRIDA = 100
+
 export async function limpiarCopiasVencidas(ahora: Date = new Date()): Promise<number> {
   const supabase = clienteAdmin()
 
+  // El trabajo corre cada hora, así que lo que no quepa hoy se lleva la
+  // siguiente. Terminar a tiempo importa más que vaciarlo todo de una vez.
   const { data: vencidas } = await supabase
     .from('pieces')
     .select('id, storage_path')
     .not('storage_path', 'is', null)
     .lt('storage_expira_at', ahora.toISOString())
+    .limit(COPIAS_POR_CORRIDA)
 
   let borradas = 0
   for (const pieza of vencidas ?? []) {

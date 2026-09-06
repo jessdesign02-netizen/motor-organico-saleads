@@ -1,5 +1,6 @@
 import { clienteServidor } from '@/lib/supabase/server'
 import { Vacio } from '@/app/ui'
+import { filas } from '@/lib/consulta'
 import { Fila } from './fila'
 
 export const dynamic = 'force-dynamic'
@@ -15,14 +16,17 @@ export const dynamic = 'force-dynamic'
 export default async function Bandeja() {
   const supabase = await clienteServidor()
 
-  const { data: comentarios } = await supabase
-    .from('comments')
-    .select('*')
-    .in('estado', ['manual_pendiente', 'fallido'])
-    .order('detectado_at', { ascending: false })
-    .limit(200)
+  const comentarios = filas(
+    await supabase
+      .from('comments')
+      .select('*')
+      .in('estado', ['manual_pendiente', 'fallido'])
+      .order('detectado_at', { ascending: false })
+      .limit(200),
+    'la bandeja',
+  )
 
-  const pubIds = [...new Set((comentarios ?? []).map((c) => c.publication_id))]
+  const pubIds = [...new Set(comentarios.map((c) => c.publication_id))]
   const { data: publicaciones } = pubIds.length
     ? await supabase.from('publications').select('id, piece_id, permalink').in('id', pubIds)
     : { data: [] }
@@ -43,10 +47,10 @@ export default async function Bandeja() {
         </p>
       </header>
 
-      {(comentarios ?? []).length === 0 ? <Vacio>La bandeja está al día.</Vacio> : null}
+      {comentarios.length === 0 ? <Vacio>La bandeja está al día.</Vacio> : null}
 
       <div className="space-y-2">
-        {(comentarios ?? []).map((comentario) => {
+        {comentarios.map((comentario) => {
           const publicacion = (publicaciones ?? []).find((p) => p.id === comentario.publication_id)
           const pieza = (piezas ?? []).find((p) => p.id === publicacion?.piece_id)
           const plantilla = (plantillas ?? []).find((p) => p.piece_id === publicacion?.piece_id)

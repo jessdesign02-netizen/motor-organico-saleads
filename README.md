@@ -15,10 +15,11 @@ Las tres fases construidas, en diez entregas, cada una auditada.
 - [docs/qa/diagnostico-fases-2-3.md](docs/qa/diagnostico-fases-2-3.md): fases 2 y 3, seis más
 - [docs/qa/diagnostico-integracion.md](docs/qa/diagnostico-integracion.md): los defectos entre módulos, seis más
 - [docs/qa/diagnostico-seguridad.md](docs/qa/diagnostico-seguridad.md): seguridad y rendimiento, tres más
-- [docs/qa/diagnostico-cobertura.md](docs/qa/diagnostico-cobertura.md): webhook y esquemas de entrada, dos más
+- [docs/qa/diagnostico-cobertura.md](docs/qa/diagnostico-cobertura.md): webhook, esquemas y trabajos, cuatro más
+- [docs/qa/diagnostico-operacion.md](docs/qa/diagnostico-operacion.md): qué se ve cuando algo falla, tres más
 - [docs/qa/conformidad.md](docs/qa/conformidad.md): la especificación punto por punto contra el código
 
-En total: **289 pruebas automáticas** y **90 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
+En total: **295 pruebas automáticas** y **90 reglas verificadas** contra Postgres, incluido un recorrido completo de una pieza desde la fila de la hoja hasta el lead.
 
 El paso a paso para dejarlo operando está en
 [docs/puesta-en-marcha.md](docs/puesta-en-marcha.md), lo que usa cada persona del

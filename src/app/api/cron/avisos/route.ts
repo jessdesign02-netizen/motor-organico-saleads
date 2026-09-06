@@ -3,6 +3,7 @@ import { cronAutorizado } from '@/lib/guardia'
 import { avisarTokensPorVencer } from '@/lib/trabajos/avisos'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 export async function POST(peticion: Request) {
   if (!cronAutorizado(peticion)) {

@@ -3,6 +3,7 @@ import { cronAutorizado } from '@/lib/guardia'
 import { limpiarCopiasVencidas } from '@/lib/trabajos/video'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 120
 
 export async function POST(peticion: Request) {
   if (!cronAutorizado(peticion)) {

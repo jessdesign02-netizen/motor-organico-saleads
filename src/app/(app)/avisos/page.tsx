@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { clienteServidor } from '@/lib/supabase/server'
 import { Vacio } from '@/app/ui'
+import { filas } from '@/lib/consulta'
 import { Archivar, ArchivarTodo } from './archivar'
 
 export const dynamic = 'force-dynamic'
@@ -17,7 +18,7 @@ const TITULOS: Record<string, string> = {
 export default async function Avisos() {
   const supabase = await clienteServidor()
 
-  const [{ data: pendientes }, { data: archivados }] = await Promise.all([
+  const [respuestaPendientes, respuestaArchivados] = await Promise.all([
     supabase.from('notices').select('*').is('leido_at', null).order('creado_at', { ascending: false }),
     supabase
       .from('notices')
@@ -27,22 +28,25 @@ export default async function Avisos() {
       .limit(20),
   ])
 
+  const pendientes = filas(respuestaPendientes, 'los avisos pendientes')
+  const archivados = filas(respuestaArchivados, 'los avisos archivados')
+
   return (
     <div className="space-y-6">
       <header className="flex items-baseline justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Avisos</h1>
           <p className="text-sm text-neutral-500">
-            {(pendientes ?? []).length} sin atender
+            {pendientes.length} sin atender
           </p>
         </div>
-        {(pendientes ?? []).length > 0 ? <ArchivarTodo /> : null}
+        {pendientes.length > 0 ? <ArchivarTodo /> : null}
       </header>
 
-      {(pendientes ?? []).length === 0 ? <Vacio>Nada pendiente por ahora.</Vacio> : null}
+      {pendientes.length === 0 ? <Vacio>Nada pendiente por ahora.</Vacio> : null}
 
       <div className="space-y-2">
-        {(pendientes ?? []).map((aviso) => (
+        {pendientes.map((aviso) => (
           <article
             key={aviso.id}
             className="flex items-start justify-between gap-4 rounded-lg border border-neutral-200 bg-white p-4"
@@ -68,11 +72,11 @@ export default async function Avisos() {
         ))}
       </div>
 
-      {(archivados ?? []).length > 0 ? (
+      {archivados.length > 0 ? (
         <details>
           <summary className="cursor-pointer text-sm text-neutral-500">Archivados</summary>
           <ul className="mt-2 space-y-1 text-sm text-neutral-500">
-            {(archivados ?? []).map((aviso) => (
+            {archivados.map((aviso) => (
               <li key={aviso.id}>{aviso.titulo}</li>
             ))}
           </ul>

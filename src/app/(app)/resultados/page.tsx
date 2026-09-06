@@ -1,5 +1,6 @@
 import { clienteServidor } from '@/lib/supabase/server'
 import { Dato, Tarjeta, Vacio } from '@/app/ui'
+import { filas } from '@/lib/consulta'
 import { lunesDe } from '@/lib/dominio/semana'
 import {
   mejorHora,
@@ -21,8 +22,11 @@ export default async function Resultados({
   const lunes = semana ?? lunesDe(new Date())
   const supabase = await clienteServidor()
 
-  const { data: piezas } = await supabase.from('pieces').select('*').eq('semana', lunes)
-  const ids = (piezas ?? []).map((p) => p.id)
+  const piezas = filas(
+    await supabase.from('pieces').select('*').eq('semana', lunes),
+    'las piezas de la semana',
+  )
+  const ids = piezas.map((p) => p.id)
 
   const [{ data: publicaciones }, { data: enlaces }, { data: marcas }] = await Promise.all([
     ids.length ? supabase.from('publications').select('*').in('piece_id', ids) : { data: [] },
@@ -61,7 +65,7 @@ export default async function Resultados({
     : { data: [] }
 
   // Fase 3 · qué funcionó, medido sobre lo que ya está registrado.
-  const medidas = (piezas ?? []).map((pieza) => {
+  const medidas = piezas.map((pieza) => {
     const suyas = (publicaciones ?? []).filter((p) => p.piece_id === pieza.id)
     const mios = (comentarios ?? []).filter((c) => suyas.some((p) => p.id === c.publication_id))
     return {
@@ -95,7 +99,7 @@ export default async function Resultados({
       </header>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <Dato etiqueta="Piezas" valor={(piezas ?? []).length} />
+        <Dato etiqueta="Piezas" valor={piezas.length} />
         <Dato etiqueta="Publicadas" valor={(publicaciones ?? []).filter((p) => p.estado === 'publicado').length} />
         <Dato etiqueta="Comentarios con la palabra" valor={detectados} />
         <Dato etiqueta="Mensajes enviados" valor={respondidos} />
@@ -169,7 +173,7 @@ export default async function Resultados({
       </Tarjeta>
 
       <Tarjeta titulo="Por pieza">
-        {(piezas ?? []).length === 0 ? (
+        {piezas.length === 0 ? (
           <Vacio>Sin piezas en esta semana.</Vacio>
         ) : (
           <div className="overflow-x-auto">
@@ -185,7 +189,7 @@ export default async function Resultados({
                 </tr>
               </thead>
               <tbody>
-                {(piezas ?? []).map((pieza) => {
+                {piezas.map((pieza) => {
                   const suyas = (publicaciones ?? []).filter((p) => p.piece_id === pieza.id)
                   const mios = (comentarios ?? []).filter((c) =>
                     suyas.some((p) => p.id === c.publication_id),
