@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 /pgdata
 *.log
+
+# Copia de VARIABLES.md con los valores reales, para compartir
+VARIABLES-CON-CLAVES.md
