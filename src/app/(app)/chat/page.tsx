@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { clienteServidor } from '@/lib/supabase/server'
 import { Encabezado, Vacio } from '@/app/ui'
 import { filas } from '@/lib/consulta'
@@ -136,7 +137,16 @@ export default async function ChatEnVivo() {
                 pendientes > 0 ? ` · ${pendientes} esperan tu mano` : ' · todas atendidas'
               }`
         }
-      />
+      >
+        {pendientes > 0 ? (
+          <Link
+            href="/bandeja"
+            className="rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-hundido"
+          >
+            Agrupar por motivo
+          </Link>
+        ) : null}
+      </Encabezado>
 
       {conversaciones.length === 0 ? (
         <Vacio>
