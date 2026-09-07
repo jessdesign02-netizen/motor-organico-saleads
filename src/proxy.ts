@@ -30,6 +30,10 @@ export async function proxy(peticion: NextRequest) {
 
   if (esPublica(ruta)) return respuesta
 
+  // Modo demo: no hay sesión que refrescar ni a quién redirigir. La guardia
+  // vuelve en cuanto MODO_DEMO deja de estar puesta.
+  if (process.env.MODO_DEMO === '1') return respuesta
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
