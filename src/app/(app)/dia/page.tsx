@@ -3,7 +3,7 @@ import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
 import { hoyDelEquipo } from '@/lib/dominio/semana'
 import { ESTADO_PIEZA, ESTADO_PUBLICACION, RED, fechaLarga, hora } from '@/lib/etiquetas'
-import { Encabezado, Etiqueta, Tarjeta, Vacio } from '@/app/ui'
+import { Encabezado, Etiqueta, Vacio } from '@/app/ui'
 import { filas } from '@/lib/consulta'
 import { AprobarDia } from './aprobar'
 

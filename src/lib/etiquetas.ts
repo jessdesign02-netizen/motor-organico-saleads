@@ -221,3 +221,11 @@ export function enumerar(partes: readonly string[]): string {
   if (partes.length === 1) return partes[0] ?? ''
   return `${partes.slice(0, -1).join(', ')} y ${partes.at(-1)}`
 }
+
+/**
+ * Las cifras con separador de miles. 1151 se lee mal de un vistazo; 1.151 no.
+ * Colombia usa el punto, así que la localización no es decorativa.
+ */
+export function cifra(valor: number): string {
+  return new Intl.NumberFormat('es-CO').format(valor)
+}

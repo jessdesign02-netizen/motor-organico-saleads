@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { Rotulo, Tono } from '@/lib/etiquetas'
+import { cifra, type Rotulo, type Tono } from '@/lib/etiquetas'
 
 /**
  * Las piezas visuales compartidas.
@@ -153,7 +153,7 @@ export function Dato({
     <div className="rounded-xl border border-linea bg-superficie px-4 py-3.5">
       <p className="text-xs text-tinta-2">{etiqueta}</p>
       <p className={`mt-1 text-3xl font-semibold tracking-tight ${tono ? acento[tono] : 'text-tinta'}`}>
-        {valor}
+        {typeof valor === 'number' ? cifra(valor) : valor}
       </p>
       {nota ? <p className="mt-0.5 text-xs text-tinta-3">{nota}</p> : null}
     </div>
@@ -203,7 +203,9 @@ export function Tabla({ cabeceras, children }: { cabeceras: ReactNode[]; childre
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-linea">{children}</tbody>
+        <tbody className="divide-y divide-linea [&>tr]:transition-colors [&>tr:hover]:bg-hundido/50">
+          {children}
+        </tbody>
       </table>
     </div>
   )

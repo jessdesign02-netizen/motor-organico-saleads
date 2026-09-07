@@ -69,7 +69,7 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
 
       <Aviso resultado={aviso} />
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+      <div className="grid grid-cols-2 items-start gap-2 sm:grid-cols-4 lg:grid-cols-7">
         {dias.map((dia, indice) => {
           const delDia = piezas
             .filter((p) => p.fecha_publicacion === dia)
@@ -79,8 +79,12 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
           return (
             <div
               key={dia}
-              className={`flex min-h-28 flex-col rounded-xl border p-2 ${
-                esHoy ? 'border-tinta bg-superficie' : 'border-linea bg-superficie'
+              className={`flex min-h-24 flex-col rounded-xl border p-2 ${
+                esHoy
+                  ? 'border-tinta bg-superficie'
+                  : delDia.length === 0
+                    ? 'border-linea bg-plano'
+                    : 'border-linea bg-superficie'
               }`}
             >
               <p className="flex items-baseline gap-1.5 px-1 pb-2">
@@ -89,19 +93,13 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
                 </span>
                 <span className="text-xs text-tinta-3">{dia.slice(8)}</span>
                 {esHoy ? (
-                  <span className="ml-auto rounded-full bg-tinta px-1.5 text-[10px] font-medium text-superficie">
+                  <span className="ml-auto text-[10px] font-medium uppercase tracking-wide text-tinta-2">
                     hoy
                   </span>
                 ) : null}
               </p>
 
               <div className="flex flex-1 flex-col gap-1.5">
-                {delDia.length === 0 ? (
-                  <span className="px-1 text-xs text-tinta-3" aria-hidden>
-                    ·
-                  </span>
-                ) : null}
-
                 {delDia.map((pieza) => {
                   const falta = faltantes[pieza.id] ?? []
                   const marcable = puedeAprobar && (pieza.estado === 'revision' || pieza.estado === 'borrador')
@@ -109,10 +107,10 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
                   return (
                     <div
                       key={pieza.id}
-                      className={`rounded-lg border p-2 transition-colors ${
+                      className={`rounded-lg p-2 transition-colors ${
                         marcadas.includes(pieza.id)
-                          ? 'border-tinta bg-hundido'
-                          : 'border-linea bg-superficie hover:border-linea-fuerte'
+                          ? 'bg-hundido ring-1 ring-tinta'
+                          : 'bg-hundido/60 hover:bg-hundido'
                       }`}
                     >
                       <div className="flex items-start gap-1.5">
@@ -188,15 +186,15 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
 
       {/* Módulo 3 · el recorrido de fechas asistido, tras una devolución. */}
       {puedeAprobar && propuesta ? (
-        <div className="rounded-xl border border-info-tinte bg-info-tinte p-4">
-          <p className="text-sm font-medium text-info">Propuesta de calendario</p>
-          <p className="mt-0.5 text-xs text-info">
+        <div className="rounded-xl border border-linea border-l-2 border-l-info bg-superficie p-4">
+          <p className="text-sm font-medium text-tinta">Propuesta de calendario</p>
+          <p className="mt-0.5 text-xs text-tinta-2">
             {propuesta.motivo}. Nada se mueve hasta que lo confirmes.
           </p>
           <ul className="mt-3 space-y-1">
             {propuesta.propuesta.map((linea) => (
-              <li key={linea.id} className="flex flex-wrap items-baseline gap-x-2 text-xs text-info">
-                <span className="font-medium">{linea.tema}</span>
+              <li key={linea.id} className="flex flex-wrap items-baseline gap-x-2 text-xs text-tinta-2">
+                <span className="font-medium text-tinta">{linea.tema}</span>
                 <span>pasa al {fechaLarga(linea.fecha)}</span>
               </li>
             ))}

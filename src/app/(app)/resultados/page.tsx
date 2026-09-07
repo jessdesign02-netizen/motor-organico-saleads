@@ -104,9 +104,9 @@ export default async function Resultados({
           valor={(publicaciones ?? []).filter((p) => p.estado === 'publicado').length}
           nota="pieza por red"
         />
-        <Dato etiqueta="Comentarios con la palabra" valor={detectados} />
-        <Dato etiqueta="Mensajes enviados" valor={respondidos} />
-        <Dato etiqueta="Clics al enlace" valor={clics} />
+        <Dato etiqueta="Comentarios con la palabra" valor={detectados} nota="con la palabra clave" />
+        <Dato etiqueta="Mensajes enviados" valor={respondidos} nota="respuesta automática" />
+        <Dato etiqueta="Clics al enlace" valor={clics} nota="acumulado de la pieza" />
       </div>
 
       {enBandeja > 0 || enCola > 0 ? (
@@ -124,13 +124,13 @@ export default async function Resultados({
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Tarjeta titulo="Palabras clave" bajada="Cuántos comentarios trajo cada una">
+        <Tarjeta titulo="Palabras clave" bajada="detectados · enviados · clics">
           <Ranking filas={porPalabra} vacio="Sin palabras clave medidas todavía." />
         </Tarjeta>
-        <Tarjeta titulo="Temas" bajada="Qué asunto engancha">
+        <Tarjeta titulo="Temas" bajada="detectados · enviados · clics">
           <Ranking filas={porTema} vacio="Sin temas medidos todavía." />
         </Tarjeta>
-        <Tarjeta titulo="Tipos de hook" bajada="Qué arranque funciona">
+        <Tarjeta titulo="Tipos de hook" bajada="detectados · enviados · clics">
           <Ranking filas={porHook} vacio="Sin hooks medidos todavía." />
         </Tarjeta>
       </div>
@@ -237,7 +237,6 @@ function Ranking({ filas, vacio }: { filas: FilaRanking[]; vacio: string }) {
           </div>
         </li>
       ))}
-      <li className="pt-1 text-[11px] text-tinta-3">detectados · enviados · clics</li>
     </ul>
   )
 }
