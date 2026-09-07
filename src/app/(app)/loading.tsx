@@ -5,10 +5,10 @@
 export default function Cargando() {
   return (
     <div className="space-y-4" aria-busy="true" aria-label="Cargando">
-      <div className="h-6 w-48 animate-pulse rounded bg-neutral-200" />
+      <div className="h-6 w-48 animate-pulse rounded bg-hundido" />
       <div className="grid grid-cols-7 gap-2">
         {Array.from({ length: 7 }, (_, i) => (
-          <div key={i} className="h-32 animate-pulse rounded-lg bg-neutral-100" />
+          <div key={i} className="h-32 animate-pulse rounded-lg bg-hundido" />
         ))}
       </div>
     </div>

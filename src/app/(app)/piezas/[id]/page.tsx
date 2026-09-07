@@ -1,7 +1,9 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
-import { Etiqueta, Tarjeta } from '@/app/ui'
+import { Encabezado, Etiqueta, Tarjeta } from '@/app/ui'
+import { ESTADO_PIEZA, enumerar, fechaLarga, hace, hora } from '@/lib/etiquetas'
 import { Editor } from './editor'
 import { CambioDeHoja } from './hoja'
 
@@ -36,19 +38,37 @@ export default async function DetallePieza({ params }: { params: Promise<{ id: s
 
   return (
     <div className="space-y-6">
-      <header className="flex items-start justify-between gap-6">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">{pieza.tema}</h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            {marca?.nombre} · {pieza.fecha_publicacion ?? 'sin fecha'} {pieza.hora_publicacion ?? ''}
-          </p>
-        </div>
-        <Etiqueta>{pieza.estado}</Etiqueta>
-      </header>
+      <div>
+        <Link
+          href="/parrilla"
+          className="text-xs text-tinta-2 underline underline-offset-2 hover:text-tinta"
+        >
+          ← Volver a la parrilla
+        </Link>
+      </div>
+
+      <Encabezado
+        titulo={pieza.tema}
+        bajada={[
+          marca?.nombre,
+          pieza.fecha_publicacion ? fechaLarga(pieza.fecha_publicacion) : 'sin fecha',
+          pieza.hora_publicacion ? hora(pieza.hora_publicacion) : null,
+        ]
+          .filter(Boolean)
+          .join(' · ')}
+      >
+        <Etiqueta rotulo={ESTADO_PIEZA[pieza.estado]} titulo />
+      </Encabezado>
 
       {faltan.length > 0 ? (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Para poder programarse le falta: {faltan.join(', ')}.
+        <p className="rounded-xl border border-aviso-tinte bg-aviso-tinte px-4 py-3 text-sm text-aviso">
+          Para poder programarse le falta {enumerar(faltan)}.
+        </p>
+      ) : null}
+
+      {pieza.video_error ? (
+        <p className="rounded-xl border border-serio-tinte bg-serio-tinte px-4 py-3 text-sm text-serio">
+          El video no se pudo bajar de Drive: {pieza.video_error}
         </p>
       ) : null}
 
@@ -79,14 +99,26 @@ export default async function DetallePieza({ params }: { params: Promise<{ id: s
 
       <Tarjeta titulo="Historial de revisión">
         {(aprobaciones ?? []).length === 0 ? (
-          <p className="text-sm text-neutral-500">Todavía sin decisiones registradas.</p>
+          <p className="text-sm text-tinta-3">Todavía sin decisiones registradas.</p>
         ) : (
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-3">
             {(aprobaciones ?? []).map((registro) => (
-              <li key={registro.id} className="flex gap-3">
-                <span className="font-medium">{registro.accion}</span>
-                <span className="text-neutral-500">{registro.creado_at.slice(0, 16).replace('T', ' ')}</span>
-                {registro.comentario ? <span className="text-neutral-700">{registro.comentario}</span> : null}
+              <li key={registro.id} className="flex gap-3 text-sm">
+                <Etiqueta
+                  rotulo={
+                    registro.accion === 'aprobar'
+                      ? { texto: 'Aprobada', tono: 'bien' }
+                      : { texto: 'Devuelta', tono: 'aviso' }
+                  }
+                />
+                <span className="min-w-0 flex-1">
+                  {registro.comentario ? (
+                    <span className="text-tinta">{registro.comentario}</span>
+                  ) : (
+                    <span className="text-tinta-3">Sin comentario</span>
+                  )}
+                </span>
+                <span className="shrink-0 text-xs text-tinta-3">{hace(registro.creado_at)}</span>
               </li>
             ))}
           </ul>

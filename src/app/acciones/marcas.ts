@@ -45,7 +45,7 @@ export async function crearMarca(datos: FormData): Promise<Respuesta> {
       'Crear la marca',
     )
 
-    revalidatePath('/ajustes')
+    revalidatePath('/configuracion')
     revalidatePath('/parrilla')
     return `Marca ${entrada.nombre} creada`
   })
@@ -83,7 +83,7 @@ export async function ajustarMarca(datos: FormData): Promise<Respuesta> {
       'Ajustar la marca',
     )
 
-    revalidatePath('/ajustes')
+    revalidatePath('/configuracion')
     return 'Marca actualizada'
   })
 }
@@ -112,7 +112,7 @@ export async function cambiarRol(datos: FormData): Promise<Respuesta> {
       'Cambiar el rol',
     )
 
-    revalidatePath('/ajustes')
+    revalidatePath('/configuracion')
     return `Rol actualizado a ${entrada.rol}`
   })
 }

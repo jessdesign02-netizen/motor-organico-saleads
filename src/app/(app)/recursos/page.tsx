@@ -28,7 +28,7 @@ export default async function Recursos() {
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Recursos</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-tinta-3">
           {recursos.length} en la biblioteca. Lo que entra, se queda.
         </p>
       </header>
@@ -39,7 +39,7 @@ export default async function Recursos() {
 
       {secciones.map((seccion) => (
         <Tarjeta key={seccion} titulo={seccion}>
-          <ul className="divide-y divide-neutral-100">
+          <ul className="divide-y divide-linea">
             {recursos
               .filter((r) => (r.seccion ?? 'Sin sección') === seccion)
               .map((recurso) => (
@@ -54,10 +54,10 @@ export default async function Recursos() {
                       {recurso.titulo}
                     </a>
                     {recurso.descripcion ? (
-                      <p className="text-xs text-neutral-500">{recurso.descripcion}</p>
+                      <p className="text-xs text-tinta-3">{recurso.descripcion}</p>
                     ) : null}
                   </div>
-                  <span className="shrink-0 text-xs text-neutral-500">
+                  <span className="shrink-0 text-xs text-tinta-3">
                     {recurso.tipo} · {marcas.find((m) => m.id === recurso.brand_id)?.nombre}
                   </span>
                 </li>

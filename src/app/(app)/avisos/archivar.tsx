@@ -17,7 +17,7 @@ export function Archivar({ avisoId }: { avisoId: string }) {
       <input type="hidden" name="avisoId" value={avisoId} />
       <Enviar haciendo="Archivando">Archivar</Enviar>
       {error ? (
-        <p role="alert" className="mt-1 text-xs text-red-700">
+        <p role="alert" className="mt-1 text-xs text-critico">
           {error}
         </p>
       ) : null}
@@ -34,7 +34,7 @@ export function ArchivarTodo() {
         Archivar todo
       </Enviar>
       {aviso ? (
-        <span role="status" className="text-xs text-neutral-500">
+        <span role="status" className="text-xs text-tinta-3">
           {aviso}
         </span>
       ) : null}

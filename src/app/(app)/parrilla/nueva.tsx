@@ -12,9 +12,12 @@ export function NuevaPieza({ marcas, semana }: { marcas: Marca[]; semana: string
   return (
     <form
       action={async (datos) => setAviso(await crearPieza(datos))}
-      className="space-y-3 rounded-lg border border-dashed border-neutral-300 p-4"
+      className="space-y-3 rounded-xl border border-dashed border-linea-fuerte bg-superficie p-4"
       aria-label="Crear una pieza"
     >
+      <p className="text-xs font-medium text-tinta-2">
+        Crear una pieza a mano, sin esperar a la hoja de cálculo
+      </p>
       <div className="flex flex-wrap items-end gap-3">
         <Campo etiqueta="Marca">
           <select name="marcaId" className={ENTRADA} defaultValue={marcas[0]?.id ?? ''}>

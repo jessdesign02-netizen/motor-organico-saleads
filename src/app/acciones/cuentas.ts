@@ -49,7 +49,7 @@ export async function registrarCuenta(datos: FormData): Promise<Respuesta> {
       'Registrar la cuenta',
     )
 
-    revalidatePath('/ajustes')
+    revalidatePath('/configuracion')
     return `${entrada.handle} conectada en ${entrada.red}`
   })
 }
@@ -86,7 +86,7 @@ export async function ajustarCuenta(datos: FormData): Promise<Respuesta> {
       'Ajustar la cuenta',
     )
 
-    revalidatePath('/ajustes')
+    revalidatePath('/configuracion')
     return 'Canal actualizado'
   })
 }

@@ -22,7 +22,7 @@ export default async function Ajustes() {
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Ajustes</h1>
-        <p className="text-sm text-neutral-500">Canales, equipo y el estado de cada acceso</p>
+        <p className="text-sm text-tinta-3">Canales, equipo y el estado de cada acceso</p>
       </header>
 
       <Tarjeta titulo="Canales">
@@ -49,18 +49,18 @@ export default async function Ajustes() {
           yo={perfil?.id ?? ''}
           puedeAjustar={esEditora}
         />
-        <p className="mt-3 text-xs text-neutral-500">
+        <p className="mt-3 text-xs text-tinta-3">
           Se entra por invitación: crea la persona en Supabase, en Authentication, y aquí le das su rol. Ema, Diego e
           Iván trabajan sobre la hoja, así que no necesitan cuenta.
         </p>
       </Tarjeta>
 
       <Tarjeta titulo="Cómo se guardan las credenciales">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-tinta-2">
           El token vive en una variable de entorno, y la base guarda solo el nombre de esa variable. Así el secreto
           queda fuera de la base de datos y fuera del navegador. Para la cuenta con referencia{' '}
-          <code className="rounded bg-neutral-100 px-1">META_TOKEN_SALEADS</code>, el token va en esa variable y el id
-          de la Página en <code className="rounded bg-neutral-100 px-1">META_TOKEN_SALEADS_PAGE_ID</code>.
+          <code className="rounded bg-hundido px-1">META_TOKEN_SALEADS</code>, el token va en esa variable y el id
+          de la Página en <code className="rounded bg-hundido px-1">META_TOKEN_SALEADS_PAGE_ID</code>.
         </p>
       </Tarjeta>
     </div>

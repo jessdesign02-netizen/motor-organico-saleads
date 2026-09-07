@@ -1,44 +1,36 @@
-import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { exigirSesion } from '@/lib/sesion'
-
-const SECCIONES = [
-  { href: '/parrilla', texto: 'Parrilla' },
-  { href: '/dia', texto: 'El día' },
-  { href: '/bandeja', texto: 'Bandeja' },
-  { href: '/avisos', texto: 'Avisos' },
-  { href: '/recursos', texto: 'Recursos' },
-  { href: '/resultados', texto: 'Resultados' },
-  { href: '/diagnostico', texto: 'Diagnóstico' },
-  { href: '/ajustes', texto: 'Ajustes' },
-]
+import { clienteServidor } from '@/lib/supabase/server'
+import { ROL } from '@/lib/etiquetas'
+import { BarraLateral } from './barra-lateral'
 
 export default async function LayoutApp({ children }: { children: ReactNode }) {
   const perfil = await exigirSesion()
+  const supabase = await clienteServidor()
+
+  /**
+   * Lo pendiente se cuenta aquí, una vez, para que el menú lo muestre en todas
+   * las pantallas. Sin esto había que entrar a buscar para descubrir que había
+   * algo esperando.
+   */
+  const [{ count: enChat }, { count: sinLeer }] = await Promise.all([
+    supabase
+      .from('comments')
+      .select('id', { count: 'exact', head: true })
+      .in('estado', ['manual_pendiente', 'fallido']),
+    supabase.from('notices').select('id', { count: 'exact', head: true }).is('leido_at', null),
+  ])
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3">
-          <span className="text-sm font-semibold tracking-tight">Motor Orgánico</span>
-          <nav className="flex flex-1 gap-4 text-sm text-neutral-600">
-            {SECCIONES.map((seccion) => (
-              <Link key={seccion.href} href={seccion.href} className="hover:text-neutral-900">
-                {seccion.texto}
-              </Link>
-            ))}
-          </nav>
-          <span className="text-xs text-neutral-500">
-            {perfil.nombre ?? perfil.email} · {perfil.rol}
-          </span>
-          <form action="/auth/salir" method="post">
-            <button type="submit" className="text-xs text-neutral-500 hover:text-neutral-900">
-              Salir
-            </button>
-          </form>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+      <BarraLateral
+        nombre={perfil.nombre ?? perfil.email ?? 'Sin nombre'}
+        rol={ROL[perfil.rol].texto}
+        cuentas={{ chat: enChat ?? 0, avisos: sinLeer ?? 0 }}
+      />
+      <main className="px-6 py-8 lg:pl-[16.5rem]">
+        <div className="mx-auto max-w-6xl">{children}</div>
+      </main>
     </div>
   )
 }

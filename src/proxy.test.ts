@@ -29,7 +29,7 @@ describe('rutas públicas', () => {
     ['el panel del día', '/dia'],
     ['la bandeja', '/bandeja'],
     ['los resultados', '/resultados'],
-    ['los ajustes', '/ajustes'],
+    ['la configuración', '/configuracion'],
     ['la raíz', '/'],
   ] as const
 

@@ -24,7 +24,7 @@ export default function ErrorGlobal({
     <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 px-6">
       <h1 className="text-xl font-semibold tracking-tight">Esta pantalla no cargó</h1>
 
-      <p className="text-sm text-neutral-600">
+      <p className="text-sm text-tinta-2">
         Casi siempre es la conexión con la base de datos. Reintenta, y si vuelve a pasar, abre{' '}
         <a href="/diagnostico" className="underline">
           el diagnóstico
@@ -33,18 +33,18 @@ export default function ErrorGlobal({
       </p>
 
       {error.digest ? (
-        <p className="text-xs text-neutral-400">Referencia del error: {error.digest}</p>
+        <p className="text-xs text-tinta-3">Referencia del error: {error.digest}</p>
       ) : null}
 
       <div className="flex gap-3">
         <button
           type="button"
           onClick={reset}
-          className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white"
+          className="rounded-md bg-tinta px-4 py-2 text-sm font-medium text-superficie"
         >
           Reintentar
         </button>
-        <a href="/parrilla" className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium">
+        <a href="/parrilla" className="rounded-md border border-linea-fuerte px-4 py-2 text-sm font-medium">
           Volver a la parrilla
         </a>
       </div>

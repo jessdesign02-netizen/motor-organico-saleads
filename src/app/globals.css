@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
+/**
+ * Sistema de color y tipografía.
+ *
+ * Antes vivía aquí la hoja que trae Next al crear el proyecto: definía un
+ * `--background` que se volvía negro con el sistema en modo oscuro, mientras
+ * las pantallas seguían pintando tarjetas blancas con clases fijas. El
+ * resultado era texto gris claro sobre blanco: la aplicación quedaba ilegible
+ * para cualquiera con el sistema en oscuro.
+ *
+ * La app se compromete con el modo claro y lo declara. Los tonos salen de una
+ * paleta validada: cada pareja de etiqueta pasa AA, y las tres series de las
+ * gráficas pasan las seis comprobaciones de daltonismo y contraste.
+ *
+ * Añadir modo oscuro más adelante es redefinir estos tokens en un bloque, sin
+ * tocar una sola pantalla: nada usa colores fijos.
+ */
+
+@theme {
+  /* Superficies */
+  --color-plano: #f9f9f7;
+  --color-superficie: #fcfcfb;
+  --color-hundido: #f2f1ed;
+
+  /* Tinta */
+  --color-tinta: #0b0b0b;
+  --color-tinta-2: #52514e;
+  --color-tinta-3: #898781;
+
+  /* Líneas */
+  --color-linea: #e1e0d9;
+  --color-linea-fuerte: #c3c2b7;
+
+  /* Estado · tinte de fondo y su tinta, comprobados en pareja */
+  --color-bien: #0a6b0a;
+  --color-bien-tinte: #e0f2e0;
+  --color-aviso: #7a5600;
+  --color-aviso-tinte: #fcf1d6;
+  --color-info: #1c5cab;
+  --color-info-tinte: #e2edfb;
+  --color-serio: #8a3a17;
+  --color-serio-tinte: #fbe8de;
+  --color-critico: #9b1f1f;
+  --color-critico-tinte: #fae2e2;
+
+  /* Series de las gráficas · orden fijo, nunca ciclado */
+  --color-serie-1: #2a78d6;
+  --color-serie-2: #eb6834;
+  --color-serie-3: #1baf7a;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Declarado: la app es de modo claro, y lo dice en lugar de dejarlo al azar. */
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-plano);
+  color: var(--color-tinta);
+}
+
+/* El foco se ve siempre, y se ve igual en todas partes. */
+:focus-visible {
+  outline: 2px solid var(--color-serie-1);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

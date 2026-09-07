@@ -2,16 +2,20 @@
 
 import { useState } from 'react'
 import { atenderComentarioManual } from '@/app/acciones/piezas'
-import { Enviar } from '@/app/formulario'
+import { Boton, Enviar } from '@/app/formulario'
 
 export function Fila(props: {
   comentarioId: string
   autor: string
   texto: string
   motivo: string
+  intentos: number
+  red: string | null
   pieza: string
   permalink: string | null
   sugerida: string
+  /** El sistema lo reintenta solo: la fila no pide acción, y se ve. */
+  enEspera?: boolean
 }) {
   const [copiado, setCopiado] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
@@ -29,44 +33,56 @@ export function Fila(props: {
   }
 
   return (
-    <article className="rounded-lg border border-neutral-200 bg-white p-4">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm">
-            <span className="font-medium">@{props.autor}</span>
-            <span className="text-neutral-500"> · {props.pieza}</span>
+    <article
+      className={`rounded-xl border bg-superficie p-4 ${
+        props.enEspera ? 'border-dashed border-linea' : 'border-linea'
+      }`}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="flex flex-wrap items-baseline gap-x-2 text-xs text-tinta-3">
+            <span className="font-medium text-tinta">@{props.autor}</span>
+            {props.red ? <span>en {props.red}</span> : null}
+            <span>·</span>
+            <span className="truncate">{props.pieza}</span>
           </p>
-          <p className="mt-1 text-sm text-neutral-800">{props.texto}</p>
-          <p className="mt-1 text-xs text-amber-700">{props.motivo}</p>
+
+          {/* Lo que la persona escribió es lo que hay que leer: va primero y más grande. */}
+          <p className="mt-1.5 text-sm text-tinta">{props.texto}</p>
+
+          {props.motivo ? (
+            <p className="mt-1.5 text-xs text-tinta-2">
+              {props.motivo}
+              {props.intentos > 0 ? ` · ${props.intentos} de 3 intentos` : ''}
+            </p>
+          ) : null}
         </div>
-        <div className="flex shrink-0 gap-2">
+
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
           {props.permalink ? (
             <a
               href={props.permalink}
               target="_blank"
               rel="noreferrer"
-              className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs"
+              className="rounded-lg border border-linea-fuerte bg-superficie px-3 py-1.5 text-xs font-medium text-tinta transition-colors hover:bg-hundido"
             >
-              Ver
+              Ver el post
             </a>
           ) : null}
-          <button
-            type="button"
-            onClick={copiar}
-            aria-label={`Copiar la respuesta para ${props.autor}`}
-            className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs"
-          >
-            {copiado ? 'Copiado' : 'Copiar respuesta'}
-          </button>
+          <Boton onClick={copiar}>{copiado ? '✓ Copiado' : 'Copiar respuesta'}</Boton>
           <form action={async (datos) => setAviso((await atenderComentarioManual(datos)).mensaje)}>
             <input type="hidden" name="comentarioId" value={props.comentarioId} />
-            <Enviar haciendo="Marcando">Listo</Enviar>
+            <Enviar variante={props.enEspera ? 'secundario' : 'principal'} haciendo="Marcando">
+              Ya lo atendí
+            </Enviar>
           </form>
         </div>
       </div>
-      <p className="mt-2 rounded bg-neutral-50 p-2 text-xs text-neutral-600">{props.sugerida}</p>
+
+      <p className="mt-3 rounded-lg bg-hundido px-3 py-2 text-xs text-tinta-2">{props.sugerida}</p>
+
       {aviso ? (
-        <p role="status" className="mt-1 text-xs text-neutral-500">
+        <p role="status" className="mt-1.5 text-xs text-tinta-3">
           {aviso}
         </p>
       ) : null}

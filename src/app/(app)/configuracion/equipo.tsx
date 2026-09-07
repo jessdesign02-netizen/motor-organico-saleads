@@ -19,7 +19,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
         <form
           key={marca.id}
           action={async (datos) => setAviso(await ajustarMarca(datos))}
-          className="flex flex-wrap items-center gap-3 rounded-lg border border-neutral-200 p-3 text-sm"
+          className="flex flex-wrap items-center gap-3 rounded-lg border border-linea p-3 text-sm"
         >
           <input type="hidden" name="marcaId" value={marca.id} />
           <span className="min-w-28 font-medium">{marca.nombre}</span>
@@ -59,7 +59,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
         <button
           type="button"
           onClick={() => setCreando(true)}
-          className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          className="rounded-md border border-linea-fuerte px-3 py-2 text-sm"
         >
           Agregar una marca
         </button>
@@ -72,7 +72,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
             setAviso(salida)
             if (salida.ok) setCreando(false)
           }}
-          className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-neutral-300 p-3"
+          className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-linea-fuerte p-3"
         >
           <Campo etiqueta="Nombre">
             <input name="nombre" required className={ENTRADA} />
@@ -87,7 +87,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
             <input name="whatsappUrl" placeholder="https://wa.me/57..." className={ENTRADA} />
           </Campo>
           <Enviar haciendo="Creando">Crear</Enviar>
-          <button type="button" onClick={() => setCreando(false)} className="text-sm text-neutral-500">
+          <button type="button" onClick={() => setCreando(false)} className="text-sm text-tinta-3">
             Cancelar
           </button>
         </form>
@@ -111,12 +111,12 @@ export function Equipo({
     <div className="space-y-2">
       <Aviso resultado={aviso} />
 
-      <ul className="divide-y divide-neutral-100 text-sm">
+      <ul className="divide-y divide-linea text-sm">
         {equipo.map((persona) => (
           <li key={persona.id} className="flex items-center justify-between gap-3 py-2">
             <span>
               {persona.nombre ?? persona.email}
-              {persona.id === yo ? <span className="ml-2 text-xs text-neutral-400">tú</span> : null}
+              {persona.id === yo ? <span className="ml-2 text-xs text-tinta-3">tú</span> : null}
             </span>
 
             {puedeAjustar && persona.id !== yo ? (
@@ -142,7 +142,7 @@ export function Equipo({
                 </Enviar>
               </form>
             ) : (
-              <span className="text-neutral-500">{persona.rol}</span>
+              <span className="text-tinta-3">{persona.rol}</span>
             )}
           </li>
         ))}
@@ -151,5 +151,5 @@ export function Equipo({
   )
 }
 
-const ENTRADA = 'rounded-md border border-neutral-300 px-2 py-1.5 text-sm'
+const ENTRADA = 'rounded-md border border-linea-fuerte px-2 py-1.5 text-sm'
 

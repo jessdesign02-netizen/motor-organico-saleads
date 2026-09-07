@@ -27,15 +27,15 @@ export function CambioDeHoja({
   })
 
   return (
-    <div className="rounded-lg border border-sky-300 bg-sky-50 p-4">
-      <p className="text-sm font-medium text-sky-900">
+    <div className="rounded-lg border border-info-tinte bg-info-tinte p-4">
+      <p className="text-sm font-medium text-info">
         La hoja cambió después de que esta pieza quedó aprobada
       </p>
 
       {diferencias.length === 0 ? (
-        <p className="mt-1 text-xs text-sky-800">El cambio llega en campos que la app no muestra.</p>
+        <p className="mt-1 text-xs text-info">El cambio llega en campos que la app no muestra.</p>
       ) : (
-        <ul className="mt-2 space-y-1 text-xs text-sky-900">
+        <ul className="mt-2 space-y-1 text-xs text-info">
           {diferencias.map(([campo, valor]) => (
             <li key={campo}>
               <span className="font-medium">{campo.replace('_', ' ')}:</span>{' '}
@@ -54,7 +54,7 @@ export function CambioDeHoja({
               type="submit"
               name="decision"
               value="aceptar"
-              className="rounded-md bg-sky-900 px-3 py-1.5 text-xs font-medium text-white"
+              className="rounded-md bg-sky-900 px-3 py-1.5 text-xs font-medium text-superficie"
             >
               Aceptar el cambio
             </button>
@@ -65,12 +65,12 @@ export function CambioDeHoja({
               type="submit"
               name="decision"
               value="descartar"
-              className="rounded-md border border-sky-300 px-3 py-1.5 text-xs"
+              className="rounded-md border border-info-tinte px-3 py-1.5 text-xs"
             >
               Dejar lo aprobado
             </button>
           </form>
-          {aviso ? <span className="text-xs text-sky-900">{aviso}</span> : null}
+          {aviso ? <span className="text-xs text-info">{aviso}</span> : null}
         </div>
       ) : null}
     </div>

@@ -102,7 +102,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
         </form>
 
         {pieza.estado === 'borrador' && puedeEditar ? (
-          <form action={(datos) => correr(enviarARevision, datos)} className="mt-3 border-t border-neutral-100 pt-3">
+          <form action={(datos) => correr(enviarARevision, datos)} className="mt-3 border-t border-linea pt-3">
             <input type="hidden" name="piezaId" value={pieza.id} />
             <Enviar variante="secundario" haciendo="Enviando">
               Enviar a revisión
@@ -124,7 +124,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
                 aria-selected={red === opcion}
                 onClick={() => setRed(opcion)}
                 className={`rounded-md px-3 py-1.5 text-xs font-medium ${
-                  red === opcion ? 'bg-neutral-900 text-white' : 'border border-neutral-300'
+                  red === opcion ? 'bg-tinta text-superficie' : 'border border-linea-fuerte'
                 }`}
               >
                 {opcion}
@@ -145,7 +145,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
                 className={ENTRADA}
                 disabled={!puedeEditar}
               />
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="mt-1 text-xs text-tinta-3">
                 {LIMITES[opcion]} · vacío hereda el caption base
               </p>
             </div>
@@ -168,7 +168,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
               disabled={!puedeAutomatizar}
             />
             {palabra ? (
-              <p className="mt-1 text-xs text-neutral-500">Se guarda como {normalizar(palabra)}</p>
+              <p className="mt-1 text-xs text-tinta-3">Se guarda como {normalizar(palabra)}</p>
             ) : null}
           </Campo>
 
@@ -181,7 +181,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
               className={ENTRADA}
               disabled={!puedeAutomatizar}
             />
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-tinta-3">
               Vacío deja las que el sistema deriva solo. La coincidencia ya ignora tildes, mayúsculas, signos y
               letras repetidas, así que aquí van las que se escriben distinto de verdad.
             </p>
@@ -208,7 +208,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
           </Campo>
 
           {enlace ? (
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-tinta-3">
               Enlace rastreado: /r/{enlace.slug} · {enlace.clics} clics
             </p>
           ) : null}
@@ -229,7 +229,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
                 type="submit"
                 name="accion"
                 value="aprobar"
-                className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white"
+                className="rounded-md bg-tinta px-3 py-2 text-sm font-medium text-superficie"
               >
                 Aprobar
               </button>
@@ -237,7 +237,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
                 type="submit"
                 name="accion"
                 value="devolver"
-                className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium"
+                className="rounded-md border border-linea-fuerte px-3 py-2 text-sm font-medium"
               >
                 Devolver
               </button>

@@ -1,6 +1,7 @@
 import 'server-only'
 import { clienteAdmin } from '@/lib/supabase/admin'
 import type { TipoAviso } from '@/lib/database.types'
+import { fechaLarga } from '@/lib/etiquetas'
 
 /**
  * Avisos internos.
@@ -44,13 +45,13 @@ export async function avisarTokensPorVencer(diasDeAnticipacion = 7): Promise<num
     .lt('token_expira_at', corte)
 
   for (const cuenta of cuentas ?? []) {
-    const dia = cuenta.token_expira_at?.slice(0, 10) ?? 'pronto'
+    const dia = cuenta.token_expira_at?.slice(0, 10) ?? null
     await avisar({
       tipo: 'token_por_vencer',
       // La clave incluye el día, así que un token renovado deja de avisar y uno
       // que vuelve a acercarse genera su propio aviso.
-      clave: `token:${cuenta.id}:${dia}`,
-      titulo: `El acceso de ${cuenta.handle} vence el ${dia}`,
+      clave: `token:${cuenta.id}:${dia ?? 'pronto'}`,
+      titulo: `El acceso de ${cuenta.handle} vence ${dia ? `el ${fechaLarga(dia)}` : 'pronto'}`,
       detalle: `Renueva el token de ${cuenta.red} antes de esa fecha para que la cuenta siga publicando.`,
       brandId: cuenta.brand_id,
     })

@@ -24,14 +24,14 @@ export function Canales({
         <form
           key={cuenta.id}
           action={async (datos) => setAviso(await ajustarCuenta(datos))}
-          className="flex flex-wrap items-center gap-4 rounded-lg border border-neutral-200 p-3 text-sm"
+          className="flex flex-wrap items-center gap-4 rounded-lg border border-linea p-3 text-sm"
           aria-label={`Canal ${cuenta.handle} en ${cuenta.red}`}
         >
           <input type="hidden" name="cuentaId" value={cuenta.id} />
 
           <div className="min-w-40">
             <p className="font-medium">{cuenta.handle}</p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-tinta-3">
               {cuenta.red} · {marcas.find((m) => m.id === cuenta.brand_id)?.nombre}
             </p>
           </div>
@@ -63,13 +63,13 @@ export function Canales({
                 name="cupo"
                 min={1}
                 defaultValue={cuenta.cupo_respuestas_dia ?? 150}
-                className="w-20 rounded-md border border-neutral-300 px-2 py-1"
+                className="w-20 rounded-md border border-linea-fuerte px-2 py-1"
                 disabled={!puedeAjustar}
               />
             </label>
           ) : null}
 
-          <span className="text-xs text-neutral-500">
+          <span className="text-xs text-tinta-3">
             {cuenta.token_expira_at ? `vence ${cuenta.token_expira_at.slice(0, 10)}` : 'sin vencimiento'}
           </span>
 
@@ -92,7 +92,7 @@ export function NuevaCuenta({ marcas }: { marcas: Marca[] }) {
   return (
     <form
       action={async (datos) => setAviso(await registrarCuenta(datos))}
-      className="space-y-3 rounded-lg border border-dashed border-neutral-300 p-4"
+      className="space-y-3 rounded-lg border border-dashed border-linea-fuerte p-4"
       aria-label="Conectar un canal"
     >
       <p className="text-sm font-medium">Conectar un canal</p>

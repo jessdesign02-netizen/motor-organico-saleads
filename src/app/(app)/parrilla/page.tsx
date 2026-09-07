@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
 import { diasDeLaSemana, hoyDelEquipo, lunesDe } from '@/lib/dominio/semana'
-import { Vacio } from '@/app/ui'
+import { rangoDeSemana } from '@/lib/etiquetas'
+import { Encabezado, Vacio } from '@/app/ui'
 import { filas } from '@/lib/consulta'
 import { SemanaDeLaMarca } from './semana'
 import { NuevaPieza } from './nueva'
@@ -18,6 +19,7 @@ export default async function Parrilla({
   const lunes = semana ?? lunesDe(new Date())
   const dias = diasDeLaSemana(lunes)
   const hoy = hoyDelEquipo()
+  const estaSemana = lunesDe(new Date())
 
   const perfil = await perfilActual()
   const supabase = await clienteServidor()
@@ -57,28 +59,32 @@ export default async function Parrilla({
   const puedeAprobar = perfil?.rol === 'editora' || perfil?.rol === 'aprobadora'
   const puedeCrear = perfil?.rol === 'editora' || perfil?.rol === 'audiovisual'
 
+  const paso = (dias: number) => {
+    const fecha = new Date(`${lunes}T12:00:00Z`)
+    fecha.setUTCDate(fecha.getUTCDate() + dias)
+    return fecha.toISOString().slice(0, 10)
+  }
+
+  const navegar = 'rounded-lg px-2.5 py-1.5 text-sm text-tinta-2 transition-colors hover:bg-hundido hover:text-tinta'
+
   return (
     <div className="space-y-8">
-      <header className="flex flex-wrap items-baseline justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Parrilla</h1>
-          <p className="text-sm text-neutral-500">Semana del {lunes}</p>
-        </div>
-        <div className="flex items-center gap-3 text-sm">
-          <Link href={`/parrilla?semana=${corrimiento(lunes, -7)}`} className="text-neutral-600 hover:text-neutral-900">
-            Anterior
-          </Link>
-          <Link href={`/parrilla?semana=${lunesDe(new Date())}`} className="text-neutral-600 hover:text-neutral-900">
+      <Encabezado titulo="Parrilla" bajada={rangoDeSemana(lunes)}>
+        <Link href={`/parrilla?semana=${paso(-7)}`} className={navegar} aria-label="Semana anterior">
+          ←
+        </Link>
+        {lunes !== estaSemana ? (
+          <Link href={`/parrilla?semana=${estaSemana}`} className={navegar}>
             Esta semana
           </Link>
-          <Link href={`/parrilla?semana=${corrimiento(lunes, 7)}`} className="text-neutral-600 hover:text-neutral-900">
-            Siguiente
-          </Link>
-        </div>
-      </header>
+        ) : null}
+        <Link href={`/parrilla?semana=${paso(7)}`} className={navegar} aria-label="Semana siguiente">
+          →
+        </Link>
+      </Encabezado>
 
       {marcas.length === 0 ? (
-        <Vacio>Aún no hay marcas cargadas. Créalas en la base y conecta su hoja de cálculo.</Vacio>
+        <Vacio>Aún no hay marcas cargadas. Créalas en Ajustes y conecta su hoja de cálculo.</Vacio>
       ) : null}
 
       {marcas.map((marca) => (
@@ -100,10 +106,4 @@ export default async function Parrilla({
       {puedeCrear && marcas.length > 0 ? <NuevaPieza marcas={marcas ?? []} semana={lunes} /> : null}
     </div>
   )
-}
-
-function corrimiento(lunes: string, dias: number): string {
-  const fecha = new Date(`${lunes}T12:00:00Z`)
-  fecha.setUTCDate(fecha.getUTCDate() + dias)
-  return fecha.toISOString().slice(0, 10)
 }
