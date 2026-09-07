@@ -2,9 +2,16 @@ import Link from 'next/link'
 import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
 import { hoyDelEquipo, lunesDe } from '@/lib/dominio/semana'
-import { Dato, Encabezado, Etiqueta, Tarjeta, Vacio } from '@/app/ui'
+import { Dato, Encabezado, Etiqueta, Marca, Tarjeta, Vacio } from '@/app/ui'
 import { filas } from '@/lib/consulta'
-import { ESTADO_PIEZA, TIPO_AVISO, fechaLarga, hace, hora } from '@/lib/etiquetas'
+import { ESTADO_PIEZA, TIPO_AVISO, fechaConDia, hace, hora } from '@/lib/etiquetas'
+import {
+  IconoAutomatizaciones,
+  IconoChat,
+  IconoDia,
+  IconoParrilla,
+  IconoResultados,
+} from '../iconos'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,42 +61,66 @@ export default async function Dashboard() {
   const sinAprobar = deLaSemana.filter((p) => p.estado === 'revision' || p.estado === 'borrador').length
 
   const atajo =
-    'rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-hundido'
+    'flex items-center justify-between gap-3 rounded-lg border border-linea bg-superficie px-4 py-3 text-sm font-medium text-tinta transition-colors hover:border-linea-fuerte hover:bg-hundido'
 
   return (
     <div className="space-y-6">
       <Encabezado
         titulo={`Hola, ${(perfil?.nombre ?? 'equipo').split(' ')[0]}`}
-        bajada={fechaLarga(hoy)}
+        bajada={fechaConDia(hoy)}
       />
 
       {/* Lo que hay que decidir hoy, antes que cualquier número. */}
       {listasDeHoy.length > 0 ? (
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-tinta bg-superficie p-5">
-          <div>
-            <p className="text-sm font-medium text-tinta">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-linea-fuerte bg-superficie p-6 shadow-carta">
+          <div className="flex items-center gap-4">
+            <Marca acento="azul">
+              <IconoDia className="size-5" />
+            </Marca>
+            <div>
+          <p className="text-[15px] font-semibold text-tinta">
               {listasDeHoy.length} {listasDeHoy.length === 1 ? 'pieza está lista' : 'piezas están listas'} para
               salir hoy
             </p>
-            <p className="mt-0.5 text-xs text-tinta-2">
-              Se programan desde el panel del día, en un clic.
+            <p className="mt-0.5 text-[13px] text-tinta-2">
+              Salen a su hora con la automatización encendida. Es el único punto que espera tu decisión.
             </p>
+            </div>
           </div>
-          <Link href="/dia" className="rounded-lg bg-tinta px-3.5 py-2 text-sm font-medium text-superficie">
+          <Link
+            href="/dia"
+            className="rounded-lg bg-tinta px-5 py-2.5 text-sm font-semibold text-superficie transition-colors hover:bg-acento-1"
+          >
             Abrir el día
           </Link>
         </div>
       ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Dato etiqueta="Comentarios con la palabra" valor={detectados} nota="esta semana" />
-        <Dato etiqueta="Mensajes enviados" valor={enviados} nota="esta semana" />
-        <Dato etiqueta="Clics al enlace" valor={clics} nota="esta semana" />
         <Dato
-          etiqueta="Esperan tu mano"
+          etiqueta="Comentarios"
+          valor={detectados}
+          acento="verde"
+          nota={detectados === 0 ? 'ninguno esta semana' : 'con la palabra clave'}
+        />
+        <Dato
+          etiqueta="Mensajes"
+          valor={enviados}
+          acento="azul"
+          nota={
+            detectados === 0
+              ? 'sin comentarios que responder'
+              : `${Math.round((enviados / detectados) * 100)}% de los detectados`
+          }
+        />
+        {/* Sin tasa: los clics son acumulados del enlace y los mensajes son de
+            esta semana. Dividirlos daría un número que parece un ratio y no lo es. */}
+        <Dato etiqueta="Clics" valor={clics} acento="violeta" nota="acumulado de los enlaces" />
+        <Dato
+          etiqueta="Pendientes"
           valor={pendientes}
-          nota={pendientes === 0 ? 'nada pendiente' : 'en el chat en vivo'}
-          {...(pendientes > 0 ? { tono: 'aviso' as const } : {})}
+          acento={pendientes > 0 ? 'naranja' : 'neutro'}
+          nota={pendientes === 0 ? 'nada que atender' : 'esperan en el chat en vivo'}
         />
       </div>
 
@@ -161,19 +192,30 @@ export default async function Dashboard() {
         {deLaSemana.length === 0 ? (
           <Vacio>La semana está vacía. La hoja de cálculo se lee sola cada quince minutos.</Vacio>
         ) : (
-          <div className="flex flex-wrap gap-2">
-            <Link href="/parrilla" className={atajo}>
-              Ver la parrilla
-            </Link>
-            <Link href="/chat" className={atajo}>
-              Chat en vivo{pendientes > 0 ? ` · ${pendientes}` : ''}
-            </Link>
-            <Link href="/automatizaciones" className={atajo}>
-              Automatizaciones
-            </Link>
-            <Link href="/resultados" className={atajo}>
-              Resultados
-            </Link>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { href: '/parrilla', texto: 'Ver la parrilla', icono: IconoParrilla, acento: 'azul' as const },
+              {
+                href: '/chat',
+                texto: pendientes > 0 ? `Chat en vivo · ${pendientes}` : 'Chat en vivo',
+                icono: IconoChat,
+                acento: 'verde' as const,
+              },
+              {
+                href: '/automatizaciones',
+                texto: 'Automatizaciones',
+                icono: IconoAutomatizaciones,
+                acento: 'violeta' as const,
+              },
+              { href: '/resultados', texto: 'Resultados', icono: IconoResultados, acento: 'naranja' as const },
+            ].map((a) => (
+              <Link key={a.href} href={a.href} className={atajo}>
+                <span className="flex-1">{a.texto}</span>
+                <Marca acento={a.acento} tamano="sm">
+                  <a.icono className="size-4" />
+                </Marca>
+              </Link>
+            ))}
           </div>
         )}
       </Tarjeta>

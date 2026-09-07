@@ -1,4 +1,5 @@
 import { lunesDe, diasDeLaSemana } from '@/lib/dominio/semana'
+import { fechaLarga } from '@/lib/etiquetas'
 import type { TablasFalsas } from '@/pruebas/supabase-falso'
 
 /**
@@ -896,7 +897,7 @@ export function tablasDemo(): TablasFalsas {
       {
         id: 'eeeeeeee-0000-4000-8000-000000000003',
         tipo: 'token_por_vencer',
-        titulo: 'El acceso de @saleads vence el ' + enDias(5).slice(0, 10),
+        titulo: `El acceso de @saleads vence el ${fechaLarga(enDias(5).slice(0, 10))}`,
         detalle: 'Renueva el token de tiktok antes de esa fecha para que la cuenta siga publicando.',
         brand_id: SALEADS,
         piece_id: null,

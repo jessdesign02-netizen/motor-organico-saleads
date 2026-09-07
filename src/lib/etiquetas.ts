@@ -170,6 +170,17 @@ export function fechaLarga(iso: string | null): string {
   return `${p.dia} de ${MESES[p.mes] ?? ''}`
 }
 
+const DIAS_SEMANA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+
+/** "Lunes, 7 de septiembre". El día de la semana ubica más que el número. */
+export function fechaConDia(iso: string | null): string {
+  if (!iso) return 'sin fecha'
+  const p = partes(iso)
+  if (!p) return iso
+  const dia = DIAS_SEMANA[new Date(Date.UTC(p.ano, p.mes, p.dia)).getUTCDay()] ?? ''
+  return `${dia}, ${p.dia} de ${MESES[p.mes] ?? ''}`
+}
+
 /** "Del 7 al 13 de septiembre", y con los dos meses cuando la semana los cruza. */
 export function rangoDeSemana(lunesIso: string): string {
   const inicio = partes(lunesIso)

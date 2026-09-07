@@ -71,7 +71,7 @@ export function Encabezado({
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-tinta">{titulo}</h1>
+        <h1 className="text-[2rem] font-bold leading-tight tracking-[-0.02em] text-tinta">{titulo}</h1>
         {bajada ? <p className="mt-0.5 text-sm text-tinta-2">{bajada}</p> : null}
       </div>
       {children ? <div className="flex items-center gap-2">{children}</div> : null}
@@ -94,17 +94,17 @@ export function Tarjeta({
   ajustado?: boolean
 }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-linea bg-superficie">
+    <section className="overflow-hidden rounded-xl border border-linea bg-superficie shadow-carta">
       {titulo ? (
-        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-linea px-5 py-3.5">
+        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-linea px-6 py-4">
           <div>
-            <h2 className="text-sm font-semibold tracking-tight text-tinta">{titulo}</h2>
+            <h2 className="text-[17px] font-semibold tracking-tight text-tinta">{titulo}</h2>
             {bajada ? <p className="mt-0.5 text-xs text-tinta-2">{bajada}</p> : null}
           </div>
           {accion}
         </div>
       ) : null}
-      <div className={ajustado ? '' : 'p-5'}>{children}</div>
+      <div className={ajustado ? '' : 'p-6'}>{children}</div>
     </section>
   )
 }
@@ -127,35 +127,54 @@ export function Vacio({ children, accion }: { children: ReactNode; accion?: Reac
 // ---------------------------------------------------------------------------
 
 /**
- * La cifra manda y la etiqueta la acompaña, no al revés. Las cifras sueltas van
- * en figuras proporcionales; tabular-nums se reserva para columnas que alinean.
+ * Tarjeta de cifra.
+ *
+ * Cuatro números en negro seguidos no se distinguen de un párrafo: la fila
+ * entera se lee como un bloque gris. Cada cifra lleva su acento, el rótulo va
+ * en versalitas para que no compita, y debajo cabe una línea de contexto —lo
+ * que el número significa— en lugar de una nota suelta.
+ *
+ * El acento es fijo por métrica, nunca por posición ni por ranking: si mañana
+ * se reordenan las tarjetas, cada una sigue con su color.
  */
 export function Dato({
   etiqueta,
   valor,
   nota,
-  tono,
+  acento = 'neutro',
 }: {
   etiqueta: string
   valor: string | number
+  /** Qué significa la cifra. "esta semana", "90% de entrega". */
   nota?: string
-  tono?: Tono
+  acento?: 'neutro' | 'azul' | 'verde' | 'violeta' | 'naranja' | 'aviso'
 }) {
-  const acento: Record<Tono, string> = {
+  const cifras: Record<string, string> = {
     neutro: 'text-tinta',
-    bien: 'text-bien',
+    azul: 'text-acento-1',
+    verde: 'text-acento-2',
+    violeta: 'text-acento-3',
+    naranja: 'text-acento-4',
     aviso: 'text-aviso',
-    info: 'text-info',
-    serio: 'text-serio',
-    critico: 'text-critico',
   }
+  const notas: Record<string, string> = {
+    neutro: 'text-tinta-3',
+    azul: 'text-acento-1',
+    verde: 'text-acento-2',
+    violeta: 'text-acento-3',
+    naranja: 'text-acento-4',
+    aviso: 'text-aviso',
+  }
+
   return (
-    <div className="rounded-xl border border-linea bg-superficie px-4 py-3.5">
-      <p className="text-xs text-tinta-2">{etiqueta}</p>
-      <p className={`mt-1 text-3xl font-semibold tracking-tight ${tono ? acento[tono] : 'text-tinta'}`}>
-        {typeof valor === 'number' ? cifra(valor) : valor}
-      </p>
-      {nota ? <p className="mt-0.5 text-xs text-tinta-3">{nota}</p> : null}
+    <div className="flex min-h-[7.5rem] flex-col justify-between rounded-xl border border-linea bg-superficie p-5 shadow-carta">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-tinta-3">{etiqueta}</p>
+      <div className="mt-3">
+        <p className={`text-[1.75rem] font-bold leading-none tracking-tight ${cifras[acento]}`}>
+          {typeof valor === 'number' ? cifra(valor) : valor}
+        </p>
+        {nota ? <p className={`mt-1.5 text-[13px] font-medium ${notas[acento]}`}>{nota}</p> : null}
+      </div>
     </div>
   )
 }
@@ -228,5 +247,33 @@ export function Celda({
     >
       {children}
     </td>
+  )
+}
+
+/** Icono dentro de un círculo de color. Le pone cara a una franja o a un atajo. */
+export function Marca({
+  children,
+  acento = 'azul',
+  tamano = 'md',
+}: {
+  children: ReactNode
+  acento?: 'azul' | 'verde' | 'violeta' | 'naranja'
+  tamano?: 'sm' | 'md'
+}) {
+  const tonos = {
+    azul: 'bg-acento-1-tinte text-acento-1',
+    verde: 'bg-acento-2-tinte text-acento-2',
+    violeta: 'bg-acento-3-tinte text-acento-3',
+    naranja: 'bg-acento-4-tinte text-acento-4',
+  }
+  return (
+    <span
+      className={`flex shrink-0 items-center justify-center rounded-full ${tonos[acento]} ${
+        tamano === 'sm' ? 'size-8' : 'size-11'
+      }`}
+      aria-hidden
+    >
+      {children}
+    </span>
   )
 }

@@ -168,7 +168,7 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
       </div>
 
       {sinFecha.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-linea bg-superficie px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-linea bg-superficie shadow-carta px-4 py-3">
           <span className="text-xs font-medium text-tinta-2">
             Sin fecha ({sinFecha.length}) · no van a salir hasta que se les ponga día
           </span>
@@ -186,7 +186,7 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
 
       {/* Módulo 3 · el recorrido de fechas asistido, tras una devolución. */}
       {puedeAprobar && propuesta ? (
-        <div className="rounded-xl border border-linea border-l-2 border-l-info bg-superficie p-4">
+        <div className="rounded-xl border border-linea border-l-2 border-l-info bg-superficie shadow-carta p-4">
           <p className="text-sm font-medium text-tinta">Propuesta de calendario</p>
           <p className="mt-0.5 text-xs text-tinta-2">
             {propuesta.motivo}. Nada se mueve hasta que lo confirmes.
@@ -217,7 +217,7 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
       {puedeAprobar && !propuesta && enRevision.length > 0 ? (
         <form
           action={(datos) => correr(proponerCalendario, datos)}
-          className="flex flex-wrap items-center gap-2 rounded-xl border border-linea bg-superficie px-4 py-3"
+          className="flex flex-wrap items-center gap-2 rounded-xl border border-linea bg-superficie shadow-carta px-4 py-3"
         >
           <input type="hidden" name="marcaId" value={marca.id} />
           <input type="hidden" name="semana" value={semana} />

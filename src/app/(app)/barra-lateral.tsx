@@ -65,7 +65,7 @@ export function BarraLateral({
 
   const operacion: Entrada[] = [
     { href: '/dia', texto: 'El día', icono: IconoDia },
-    { href: '/avisos', texto: 'Avisos', icono: IconoAvisos, cuenta: cuentas.avisos, tono: 'aviso' },
+    { href: '/avisos', texto: 'Avisos', icono: IconoAvisos, cuenta: cuentas.avisos, tono: 'neutro' },
     { href: '/recursos', texto: 'Recursos', icono: IconoRecursos },
     { href: '/diagnostico', texto: 'Diagnóstico', icono: IconoDiagnostico },
   ]
@@ -91,8 +91,8 @@ export function BarraLateral({
           <span className="flex-1 truncate">{entrada.texto}</span>
           {entrada.cuenta && entrada.cuenta > 0 ? (
             <span
-              className={`rounded-full px-1.5 py-0.5 text-[11px] font-medium tabular-nums ${
-                entrada.tono === 'aviso' ? 'bg-aviso-tinte text-aviso' : 'bg-hundido text-tinta-2'
+              className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
+                entrada.tono === 'aviso' ? 'bg-acento-4 text-superficie' : 'bg-hundido text-tinta-2'
               }`}
             >
               {entrada.cuenta}
@@ -135,13 +135,13 @@ export function BarraLateral({
         }`}
       >
         <div className="border-b border-linea px-5 py-4">
-          <p className="text-sm font-semibold tracking-tight text-tinta">Motor Orgánico</p>
+          <p className="text-[15px] font-semibold tracking-tight text-tinta">Motor Orgánico</p>
           <p className="text-xs text-tinta-3">SaleADS · Juanads</p>
         </div>
 
         <div className="flex items-center gap-2.5 border-b border-linea px-5 py-3">
           <span
-            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-hundido text-xs font-semibold text-tinta-2"
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-acento-1 text-xs font-semibold text-superficie"
             aria-hidden
           >
             {nombre.slice(0, 1).toUpperCase()}

@@ -96,7 +96,7 @@ export default async function Automatizaciones() {
 
       <div className="space-y-3">
         {armadas.map((a) => (
-          <article key={a.clave.id} className="overflow-hidden rounded-xl border border-linea bg-superficie">
+          <article key={a.clave.id} className="overflow-hidden rounded-xl border border-linea bg-superficie shadow-carta">
             <div className="flex flex-wrap items-start justify-between gap-4 border-b border-linea px-5 py-3.5">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">

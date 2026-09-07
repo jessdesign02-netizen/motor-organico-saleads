@@ -18,18 +18,23 @@
  */
 
 @theme {
-  /* Superficies */
-  --color-plano: #f9f9f7;
-  --color-superficie: #fcfcfb;
-  --color-hundido: #f2f1ed;
+  /* Superficies
+   *
+   * El plano y la tarjeta estaban a 1.03:1 de contraste: prácticamente el mismo
+   * color. Sin escalón entre el fondo y lo que va encima, la pantalla se ve
+   * plana por mucha sombra que se le ponga. La tarjeta es blanca y el plano se
+   * baja hasta que el escalón se nota. */
+  --color-plano: #eeede8;
+  --color-superficie: #ffffff;
+  --color-hundido: #f4f3ef;
 
   /* Tinta */
   --color-tinta: #0b0b0b;
   --color-tinta-2: #52514e;
-  --color-tinta-3: #898781;
+  --color-tinta-3: #7c7a74;
 
   /* Líneas */
-  --color-linea: #e1e0d9;
+  --color-linea: #e4e3dc;
   --color-linea-fuerte: #c3c2b7;
 
   /* Estado · tinte de fondo y su tinta, comprobados en pareja */
@@ -44,12 +49,36 @@
   --color-critico: #9b1f1f;
   --color-critico-tinte: #fae2e2;
 
+  /* Acentos de cifra
+   *
+   * Stitch pintó los números de las tarjetas y tenía razón: una fila de cuatro
+   * cifras en negro no se distingue de un párrafo. Sus tonos venían de la
+   * paleta de Tailwind y algunos no llegaban a 4.5:1 sobre blanco, así que se
+   * usan los pasos equivalentes de esta paleta, que sí pasan AA como texto. */
+  --color-acento-1: #1c5cab;
+  --color-acento-1-tinte: #e2edfb;
+  --color-acento-2: #0a6b0a;
+  --color-acento-2-tinte: #e0f2e0;
+  --color-acento-3: #4a3aa7;
+  --color-acento-3-tinte: #eae7fa;
+  --color-acento-4: #a8410f;
+  --color-acento-4-tinte: #fbe8de;
+
   /* Series de las gráficas · orden fijo, nunca ciclado */
   --color-serie-1: #2a78d6;
   --color-serie-2: #eb6834;
   --color-serie-3: #1baf7a;
 
   --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Profundidad
+   *
+   * Dos alturas, no más. La tarjeta se levanta apenas del plano; lo que flota
+   * de verdad —un menú, algo que se abre encima— usa la segunda. Una escala de
+   * sombras más larga solo produce pantallas donde nada parece estar a ninguna
+   * altura concreta. */
+  --shadow-carta: 0 1px 2px rgb(11 11 11 / 0.04), 0 1px 3px rgb(11 11 11 / 0.06);
+  --shadow-alzado: 0 2px 4px rgb(11 11 11 / 0.04), 0 8px 24px rgb(11 11 11 / 0.08);
 }
 
 :root {

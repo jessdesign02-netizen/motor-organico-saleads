@@ -47,7 +47,7 @@ export default async function Avisos() {
         {pendientes.map((aviso) => (
           <article
             key={aviso.id}
-            className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-linea bg-superficie p-4"
+            className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-linea bg-superficie shadow-carta p-4"
           >
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -74,7 +74,7 @@ export default async function Avisos() {
       </div>
 
       {archivados.length > 0 ? (
-        <details className="rounded-xl border border-linea bg-superficie">
+        <details className="rounded-xl border border-linea bg-superficie shadow-carta">
           <summary className="cursor-pointer px-5 py-3 text-sm text-tinta-2 hover:text-tinta">
             Archivados ({archivados.length})
           </summary>

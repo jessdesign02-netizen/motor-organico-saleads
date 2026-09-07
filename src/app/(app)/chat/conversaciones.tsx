@@ -136,7 +136,7 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
 
       <div className="grid gap-4 lg:grid-cols-[20rem_1fr]">
         {/* Lista de conversaciones */}
-        <div className="max-h-[34rem] overflow-y-auto rounded-xl border border-linea bg-superficie">
+        <div className="max-h-[34rem] overflow-y-auto rounded-xl border border-linea bg-superficie shadow-carta">
           {visibles.length === 0 ? (
             <p className="px-4 py-10 text-center text-sm text-tinta-3">Nada por aquí todavía.</p>
           ) : null}
@@ -183,7 +183,7 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
 
         {/* El hilo */}
         {hilo ? (
-          <div className="flex max-h-[34rem] flex-col rounded-xl border border-linea bg-superficie">
+          <div className="flex max-h-[34rem] flex-col rounded-xl border border-linea bg-superficie shadow-carta">
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-linea px-5 py-3.5">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-tinta">@{hilo.autor}</p>

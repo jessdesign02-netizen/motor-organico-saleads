@@ -82,7 +82,7 @@ export default async function PanelDelDia({
         const marca = (marcas ?? []).find((m) => m.id === pieza.brand_id)
 
         return (
-          <article key={pieza.id} className="overflow-hidden rounded-xl border border-linea bg-superficie">
+          <article key={pieza.id} className="overflow-hidden rounded-xl border border-linea bg-superficie shadow-carta">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-linea px-5 py-3.5">
               <span className="text-lg font-semibold tabular-nums tracking-tight text-tinta">
                 {hora(pieza.hora_publicacion)}

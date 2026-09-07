@@ -117,7 +117,7 @@ export default async function Resultados({
       ) : null}
 
       {hora ? (
-        <p className="rounded-xl border border-linea bg-superficie px-4 py-3 text-sm text-tinta">
+        <p className="rounded-xl border border-linea bg-superficie shadow-carta px-4 py-3 text-sm text-tinta">
           La franja de las <span className="font-semibold">{hora.hora}</span> es la que más gente trajo:{' '}
           {hora.enviados} mensajes sobre {hora.piezas} piezas.
         </p>

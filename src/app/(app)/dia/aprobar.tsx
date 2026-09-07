@@ -9,7 +9,7 @@ export function AprobarDia({ fecha, cuantas }: { fecha: string; cuantas: number 
   const [aviso, setAviso] = useState<{ ok: boolean; mensaje: string } | null>(null)
 
   return (
-    <div className="rounded-xl border border-tinta bg-superficie p-5">
+    <div className="rounded-xl border border-tinta bg-superficie shadow-carta p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-tinta">
