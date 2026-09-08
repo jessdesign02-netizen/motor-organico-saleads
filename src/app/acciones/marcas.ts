@@ -116,3 +116,61 @@ export async function cambiarRol(datos: FormData): Promise<Respuesta> {
     return `Rol actualizado a ${entrada.rol}`
   })
 }
+
+/**
+ * Invitar a alguien.
+ *
+ * Sin fila en `invitaciones` el alta de usuario falla en la base, así que esto
+ * no es un correo de cortesía: es lo que permite entrar. La persona se crea
+ * sola la primera vez que use Google o el enlace de clave, con el rol que se
+ * le puso aquí.
+ */
+export async function invitar(datos: FormData): Promise<Respuesta> {
+  return envolver('Invitar', async () => {
+    await exigirRol('editora')
+
+    const entrada = z
+      .object({
+        email: z.string().email('Escribe un correo completo'),
+        rol: z.enum(['editora', 'aprobadora', 'audiovisual', 'observador']),
+      })
+      .parse({ email: datos.get('email'), rol: datos.get('rol') })
+
+    const supabase = await clienteServidor()
+    exigirEscritura(
+      await supabase
+        .from('invitaciones')
+        // Reinvitar a alguien cambia su rol en lugar de fallar por duplicado.
+        .upsert({ email: entrada.email.trim().toLowerCase(), rol: entrada.rol }, { onConflict: 'email' })
+        .select('email'),
+      'Invitar',
+    )
+
+    revalidatePath('/configuracion')
+    return `${entrada.email} puede entrar como ${entrada.rol}`
+  })
+}
+
+/** Quitar a alguien de la lista. No borra su cuenta: le impide volver a entrar. */
+export async function revocarInvitacion(datos: FormData): Promise<Respuesta> {
+  return envolver('Quitar la invitación', async () => {
+    const perfil = await exigirRol('editora')
+
+    const { email } = z
+      .object({ email: z.string().email() })
+      .parse({ email: datos.get('email') })
+
+    if (email.toLowerCase() === perfil.email?.toLowerCase()) {
+      throw new Error('No puedes quitarte a ti misma de la lista')
+    }
+
+    const supabase = await clienteServidor()
+    exigirEscritura(
+      await supabase.from('invitaciones').delete().eq('email', email.toLowerCase()).select('email'),
+      'Quitar la invitación',
+    )
+
+    revalidatePath('/configuracion')
+    return `${email} ya no puede entrar`
+  })
+}

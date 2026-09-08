@@ -2,7 +2,7 @@ import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
 import { Tarjeta, Vacio } from '@/app/ui'
 import { Canales, NuevaCuenta } from './canales'
-import { Equipo, Marcas } from './equipo'
+import { Equipo, Invitaciones, Marcas } from './equipo'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,10 +10,11 @@ export default async function Ajustes() {
   const perfil = await perfilActual()
   const supabase = await clienteServidor()
 
-  const [{ data: marcas }, { data: cuentas }, { data: equipo }] = await Promise.all([
+  const [{ data: marcas }, { data: cuentas }, { data: equipo }, { data: invitaciones }] = await Promise.all([
     supabase.from('brands').select('*').order('nombre'),
     supabase.from('social_accounts').select('*').order('red'),
     supabase.from('profiles').select('*').order('rol'),
+    supabase.from('invitaciones').select('*').order('creada_at', { ascending: false }),
   ])
 
   const esEditora = perfil?.rol === 'editora'
@@ -41,6 +42,17 @@ export default async function Ajustes() {
 
       <Tarjeta titulo="Marcas">
         <Marcas marcas={marcas ?? []} puedeAjustar={esEditora} />
+      </Tarjeta>
+
+      <Tarjeta
+        titulo="Quién puede entrar"
+        bajada="Sin estar en esta lista, el alta falla en la base: venga por Google, por clave o por el panel de Supabase"
+      >
+        <Invitaciones
+          invitaciones={invitaciones ?? []}
+          puedeInvitar={esEditora}
+          yo={perfil?.email ?? ''}
+        />
       </Tarjeta>
 
       <Tarjeta titulo="Equipo">

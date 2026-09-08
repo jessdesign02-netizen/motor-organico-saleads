@@ -221,6 +221,15 @@ export type RegistroSync = {
   corrio_at: string
 }
 
+export type Invitacion = {
+  email: string
+  rol: RolApp
+  invitada_por: string | null
+  creada_at: string
+  /** Cuándo entró por primera vez. Vacío significa que aún no ha llegado. */
+  usada_at: string | null
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -239,6 +248,7 @@ export type Database = {
       sync_logs: Fila<RegistroSync>
       calendar_proposals: Fila<PropuestaCalendario>
       notices: Fila<Aviso>
+      invitaciones: Fila<Invitacion>
     }
     Views: Record<string, never>
     Functions: Record<string, never>
