@@ -10,6 +10,9 @@ import { createServerClient } from '@supabase/ssr'
 
 export const RUTAS_PUBLICAS = [
   '/ingresar',
+  // Pedir el enlace de recuperación es justo lo que se hace sin poder entrar.
+  '/recuperar',
+  // Aquí aterrizan los enlaces del correo: canjean el código y crean la sesión.
   '/auth',
   // El webhook lo firma Meta, y los cron llevan su propia cabecera.
   '/api/webhooks',
