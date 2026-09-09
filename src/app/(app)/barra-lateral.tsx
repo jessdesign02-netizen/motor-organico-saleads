@@ -40,15 +40,7 @@ type Entrada = {
   tono?: 'aviso' | 'neutro'
 }
 
-export function BarraLateral({
-  nombre,
-  rol,
-  cuentas,
-}: {
-  nombre: string
-  rol: string
-  cuentas: Cuentas
-}) {
+export function BarraLateral({ nombre, rol, cuentas }: { nombre: string; rol: string; cuentas: Cuentas }) {
   const ruta = usePathname()
   const [abierta, setAbierta] = useState(false)
 
@@ -81,10 +73,10 @@ export function BarraLateral({
           href={entrada.href}
           aria-current={puesta ? 'page' : undefined}
           onClick={() => setAbierta(false)}
-          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+          className={`flex items-center gap-3 rounded-silk px-3 py-2 text-sm transition-colors ${
             puesta
-              ? 'bg-hundido font-medium text-tinta'
-              : 'text-tinta-2 hover:bg-hundido hover:text-tinta'
+              ? 'bg-arcilla-alta font-medium text-tinta'
+              : 'text-tinta-2 hover:bg-arcilla-alta hover:text-tinta'
           }`}
         >
           <Icono className={`size-[18px] shrink-0 ${puesta ? 'text-tinta' : 'text-tinta-3'}`} />
@@ -92,7 +84,7 @@ export function BarraLateral({
           {entrada.cuenta && entrada.cuenta > 0 ? (
             <span
               className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
-                entrada.tono === 'aviso' ? 'bg-acento-4 text-superficie' : 'bg-hundido text-tinta-2'
+                entrada.tono === 'aviso' ? 'bg-serio text-white' : 'bg-arcilla-alta text-tinta-2'
               }`}
             >
               {entrada.cuenta}
@@ -111,10 +103,17 @@ export function BarraLateral({
         onClick={() => setAbierta(!abierta)}
         aria-expanded={abierta}
         aria-controls="barra-lateral"
-        className="fixed left-4 top-3 z-30 rounded-lg border border-linea bg-superficie p-2 lg:hidden"
+        className="fixed left-4 top-3 z-30 rounded-silk shadow-alzado bg-arcilla p-2 lg:hidden"
       >
         <span className="sr-only">Menú</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="size-5" aria-hidden>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          className="size-5"
+          aria-hidden
+        >
           <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
         </svg>
       </button>
@@ -124,24 +123,24 @@ export function BarraLateral({
           type="button"
           aria-label="Cerrar el menú"
           onClick={() => setAbierta(false)}
-          className="fixed inset-0 z-20 bg-tinta/20 lg:hidden"
+          className="fixed inset-0 z-20 bg-tinta/25 lg:hidden"
         />
       ) : null}
 
       <aside
         id="barra-lateral"
-        className={`fixed inset-y-0 left-0 z-20 flex w-60 shrink-0 flex-col border-r border-linea bg-superficie transition-transform lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-20 flex w-60 shrink-0 flex-col bg-arcilla transition-transform lg:translate-x-0 ${
           abierta ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="border-b border-linea px-5 py-4">
+        <div className="px-5 py-4">
           <p className="text-[15px] font-semibold tracking-tight text-tinta">Motor Orgánico</p>
           <p className="text-xs text-tinta-3">SaleADS · Juanads</p>
         </div>
 
-        <div className="flex items-center gap-2.5 border-b border-linea px-5 py-3">
+        <div className="flex items-center gap-2.5 px-5 py-3">
           <span
-            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-acento-1 text-xs font-semibold text-superficie"
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primario text-xs font-semibold text-white"
             aria-hidden
           >
             {nombre.slice(0, 1).toUpperCase()}
@@ -161,10 +160,10 @@ export function BarraLateral({
           <ul className="space-y-0.5">{operacion.map(enlace)}</ul>
         </nav>
 
-        <form action="/auth/salir" method="post" className="border-t border-linea p-3">
+        <form action="/auth/salir" method="post" className="p-3">
           <button
             type="submit"
-            className="w-full rounded-lg px-3 py-2 text-left text-sm text-tinta-2 transition-colors hover:bg-hundido hover:text-tinta"
+            className="w-full rounded-silk px-3 py-2 text-left text-sm text-tinta-2 transition-colors hover:bg-arcilla-alta hover:text-tinta"
           >
             Salir
           </button>

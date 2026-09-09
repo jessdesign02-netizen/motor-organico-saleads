@@ -9,7 +9,7 @@ export function AprobarDia({ fecha, cuantas }: { fecha: string; cuantas: number 
   const [aviso, setAviso] = useState<{ ok: boolean; mensaje: string } | null>(null)
 
   return (
-    <div className="rounded-xl border border-tinta bg-superficie shadow-carta p-5">
+    <div className="rounded-silk shadow-alzado bg-arcilla shadow-alzado p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-tinta">
@@ -20,10 +20,7 @@ export function AprobarDia({ fecha, cuantas }: { fecha: string; cuantas: number 
             Al confirmar entran a la cola y salen a su hora, con su automatización encendida.
           </p>
         </div>
-        <form
-          action={async (datos) => setAviso(await programarDia(datos))}
-          aria-label="Aprobar el día"
-        >
+        <form action={async (datos) => setAviso(await programarDia(datos))} aria-label="Aprobar el día">
           <input type="hidden" name="fecha" value={fecha} />
           <Enviar haciendo="Programando">Aprobar el día</Enviar>
         </form>

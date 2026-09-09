@@ -59,7 +59,8 @@ export default async function Diagnostico() {
       entrega: '1 · Fundación',
       asunto: 'Conexión con Supabase',
       listo: variable('NEXT_PUBLIC_SUPABASE_URL') && variable('SUPABASE_SERVICE_ROLE_KEY'),
-      comoSeArregla: 'Llena NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY y SUPABASE_SERVICE_ROLE_KEY',
+      comoSeArregla:
+        'Llena NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY y SUPABASE_SERVICE_ROLE_KEY',
     },
     {
       entrega: '2 · Esquema',
@@ -89,7 +90,8 @@ export default async function Diagnostico() {
       entrega: '6 · Publicación',
       asunto: 'Cuentas de red conectadas',
       listo: (cuentas ?? 0) > 0,
-      comoSeArregla: 'Registra las cuentas en social_accounts, con su credential_ref apuntando a una variable',
+      comoSeArregla:
+        'Registra las cuentas en social_accounts, con su credential_ref apuntando a una variable',
     },
     {
       entrega: '6 · Publicación',
@@ -108,7 +110,8 @@ export default async function Diagnostico() {
       entrega: '7 · Motor',
       asunto: 'Trabajos programados',
       listo: variable('CRON_SECRET'),
-      comoSeArregla: 'Define CRON_SECRET y despliega en Vercel para que corran los cuatro cron de vercel.json',
+      comoSeArregla:
+        'Define CRON_SECRET y despliega en Vercel para que corran los cuatro cron de vercel.json',
     },
     {
       entrega: 'Fase 2 · TikTok',
@@ -156,7 +159,7 @@ export default async function Diagnostico() {
       </header>
 
       <Tarjeta titulo="Estado por entrega">
-        <ul className="divide-y divide-linea">
+        <ul className="divide-y divide-white/40">
           {puntos.map((punto) => (
             <li key={`${punto.entrega}-${punto.asunto}`} className="flex items-start gap-3 py-3">
               <span className={punto.listo ? 'text-bien' : 'text-aviso'}>{punto.listo ? '●' : '○'}</span>

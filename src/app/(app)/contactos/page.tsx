@@ -102,9 +102,7 @@ export default async function Contactos() {
       />
 
       {contactos.length === 0 ? (
-        <Vacio>
-          Aquí entra cada persona que comenta la palabra clave de una publicación. Se llena solo.
-        </Vacio>
+        <Vacio>Aquí entra cada persona que comenta la palabra clave de una publicación. Se llena solo.</Vacio>
       ) : (
         <Tarjeta ajustado>
           <Tabla cabeceras={['Persona', 'Red', 'Último comentario', 'Comentarios', 'Recibió', 'Cuándo']}>

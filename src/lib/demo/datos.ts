@@ -50,7 +50,13 @@ const enDias = (d: number) => new Date(ahora.getTime() + d * 86_400_000).toISOSt
 export function tablasDemo(): TablasFalsas {
   return {
     profiles: [
-      { id: PERFIL_DEMO, nombre: 'Jess (demo)', email: 'demo@saleads.co', rol: 'editora', creado_at: haceHoras(720) },
+      {
+        id: PERFIL_DEMO,
+        nombre: 'Jess (demo)',
+        email: 'demo@saleads.co',
+        rol: 'editora',
+        creado_at: haceHoras(720),
+      },
       { id: KAREN, nombre: 'Karen', email: 'karen@saleads.co', rol: 'aprobadora', creado_at: haceHoras(700) },
       { id: EMA, nombre: 'Ema', email: 'ema@saleads.co', rol: 'audiovisual', creado_at: haceHoras(680) },
       { id: OBSERVA, nombre: 'Iván', email: 'ivan@saleads.co', rol: 'observador', creado_at: haceHoras(660) },
@@ -184,7 +190,8 @@ export function tablasDemo(): TablasFalsas {
         storage_expira_at: enDias(1),
         video_bytes: 48_200_000,
         video_error: null,
-        caption_base: 'Si el CPA sube y tu reacción es bajar el presupuesto, estás apagando el fuego con gasolina.',
+        caption_base:
+          'Si el CPA sube y tu reacción es bajar el presupuesto, estás apagando el fuego con gasolina.',
         resource_id: '77777777-7777-4777-8777-000000000001',
         fecha_publicacion: dia(0),
         hora_publicacion: '18:00',
@@ -544,7 +551,8 @@ export function tablasDemo(): TablasFalsas {
         id: publicacion(1),
         piece_id: pieza(1),
         social_account_id: IG_SALEADS,
-        caption_final: 'Si el CPA sube y tu reacción es bajar el presupuesto, estás apagando el fuego con gasolina.',
+        caption_final:
+          'Si el CPA sube y tu reacción es bajar el presupuesto, estás apagando el fuego con gasolina.',
         estado: 'publicado',
         external_post_id: 'ig-post-demo-0001',
         container_id: null,
@@ -809,7 +817,8 @@ export function tablasDemo(): TablasFalsas {
         id: 'cccccccc-0000-4000-8000-000000000001',
         comment_id: 'bbbbbbbb-0000-4000-8000-000000000001',
         destinatario: 'andrea.mkt',
-        mensaje: 'Te dejo la plantilla de campañas frías, tal como la usamos: https://bio.saleads.co/r/presupuesto-444444',
+        mensaje:
+          'Te dejo la plantilla de campañas frías, tal como la usamos: https://bio.saleads.co/r/presupuesto-444444',
         estado: 'enviado',
         enviado_at: haceHoras(38),
         error: null,
@@ -818,7 +827,8 @@ export function tablasDemo(): TablasFalsas {
         id: 'cccccccc-0000-4000-8000-000000000002',
         comment_id: 'bbbbbbbb-0000-4000-8000-000000000002',
         destinatario: 'julian.ads',
-        mensaje: 'Te dejo la plantilla de campañas frías, tal como la usamos: https://bio.saleads.co/r/presupuesto-444444',
+        mensaje:
+          'Te dejo la plantilla de campañas frías, tal como la usamos: https://bio.saleads.co/r/presupuesto-444444',
         estado: 'enviado',
         enviado_at: haceHoras(37),
         error: null,
@@ -827,7 +837,8 @@ export function tablasDemo(): TablasFalsas {
         id: 'cccccccc-0000-4000-8000-000000000003',
         comment_id: 'bbbbbbbb-0000-4000-8000-000000000006',
         destinatario: 'marcela.dp',
-        mensaje: 'Aquí tienes la calculadora de CPA que menciono en el video: https://bio.saleads.co/r/creativo-444444',
+        mensaje:
+          'Aquí tienes la calculadora de CPA que menciono en el video: https://bio.saleads.co/r/creativo-444444',
         estado: 'enviado',
         enviado_at: haceHoras(18),
         error: null,
@@ -836,7 +847,8 @@ export function tablasDemo(): TablasFalsas {
         id: 'cccccccc-0000-4000-8000-000000000004',
         comment_id: 'bbbbbbbb-0000-4000-8000-000000000007',
         destinatario: 'santiago.perf',
-        mensaje: 'Aquí tienes la calculadora de CPA que menciono en el video: https://bio.saleads.co/r/creativo-444444',
+        mensaje:
+          'Aquí tienes la calculadora de CPA que menciono en el video: https://bio.saleads.co/r/creativo-444444',
         estado: 'fallido',
         enviado_at: haceHoras(1),
         error: '(#613) Calls to this api have exceeded the rate limit',
@@ -940,7 +952,10 @@ export function tablasDemo(): TablasFalsas {
         detalle: [
           { fila: 'fila-9', motivo: 'la fila llega sin tema' },
           { fila: 'fila-10', motivo: 'la fecha "12 sep" no se entiende' },
-          { fila: 'fila-7', motivo: 'la hoja cambió con la pieza ya aprobada, el cambio espera confirmación' },
+          {
+            fila: 'fila-7',
+            motivo: 'la hoja cambió con la pieza ya aprobada, el cambio espera confirmación',
+          },
         ],
         corrio_at: haceHoras(0.2),
       },

@@ -32,19 +32,17 @@ export default function ErrorGlobal({
         : dice qué parte del sistema está fallando.
       </p>
 
-      {error.digest ? (
-        <p className="text-xs text-tinta-3">Referencia del error: {error.digest}</p>
-      ) : null}
+      {error.digest ? <p className="text-xs text-tinta-3">Referencia del error: {error.digest}</p> : null}
 
       <div className="flex gap-3">
         <button
           type="button"
           onClick={reset}
-          className="rounded-md bg-tinta px-4 py-2 text-sm font-medium text-superficie"
+          className="rounded-md bg-tinta px-4 py-2 text-sm font-medium text-white"
         >
           Reintentar
         </button>
-        <a href="/parrilla" className="rounded-md border border-linea-fuerte px-4 py-2 text-sm font-medium">
+        <a href="/parrilla" className="rounded-md shadow-alzado px-4 py-2 text-sm font-medium">
           Volver a la parrilla
         </a>
       </div>

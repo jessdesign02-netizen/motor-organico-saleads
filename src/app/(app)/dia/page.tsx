@@ -10,11 +10,7 @@ import { AprobarDia } from './aprobar'
 export const dynamic = 'force-dynamic'
 
 /** Módulo 4 · el panel del día: lo que va a salir, en una sola pantalla. */
-export default async function PanelDelDia({
-  searchParams,
-}: {
-  searchParams: Promise<{ fecha?: string }>
-}) {
+export default async function PanelDelDia({ searchParams }: { searchParams: Promise<{ fecha?: string }> }) {
   const { fecha } = await searchParams
   const dia = fecha ?? hoyDelEquipo()
   const perfil = await perfilActual()
@@ -30,14 +26,19 @@ export default async function PanelDelDia({
   )
 
   const ids = piezas.map((p) => p.id)
-  const [{ data: claves }, { data: plantillas }, { data: publicaciones }, { data: marcas }, { data: cuentas }] =
-    await Promise.all([
-      ids.length ? supabase.from('keywords').select('*').in('piece_id', ids) : { data: [] },
-      ids.length ? supabase.from('dm_templates').select('*').in('piece_id', ids) : { data: [] },
-      ids.length ? supabase.from('publications').select('*').in('piece_id', ids) : { data: [] },
-      supabase.from('brands').select('*'),
-      supabase.from('social_accounts').select('id, red, handle'),
-    ])
+  const [
+    { data: claves },
+    { data: plantillas },
+    { data: publicaciones },
+    { data: marcas },
+    { data: cuentas },
+  ] = await Promise.all([
+    ids.length ? supabase.from('keywords').select('*').in('piece_id', ids) : { data: [] },
+    ids.length ? supabase.from('dm_templates').select('*').in('piece_id', ids) : { data: [] },
+    ids.length ? supabase.from('publications').select('*').in('piece_id', ids) : { data: [] },
+    supabase.from('brands').select('*'),
+    supabase.from('social_accounts').select('id, red, handle'),
+  ])
 
   const listas = piezas.filter((p) => p.estado === 'aprobado')
 
@@ -49,7 +50,7 @@ export default async function PanelDelDia({
       >
         <Link
           href="/parrilla"
-          className="rounded-lg px-2.5 py-1.5 text-sm text-tinta-2 transition-colors hover:bg-hundido hover:text-tinta"
+          className="rounded-silk px-2.5 py-1.5 text-sm text-tinta-2 transition-colors hover:bg-arcilla-alta hover:text-tinta"
         >
           Ver la semana
         </Link>
@@ -65,7 +66,7 @@ export default async function PanelDelDia({
           accion={
             <Link
               href="/parrilla"
-              className="rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-hundido"
+              className="rounded-silk shadow-alzado bg-arcilla px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-arcilla-alta"
             >
               Ir a la parrilla
             </Link>
@@ -82,8 +83,11 @@ export default async function PanelDelDia({
         const marca = (marcas ?? []).find((m) => m.id === pieza.brand_id)
 
         return (
-          <article key={pieza.id} className="overflow-hidden rounded-xl border border-linea bg-superficie shadow-carta">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-linea px-5 py-3.5">
+          <article
+            key={pieza.id}
+            className="overflow-hidden rounded-silk shadow-alzado bg-arcilla shadow-alzado"
+          >
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3.5">
               <span className="text-lg font-semibold tabular-nums tracking-tight text-tinta">
                 {hora(pieza.hora_publicacion)}
               </span>
@@ -104,7 +108,7 @@ export default async function PanelDelDia({
                   <p className="text-xs font-medium text-tinta-2">
                     Mensaje que recibe quien comente la palabra
                   </p>
-                  <p className="mt-1 whitespace-pre-wrap rounded-lg bg-hundido px-3 py-2 text-sm text-tinta">
+                  <p className="mt-1 whitespace-pre-wrap rounded-silk bg-arcilla-alta px-3 py-2 text-sm text-tinta">
                     {plantilla?.mensaje ?? <span className="text-tinta-3">Sin mensaje</span>}
                   </p>
                 </div>
@@ -138,9 +142,7 @@ export default async function PanelDelDia({
                       return (
                         <li key={publicacion.id} className="text-xs">
                           <span className="flex items-center gap-2">
-                            <span className="flex-1 text-tinta">
-                              {cuenta ? RED[cuenta.red] : 'Cuenta'}
-                            </span>
+                            <span className="flex-1 text-tinta">{cuenta ? RED[cuenta.red] : 'Cuenta'}</span>
                             <Etiqueta rotulo={ESTADO_PUBLICACION[publicacion.estado]} />
                           </span>
                           {publicacion.ultimo_error ? (

@@ -27,9 +27,9 @@ export function urlPublica(supabaseUrl: string, ruta: string): string {
   return `${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/public/${BUCKET}/${ruta}`
 }
 
-export async function prepararVideoDePieza(piezaId: string): Promise<
-  { ok: true; url: string } | { ok: false; error: string }
-> {
+export async function prepararVideoDePieza(
+  piezaId: string,
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   const supabase = clienteAdmin()
 
   const { data: pieza } = await supabase
@@ -160,10 +160,7 @@ export async function limpiarCopiasVencidas(ahora: Date = new Date()): Promise<n
     const { error } = await supabase.storage.from(BUCKET).remove([pieza.storage_path])
     if (error) continue
 
-    await supabase
-      .from('pieces')
-      .update({ storage_path: null, storage_expira_at: null })
-      .eq('id', pieza.id)
+    await supabase.from('pieces').update({ storage_path: null, storage_expira_at: null }).eq('id', pieza.id)
     borradas++
   }
 

@@ -33,11 +33,7 @@ export function Fila(props: {
   }
 
   return (
-    <article
-      className={`rounded-xl border bg-superficie p-4 ${
-        props.enEspera ? 'border-dashed border-linea' : 'border-linea'
-      }`}
-    >
+    <article className={`rounded-silk border bg-arcilla p-4 ${props.enEspera ? 'border-dashed ' : ''}`}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-baseline gap-x-2 text-xs text-tinta-3">
@@ -64,7 +60,7 @@ export function Fila(props: {
               href={props.permalink}
               target="_blank"
               rel="noreferrer"
-              className="rounded-lg border border-linea-fuerte bg-superficie px-3 py-1.5 text-xs font-medium text-tinta transition-colors hover:bg-hundido"
+              className="rounded-silk shadow-alzado bg-arcilla px-3 py-1.5 text-xs font-medium text-tinta transition-colors hover:bg-arcilla-alta"
             >
               Ver el post
             </a>
@@ -79,7 +75,7 @@ export function Fila(props: {
         </div>
       </div>
 
-      <p className="mt-3 rounded-lg bg-hundido px-3 py-2 text-xs text-tinta-2">{props.sugerida}</p>
+      <p className="mt-3 rounded-silk bg-arcilla-alta px-3 py-2 text-xs text-tinta-2">{props.sugerida}</p>
 
       {aviso ? (
         <p role="status" className="mt-1.5 text-xs text-tinta-3">

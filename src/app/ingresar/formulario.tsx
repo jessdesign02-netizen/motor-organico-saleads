@@ -22,15 +22,16 @@ export function Formulario() {
   const problema = parametros.get('problema')
   const volviaA = parametros.get('volver')
 
-  const nota = problema === 'sin-invitacion'
-    ? 'Ese correo no está en la lista. Pídele a una editora que te invite desde Configuración.'
-    : problema === 'enlace-incompleto'
-    ? 'Ese enlace llegó incompleto. Pide uno nuevo desde "La olvidé".'
-    : salio
-      ? 'Cerraste la sesión.'
-      : volviaA
-        ? 'Entra para seguir donde estabas.'
-        : null
+  const nota =
+    problema === 'sin-invitacion'
+      ? 'Ese correo no está en la lista. Pídele a una editora que te invite desde Configuración.'
+      : problema === 'enlace-incompleto'
+        ? 'Ese enlace llegó incompleto. Pide uno nuevo desde "La olvidé".'
+        : salio
+          ? 'Cerraste la sesión.'
+          : volviaA
+            ? 'Entra para seguir donde estabas.'
+            : null
 
   async function entrar(evento: React.FormEvent) {
     evento.preventDefault()
@@ -87,13 +88,22 @@ export function Formulario() {
         onClick={entrarConGoogle}
         disabled={conGoogle || enviando}
         aria-busy={conGoogle}
-        className="flex w-full items-center justify-center gap-3 rounded-lg border border-linea-fuerte bg-superficie px-4 py-2.5 text-sm font-medium text-tinta transition-colors hover:bg-hundido disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-3 rounded-silk shadow-alzado bg-arcilla px-4 py-2.5 text-sm font-medium text-tinta transition-colors hover:bg-arcilla-alta disabled:cursor-not-allowed disabled:opacity-60"
       >
         <svg viewBox="0 0 18 18" className="size-[18px]" aria-hidden>
-          <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z" />
-          <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z" />
+          <path
+            fill="#4285F4"
+            d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"
+          />
+          <path
+            fill="#34A853"
+            d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"
+          />
           <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33Z" />
-          <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z" />
+          <path
+            fill="#EA4335"
+            d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"
+          />
         </svg>
         {conGoogle ? 'Abriendo Google' : 'Continuar con Google'}
       </button>
@@ -115,7 +125,7 @@ export function Formulario() {
           value={correo}
           onChange={(e) => setCorreo(e.target.value)}
           aria-invalid={error ? true : undefined}
-          className="mt-1.5 w-full rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2.5 text-sm text-tinta placeholder:text-tinta-3 focus:border-acento-1"
+          className="mt-1.5 w-full rounded-silk shadow-alzado bg-arcilla px-3.5 py-2.5 text-sm text-tinta placeholder:text-tinta-3 focus:shadow-pulsado"
         />
       </label>
 
@@ -137,7 +147,7 @@ export function Formulario() {
             value={clave}
             onChange={(e) => setClave(e.target.value)}
             aria-invalid={error ? true : undefined}
-            className="w-full rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2.5 pr-16 text-sm text-tinta focus:border-acento-1"
+            className="w-full rounded-silk shadow-alzado bg-arcilla px-3.5 py-2.5 pr-16 text-sm text-tinta focus:shadow-pulsado"
           />
           {/* Escribir una clave a ciegas es de donde salen la mitad de los fallos. */}
           <button
@@ -151,14 +161,11 @@ export function Formulario() {
       </label>
 
       {error ? (
-        <p
-          role="alert"
-          className="rounded-lg bg-critico-tinte px-3 py-2.5 text-[13px] text-critico"
-        >
+        <p role="alert" className="rounded-silk bg-arcilla px-3 py-2.5 text-[13px] text-critico">
           {error}
         </p>
       ) : nota ? (
-        <p role="status" className="rounded-lg bg-hundido px-3 py-2.5 text-[13px] text-tinta-2">
+        <p role="status" className="rounded-silk bg-arcilla-alta px-3 py-2.5 text-[13px] text-tinta-2">
           {nota}
         </p>
       ) : null}
@@ -167,7 +174,7 @@ export function Formulario() {
         type="submit"
         disabled={enviando}
         aria-busy={enviando}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-tinta px-4 py-2.5 text-sm font-semibold text-superficie transition-colors hover:bg-acento-1 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-silk bg-tinta px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primario disabled:cursor-not-allowed disabled:opacity-60"
       >
         {enviando ? (
           <>

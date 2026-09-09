@@ -37,9 +37,7 @@ export function env(): EnvServidor {
   if (cache) return cache
   const resultado = esquemaServidor.safeParse(process.env)
   if (!resultado.success) {
-    const faltantes = resultado.error.issues
-      .map((i) => `${i.path.join('.')}: ${i.message}`)
-      .join('\n  ')
+    const faltantes = resultado.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('\n  ')
     throw new Error(`Faltan variables de entorno:\n  ${faltantes}`)
   }
   cache = resultado.data

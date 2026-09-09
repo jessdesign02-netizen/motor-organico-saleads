@@ -55,9 +55,16 @@ function enVivo(extra: { clave?: Record<string, unknown>; comentarios?: Record<s
       },
     ],
     dm_templates: [
-      { id: 'dm-1', piece_id: 'pieza-1', mensaje: 'aquí tienes {enlace}', destino_url: 'https://wa.me/57300' },
+      {
+        id: 'dm-1',
+        piece_id: 'pieza-1',
+        mensaje: 'aquí tienes {enlace}',
+        destino_url: 'https://wa.me/57300',
+      },
     ],
-    tracked_links: [{ id: 'link-1', piece_id: 'pieza-1', slug: 'automatiza-abc', destino_url: 'https://wa.me/57300' }],
+    tracked_links: [
+      { id: 'link-1', piece_id: 'pieza-1', slug: 'automatiza-abc', destino_url: 'https://wa.me/57300' },
+    ],
     comments: extra.comentarios ?? [],
     dm_log: [],
   }
@@ -206,9 +213,7 @@ describe('reintentarMensajes', () => {
 
   it('vuelve a pasar por la ventana de siete días', async () => {
     // Puede haberse cerrado mientras el comentario esperaba su turno.
-    base = crearSupabaseFalso(
-      enVivo({ comentarios: [fallido({ detectado_at: '2026-09-01T10:00:00Z' })] }),
-    )
+    base = crearSupabaseFalso(enVivo({ comentarios: [fallido({ detectado_at: '2026-09-01T10:00:00Z' })] }))
 
     const salida = await reintentarMensajes(AHORA)
 

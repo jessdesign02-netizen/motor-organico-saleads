@@ -27,10 +27,8 @@ export function CambioDeHoja({
   })
 
   return (
-    <div className="rounded-lg border border-info-tinte bg-info-tinte p-4">
-      <p className="text-sm font-medium text-info">
-        La hoja cambió después de que esta pieza quedó aprobada
-      </p>
+    <div className="rounded-silk bg-arcilla shadow-hundido p-4">
+      <p className="text-sm font-medium text-info">La hoja cambió después de que esta pieza quedó aprobada</p>
 
       {diferencias.length === 0 ? (
         <p className="mt-1 text-xs text-info">El cambio llega en campos que la app no muestra.</p>
@@ -54,7 +52,7 @@ export function CambioDeHoja({
               type="submit"
               name="decision"
               value="aceptar"
-              className="rounded-md bg-sky-900 px-3 py-1.5 text-xs font-medium text-superficie"
+              className="rounded-md bg-sky-900 px-3 py-1.5 text-xs font-medium text-white"
             >
               Aceptar el cambio
             </button>
@@ -65,7 +63,7 @@ export function CambioDeHoja({
               type="submit"
               name="decision"
               value="descartar"
-              className="rounded-md border border-info-tinte px-3 py-1.5 text-xs"
+              className="rounded-md px-3 py-1.5 text-xs"
             >
               Dejar lo aprobado
             </button>

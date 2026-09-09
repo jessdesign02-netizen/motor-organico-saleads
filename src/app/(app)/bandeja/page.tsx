@@ -52,7 +52,10 @@ export default async function Bandeja() {
 
   const pubIds = [...new Set(comentarios.map((c) => c.publication_id))]
   const { data: publicaciones } = pubIds.length
-    ? await supabase.from('publications').select('id, piece_id, permalink, social_account_id').in('id', pubIds)
+    ? await supabase
+        .from('publications')
+        .select('id, piece_id, permalink, social_account_id')
+        .in('id', pubIds)
     : { data: [] }
 
   const piezaIds = [...new Set((publicaciones ?? []).map((p) => p.piece_id))]
@@ -122,7 +125,7 @@ export default async function Bandeja() {
             <div>
               <h2 className="text-sm font-semibold tracking-tight text-tinta">
                 {grupo.titulo}
-                <span className="ml-2 rounded-full bg-hundido px-2 py-0.5 text-xs font-medium tabular-nums text-tinta-2">
+                <span className="ml-2 rounded-full bg-arcilla-alta px-2 py-0.5 text-xs font-medium tabular-nums text-tinta-2">
                   {grupo.casos.length}
                 </span>
               </h2>
@@ -152,13 +155,13 @@ export default async function Bandeja() {
           <div>
             <h2 className="text-sm font-semibold tracking-tight text-tinta">
               El sistema los reintenta solo
-              <span className="ml-2 rounded-full bg-hundido px-2 py-0.5 text-xs font-medium tabular-nums text-tinta-2">
+              <span className="ml-2 rounded-full bg-arcilla-alta px-2 py-0.5 text-xs font-medium tabular-nums text-tinta-2">
                 {reintentando.length}
               </span>
             </h2>
             <p className="mt-0.5 text-xs text-tinta-2">
-              La plataforma rechazó el envío por límite de tasa. Vuelven a la cola a los 2, 8 y 30
-              minutos. No hay que hacer nada, salvo que agoten los tres intentos.
+              La plataforma rechazó el envío por límite de tasa. Vuelven a la cola a los 2, 8 y 30 minutos. No
+              hay que hacer nada, salvo que agoten los tres intentos.
             </p>
           </div>
           <div className="space-y-2">

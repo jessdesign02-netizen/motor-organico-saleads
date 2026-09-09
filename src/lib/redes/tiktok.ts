@@ -1,9 +1,4 @@
-import type {
-  AdaptadorRed,
-  CredencialCuenta,
-  PeticionPublicar,
-  ResultadoPublicar,
-} from './tipos'
+import type { AdaptadorRed, CredencialCuenta, PeticionPublicar, ResultadoPublicar } from './tipos'
 
 /**
  * TikTok Content Posting API.
@@ -72,7 +67,11 @@ export async function publicarEnTiktok(
       nota: 'El video llegó al buzón de TikTok. Se suelta desde la app del creador.',
     }
   } catch (error) {
-    return { estado: 'fallido', error: error instanceof Error ? error.message : String(error), reintentable: true }
+    return {
+      estado: 'fallido',
+      error: error instanceof Error ? error.message : String(error),
+      reintentable: true,
+    }
   }
 }
 

@@ -1,99 +1,101 @@
 @import "tailwindcss";
 
 /**
- * Sistema de color y tipografía.
+ * Silk · neomorfismo.
  *
- * Antes vivía aquí la hoja que trae Next al crear el proyecto: definía un
- * `--background` que se volvía negro con el sistema en modo oscuro, mientras
- * las pantallas seguían pintando tarjetas blancas con clases fijas. El
- * resultado era texto gris claro sobre blanco: la aplicación quedaba ilegible
- * para cualquiera con el sistema en oscuro.
+ * La regla que sostiene todo el estilo: la profundidad viene de la luz, no del
+ * color. Toda superficie comparte el mismo tono —la arcilla— y lo que separa
+ * una tarjeta del fondo es una sombra doble: oscura abajo a la derecha, clara
+ * arriba a la izquierda, como si la luz entrara por esa esquina. En cuanto una
+ * superficie cambia de color, la ilusión se rompe.
  *
- * La app se compromete con el modo claro y lo declara. Los tonos salen de una
- * paleta validada: cada pareja de etiqueta pasa AA, y las tres series de las
- * gráficas pasan las seis comprobaciones de daltonismo y contraste.
+ * Por eso aquí no hay bordes ni degradados en lo que lleva relieve: un borde
+ * delata el recorte y mata el efecto.
  *
- * Añadir modo oscuro más adelante es redefinir estos tokens en un bloque, sin
- * tocar una sola pantalla: nada usa colores fijos.
+ * Sobre el color de marca: #6366f1 mide 3.71:1 sobre la arcilla, por debajo de
+ * lo que exige un texto. Se usa tal cual donde es superficie o icono, y un paso
+ * más oscuro (#4f46e5) donde tiene que leerse como texto.
  */
 
 @theme {
-  /* Superficies
-   *
-   * El plano y la tarjeta estaban a 1.03:1 de contraste: prácticamente el mismo
-   * color. Sin escalón entre el fondo y lo que va encima, la pantalla se ve
-   * plana por mucha sombra que se le ponga. La tarjeta es blanca y el plano se
-   * baja hasta que el escalón se nota. */
-  --color-plano: #eeede8;
-  --color-superficie: #ffffff;
-  --color-hundido: #f4f3ef;
+  /* La arcilla. Fondo, tarjetas y barra lateral: el mismo tono en todo. */
+  --color-arcilla: #e8eaf0;
+  --color-arcilla-alta: #eef0f5;
 
   /* Tinta */
-  --color-tinta: #0b0b0b;
-  --color-tinta-2: #52514e;
-  --color-tinta-3: #7c7a74;
+  --color-tinta: #2a2c38;
+  --color-tinta-2: #4a4c59;
+  --color-tinta-3: #6c6e7e;
 
-  /* Líneas */
-  --color-linea: #e4e3dc;
-  --color-linea-fuerte: #c3c2b7;
+  /* Marca */
+  --color-primario: #6366f1;
+  --color-primario-texto: #4f46e5;
+  --color-terciario: #7c3aed;
+  --color-terciario-texto: #6d28d9;
 
-  /* Estado · tinte de fondo y su tinta, comprobados en pareja */
+  /* Estado · todos comprobados sobre la arcilla */
   --color-bien: #0a6b0a;
-  --color-bien-tinte: #e0f2e0;
   --color-aviso: #7a5600;
-  --color-aviso-tinte: #fcf1d6;
-  --color-info: #1c5cab;
-  --color-info-tinte: #e2edfb;
+  --color-info: #4f46e5;
   --color-serio: #8a3a17;
-  --color-serio-tinte: #fbe8de;
   --color-critico: #9b1f1f;
-  --color-critico-tinte: #fae2e2;
 
-  /* Acentos de cifra
+  /* Series de las gráficas */
+  --color-serie-1: #4f46e5;
+  --color-serie-2: #7c3aed;
+  --color-serie-3: #0e7490;
+
+  --font-sans: var(--fuente-jakarta), system-ui, sans-serif;
+
+  /**
+   * Relieve · dos alturas y su inverso.
    *
-   * Stitch pintó los números de las tarjetas y tenía razón: una fila de cuatro
-   * cifras en negro no se distingue de un párrafo. Sus tonos venían de la
-   * paleta de Tailwind y algunos no llegaban a 4.5:1 sobre blanco, así que se
-   * usan los pasos equivalentes de esta paleta, que sí pasan AA como texto. */
-  --color-acento-1: #1c5cab;
-  --color-acento-1-tinte: #e2edfb;
-  --color-acento-2: #0a6b0a;
-  --color-acento-2-tinte: #e0f2e0;
-  --color-acento-3: #4a3aa7;
-  --color-acento-3-tinte: #eae7fa;
-  --color-acento-4: #a8410f;
-  --color-acento-4-tinte: #fbe8de;
+   * `alzado` sobresale de la arcilla. `hundido` está tallado en ella: campos de
+   * texto, pistas, todo lo que recibe algo. `suave` es para piezas pequeñas,
+   * donde la sombra completa pesa demasiado.
+   */
+  --shadow-alzado: 6px 6px 12px rgb(0 0 0 / 0.08), -6px -6px 12px rgb(255 255 255 / 0.6);
+  --shadow-suave: 3px 3px 6px rgb(0 0 0 / 0.06), -3px -3px 6px rgb(255 255 255 / 0.5);
+  --shadow-hundido: inset 4px 4px 8px rgb(0 0 0 / 0.06), inset -4px -4px 8px rgb(255 255 255 / 0.5);
+  --shadow-pulsado: inset 2px 2px 5px rgb(0 0 0 / 0.09), inset -2px -2px 5px rgb(255 255 255 / 0.55);
 
-  /* Series de las gráficas · orden fijo, nunca ciclado */
-  --color-serie-1: #2a78d6;
-  --color-serie-2: #eb6834;
-  --color-serie-3: #1baf7a;
-
-  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
-
-  /* Profundidad
-   *
-   * Dos alturas, no más. La tarjeta se levanta apenas del plano; lo que flota
-   * de verdad —un menú, algo que se abre encima— usa la segunda. Una escala de
-   * sombras más larga solo produce pantallas donde nada parece estar a ninguna
-   * altura concreta. */
-  --shadow-carta: 0 1px 2px rgb(11 11 11 / 0.04), 0 1px 3px rgb(11 11 11 / 0.06);
-  --shadow-alzado: 0 2px 4px rgb(11 11 11 / 0.04), 0 8px 24px rgb(11 11 11 / 0.08);
+  /* El radio mínimo del estilo: por debajo de 12px el relieve se ve sucio. */
+  --radius-silk: 14px;
 }
 
 :root {
-  /* Declarado: la app es de modo claro, y lo dice en lugar de dejarlo al azar. */
   color-scheme: light;
 }
 
 body {
-  background: var(--color-plano);
+  background: var(--color-arcilla);
   color: var(--color-tinta);
+  /* Peso medio en el cuerpo: la negrita rompe la suavidad del estilo. */
+  font-weight: 450;
 }
 
-/* El foco se ve siempre, y se ve igual en todas partes. */
+h1, h2, h3 {
+  font-weight: 600;
+}
+
 :focus-visible {
-  outline: 2px solid var(--color-serie-1);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: 2px solid var(--color-primario);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/**
+ * Vidrio.
+ *
+ * Solo donde hay algo detrás que valga la pena difuminar: una barra que flota
+ * sobre contenido que pasa por debajo. Sobre un fondo liso el vidrio es un
+ * color plano con pasos de más, así que no se usa de adorno.
+ */
+.vidrio {
+  background: rgb(255 255 255 / 0.45);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    0 4px 16px rgb(0 0 0 / 0.06);
 }

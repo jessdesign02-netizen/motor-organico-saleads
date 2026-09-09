@@ -140,9 +140,7 @@ export async function sondearComentarios(ahora: Date = new Date()): Promise<Resu
     : { data: [] }
 
   const vigentes = new Set(
-    (claves ?? [])
-      .filter((k) => !k.activa_hasta || new Date(k.activa_hasta) > ahora)
-      .map((k) => k.piece_id),
+    (claves ?? []).filter((k) => !k.activa_hasta || new Date(k.activa_hasta) > ahora).map((k) => k.piece_id),
   )
 
   for (const publicacion of publicaciones ?? []) {

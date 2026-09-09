@@ -15,7 +15,6 @@ import { envolver, exigirEscritura, type Respuesta } from './comunes'
  * dependiendo de alguien con acceso al SQL.
  */
 
-
 export async function crearMarca(datos: FormData): Promise<Respuesta> {
   return envolver('Crear la marca', async () => {
     await exigirRol('editora')
@@ -104,11 +103,7 @@ export async function cambiarRol(datos: FormData): Promise<Respuesta> {
 
     const supabase = await clienteServidor()
     exigirEscritura(
-      await supabase
-        .from('profiles')
-        .update({ rol: entrada.rol })
-        .eq('id', entrada.personaId)
-        .select('id'),
+      await supabase.from('profiles').update({ rol: entrada.rol }).eq('id', entrada.personaId).select('id'),
       'Cambiar el rol',
     )
 
@@ -156,9 +151,7 @@ export async function revocarInvitacion(datos: FormData): Promise<Respuesta> {
   return envolver('Quitar la invitación', async () => {
     const perfil = await exigirRol('editora')
 
-    const { email } = z
-      .object({ email: z.string().email() })
-      .parse({ email: datos.get('email') })
+    const { email } = z.object({ email: z.string().email() }).parse({ email: datos.get('email') })
 
     if (email.toLowerCase() === perfil.email?.toLowerCase()) {
       throw new Error('No puedes quitarte a ti misma de la lista')

@@ -23,14 +23,19 @@ export default async function Automatizaciones() {
   )
 
   const piezaIds = claves.map((k) => k.piece_id)
-  const [{ data: piezas }, { data: plantillas }, { data: enlaces }, { data: publicaciones }, { data: marcas }] =
-    await Promise.all([
-      piezaIds.length ? supabase.from('pieces').select('*').in('id', piezaIds) : { data: [] },
-      piezaIds.length ? supabase.from('dm_templates').select('*').in('piece_id', piezaIds) : { data: [] },
-      piezaIds.length ? supabase.from('tracked_links').select('*').in('piece_id', piezaIds) : { data: [] },
-      piezaIds.length ? supabase.from('publications').select('*').in('piece_id', piezaIds) : { data: [] },
-      supabase.from('brands').select('id, nombre'),
-    ])
+  const [
+    { data: piezas },
+    { data: plantillas },
+    { data: enlaces },
+    { data: publicaciones },
+    { data: marcas },
+  ] = await Promise.all([
+    piezaIds.length ? supabase.from('pieces').select('*').in('id', piezaIds) : { data: [] },
+    piezaIds.length ? supabase.from('dm_templates').select('*').in('piece_id', piezaIds) : { data: [] },
+    piezaIds.length ? supabase.from('tracked_links').select('*').in('piece_id', piezaIds) : { data: [] },
+    piezaIds.length ? supabase.from('publications').select('*').in('piece_id', piezaIds) : { data: [] },
+    supabase.from('brands').select('id, nombre'),
+  ])
 
   const pubIds = (publicaciones ?? []).map((p) => p.id)
   const [{ data: comentarios }, { data: cuentas }] = await Promise.all([
@@ -84,7 +89,7 @@ export default async function Automatizaciones() {
           accion={
             <Link
               href="/parrilla"
-              className="rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-hundido"
+              className="rounded-silk shadow-alzado bg-arcilla px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-arcilla-alta"
             >
               Ir a la parrilla
             </Link>
@@ -96,25 +101,32 @@ export default async function Automatizaciones() {
 
       <div className="space-y-3">
         {armadas.map((a) => (
-          <article key={a.clave.id} className="overflow-hidden rounded-xl border border-linea bg-superficie shadow-carta">
-            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-linea px-5 py-3.5">
+          <article
+            key={a.clave.id}
+            className="overflow-hidden rounded-silk shadow-alzado bg-arcilla shadow-alzado"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-4 px-5 py-3.5">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="text-base font-semibold tracking-wide text-tinta">{a.clave.palabra}</h2>
                   {a.encendida ? (
                     <Punto tono="bien">escuchando</Punto>
                   ) : (
-                    <Punto tono="neutro">
-                      {a.clave.activa_hasta ? 'vencida' : 'aún no sale'}
-                    </Punto>
+                    <Punto tono="neutro">{a.clave.activa_hasta ? 'vencida' : 'aún no sale'}</Punto>
                   )}
                   {!a.completa ? (
-                    <Etiqueta rotulo={{ texto: 'A medias', tono: 'aviso', explica: 'Le falta mensaje o enlace' }} titulo />
+                    <Etiqueta
+                      rotulo={{ texto: 'A medias', tono: 'aviso', explica: 'Le falta mensaje o enlace' }}
+                      titulo
+                    />
                   ) : null}
                 </div>
                 <p className="mt-1 text-xs text-tinta-2">
                   {a.pieza ? (
-                    <Link href={`/piezas/${a.pieza.id}`} className="underline underline-offset-2 hover:text-tinta">
+                    <Link
+                      href={`/piezas/${a.pieza.id}`}
+                      className="underline underline-offset-2 hover:text-tinta"
+                    >
                       {a.pieza.tema}
                     </Link>
                   ) : (
@@ -139,7 +151,7 @@ export default async function Automatizaciones() {
                 </div>
                 <div>
                   <p className="text-xs font-medium text-tinta-2">Mensaje que envía</p>
-                  <p className="mt-1 whitespace-pre-wrap rounded-lg bg-hundido px-3 py-2 text-sm text-tinta">
+                  <p className="mt-1 whitespace-pre-wrap rounded-silk bg-arcilla-alta px-3 py-2 text-sm text-tinta">
                     {a.plantilla?.mensaje ?? <span className="text-tinta-3">Sin mensaje todavía</span>}
                   </p>
                 </div>
@@ -152,7 +164,7 @@ export default async function Automatizaciones() {
                   { etiqueta: 'Mensajes enviados', valor: a.enviados },
                   { etiqueta: 'Clics al enlace', valor: a.clics },
                 ].map((dato) => (
-                  <div key={dato.etiqueta} className="rounded-lg bg-hundido px-3 py-2">
+                  <div key={dato.etiqueta} className="rounded-silk bg-arcilla-alta px-3 py-2">
                     <dt className="text-[11px] text-tinta-2">{dato.etiqueta}</dt>
                     <dd className="text-lg font-semibold tabular-nums text-tinta">{dato.valor}</dd>
                   </div>

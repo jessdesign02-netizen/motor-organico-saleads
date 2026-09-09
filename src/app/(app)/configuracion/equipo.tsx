@@ -21,7 +21,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
         <form
           key={marca.id}
           action={async (datos) => setAviso(await ajustarMarca(datos))}
-          className="flex flex-wrap items-center gap-3 rounded-lg border border-linea p-3 text-sm"
+          className="flex flex-wrap items-center gap-3 rounded-silk shadow-alzado p-3 text-sm"
         >
           <input type="hidden" name="marcaId" value={marca.id} />
           <span className="min-w-28 font-medium">{marca.nombre}</span>
@@ -61,7 +61,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
         <button
           type="button"
           onClick={() => setCreando(true)}
-          className="rounded-md border border-linea-fuerte px-3 py-2 text-sm"
+          className="rounded-md shadow-alzado px-3 py-2 text-sm"
         >
           Agregar una marca
         </button>
@@ -74,7 +74,7 @@ export function Marcas({ marcas, puedeAjustar }: { marcas: Marca[]; puedeAjustar
             setAviso(salida)
             if (salida.ok) setCreando(false)
           }}
-          className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-linea-fuerte p-3"
+          className="flex flex-wrap items-center gap-2 rounded-silk shadow-hundido p-3"
         >
           <Campo etiqueta="Nombre">
             <input name="nombre" required className={ENTRADA} />
@@ -113,7 +113,7 @@ export function Equipo({
     <div className="space-y-2">
       <Aviso resultado={aviso} />
 
-      <ul className="divide-y divide-linea text-sm">
+      <ul className="divide-y divide-white/40 text-sm">
         {equipo.map((persona) => (
           <li key={persona.id} className="flex items-center justify-between gap-3 py-2">
             <span>
@@ -153,8 +153,7 @@ export function Equipo({
   )
 }
 
-const ENTRADA = 'rounded-md border border-linea-fuerte px-2 py-1.5 text-sm'
-
+const ENTRADA = 'rounded-md shadow-alzado px-2 py-1.5 text-sm'
 
 /**
  * La lista de invitados.
@@ -183,7 +182,7 @@ export function Invitaciones({
       {puedeInvitar ? (
         <form
           action={async (datos) => setAviso(await invitar(datos))}
-          className="flex flex-wrap items-end gap-3 rounded-lg border border-dashed border-linea-fuerte p-3"
+          className="flex flex-wrap items-end gap-3 rounded-silk shadow-hundido p-3"
         >
           <div className="min-w-56 flex-1">
             <Campo etiqueta="Correo">
@@ -212,7 +211,7 @@ export function Invitaciones({
       {invitaciones.length === 0 ? (
         <p className="text-sm text-tinta-3">Todavía nadie está invitado.</p>
       ) : (
-        <ul className="divide-y divide-linea text-sm">
+        <ul className="divide-y divide-white/40 text-sm">
           {invitaciones.map((invitacion) => (
             <li key={invitacion.email} className="flex flex-wrap items-center gap-3 py-2.5">
               <span className="min-w-0 flex-1 truncate text-tinta">{invitacion.email}</span>
@@ -235,8 +234,10 @@ export function Invitaciones({
 
       {pendientes.length > 0 ? (
         <p className="text-xs text-tinta-3">
-          {pendientes.length === 1 ? 'Una persona invitada aún no ha entrado' : `${pendientes.length} personas invitadas aún no han entrado`}.
-          Entran solas la primera vez que usen Google o el enlace de clave.
+          {pendientes.length === 1
+            ? 'Una persona invitada aún no ha entrado'
+            : `${pendientes.length} personas invitadas aún no han entrado`}
+          . Entran solas la primera vez que usen Google o el enlace de clave.
         </p>
       ) : null}
     </div>

@@ -28,9 +28,7 @@ export default async function Recursos() {
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Recursos</h1>
-        <p className="text-sm text-tinta-3">
-          {recursos.length} en la biblioteca. Lo que entra, se queda.
-        </p>
+        <p className="text-sm text-tinta-3">{recursos.length} en la biblioteca. Lo que entra, se queda.</p>
       </header>
 
       {puedeCrear ? <AltaRecurso marcas={marcas ?? []} /> : null}
@@ -39,7 +37,7 @@ export default async function Recursos() {
 
       {secciones.map((seccion) => (
         <Tarjeta key={seccion} titulo={seccion}>
-          <ul className="divide-y divide-linea">
+          <ul className="divide-y divide-white/40">
             {recursos
               .filter((r) => (r.seccion ?? 'Sin sección') === seccion)
               .map((recurso) => (

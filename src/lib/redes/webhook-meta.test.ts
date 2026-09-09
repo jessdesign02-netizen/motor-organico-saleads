@@ -125,10 +125,7 @@ describe('leerCargaMeta · lo que se descarta, con su motivo', () => {
   it('sigue con los buenos aunque uno del lote venga roto', () => {
     // Perder el lote entero por un comentario mal formado sería peor: Meta lo
     // reintentaría completo y los buenos quedarían esperando.
-    const lectura = leerCargaMeta(
-      carga(comentario({ id: undefined }), comentario({ id: 'C2' })),
-      AHORA,
-    )
+    const lectura = leerCargaMeta(carga(comentario({ id: undefined }), comentario({ id: 'C2' })), AHORA)
     expect(lectura.comentarios.map((c) => c.externalCommentId)).toEqual(['C2'])
     expect(lectura.descartados).toHaveLength(1)
   })

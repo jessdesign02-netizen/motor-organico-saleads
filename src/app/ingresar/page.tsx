@@ -6,7 +6,7 @@ export const metadata = { title: 'Entrar · Motor Orgánico' }
 
 export default function Ingresar() {
   return (
-    <div className="grid min-h-screen bg-superficie lg:grid-cols-2">
+    <div className="grid min-h-screen bg-arcilla lg:grid-cols-2">
       {/* El formulario primero en el marcado: es a lo que se viene. */}
       <main className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-[22rem]">

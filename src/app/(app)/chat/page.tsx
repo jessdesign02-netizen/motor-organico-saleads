@@ -34,15 +34,21 @@ export default async function ChatEnVivo() {
   const piezaIds = [...new Set((publicaciones ?? []).map((p) => p.piece_id))]
   const comentarioIds = comentarios.map((c) => c.id)
 
-  const [{ data: piezas }, { data: claves }, { data: plantillas }, { data: enlaces }, { data: cuentas }, { data: envios }] =
-    await Promise.all([
-      piezaIds.length ? supabase.from('pieces').select('id, tema').in('id', piezaIds) : { data: [] },
-      piezaIds.length ? supabase.from('keywords').select('*').in('piece_id', piezaIds) : { data: [] },
-      piezaIds.length ? supabase.from('dm_templates').select('*').in('piece_id', piezaIds) : { data: [] },
-      piezaIds.length ? supabase.from('tracked_links').select('*').in('piece_id', piezaIds) : { data: [] },
-      supabase.from('social_accounts').select('id, red'),
-      comentarioIds.length ? supabase.from('dm_log').select('*').in('comment_id', comentarioIds) : { data: [] },
-    ])
+  const [
+    { data: piezas },
+    { data: claves },
+    { data: plantillas },
+    { data: enlaces },
+    { data: cuentas },
+    { data: envios },
+  ] = await Promise.all([
+    piezaIds.length ? supabase.from('pieces').select('id, tema').in('id', piezaIds) : { data: [] },
+    piezaIds.length ? supabase.from('keywords').select('*').in('piece_id', piezaIds) : { data: [] },
+    piezaIds.length ? supabase.from('dm_templates').select('*').in('piece_id', piezaIds) : { data: [] },
+    piezaIds.length ? supabase.from('tracked_links').select('*').in('piece_id', piezaIds) : { data: [] },
+    supabase.from('social_accounts').select('id, red'),
+    comentarioIds.length ? supabase.from('dm_log').select('*').in('comment_id', comentarioIds) : { data: [] },
+  ])
 
   /**
    * Una conversación es una persona en una publicación. La misma persona en dos
@@ -141,7 +147,7 @@ export default async function ChatEnVivo() {
         {pendientes > 0 ? (
           <Link
             href="/bandeja"
-            className="rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-hundido"
+            className="rounded-silk shadow-alzado bg-arcilla px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-arcilla-alta"
           >
             Agrupar por motivo
           </Link>
@@ -150,8 +156,8 @@ export default async function ChatEnVivo() {
 
       {conversaciones.length === 0 ? (
         <Vacio>
-          Aquí aparece cada persona que comenta la palabra clave y el mensaje que el sistema le
-          envía. Se llena solo, en cuanto salga la primera publicación.
+          Aquí aparece cada persona que comenta la palabra clave y el mensaje que el sistema le envía. Se
+          llena solo, en cuanto salga la primera publicación.
         </Vacio>
       ) : (
         <Conversaciones conversaciones={conversaciones} />

@@ -21,13 +21,13 @@ export async function registrarCuenta(datos: FormData): Promise<Respuesta> {
     await exigirRol('editora')
 
     const entrada = esquemaCuenta.parse({
-        marcaId: datos.get('marcaId'),
-        red: datos.get('red'),
-        handle: datos.get('handle'),
-        externalAccountId: datos.get('externalAccountId'),
-        credentialRef: datos.get('credentialRef'),
-        tokenExpiraAt: datos.get('tokenExpiraAt') || null,
-      })
+      marcaId: datos.get('marcaId'),
+      red: datos.get('red'),
+      handle: datos.get('handle'),
+      externalAccountId: datos.get('externalAccountId'),
+      credentialRef: datos.get('credentialRef'),
+      tokenExpiraAt: datos.get('tokenExpiraAt') || null,
+    })
 
     const supabase = await clienteServidor()
     exigirEscritura(

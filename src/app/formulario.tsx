@@ -4,21 +4,28 @@ import { useFormStatus } from 'react-dom'
 import type { ReactNode } from 'react'
 
 /**
- * Piezas compartidas de los formularios.
+ * Botones y campos, en Silk.
  *
- * Sin estado de envío, una acción que tarda parece no haber pasado y la persona
- * vuelve a pulsar. En "Crear pieza" eso creaba dos piezas, y en "Aprobar el día"
- * disparaba dos veces la publicación. El botón se bloquea mientras corre, y
- * dice lo que está haciendo.
+ * El botón sobresale de la arcilla y al pulsarlo se hunde: es toda la
+ * gramática del estilo, y de paso da la respuesta táctil que en un botón plano
+ * hay que fingir con un cambio de color.
+ *
+ * El campo de texto va al revés, tallado en la superficie. Recibe algo, así que
+ * se hunde.
  */
 
+const BASE =
+  'inline-flex shrink-0 items-center justify-center gap-2 rounded-silk px-4 py-2.5 text-sm font-medium transition-all active:shadow-pulsado disabled:cursor-not-allowed disabled:opacity-55'
+
 const VARIANTES = {
-  // Un solo botón manda en cada pantalla, y se ve que manda.
-  principal: 'bg-tinta text-superficie hover:bg-tinta-2',
-  // El secundario se leía casi blanco sobre blanco. Ahora tiene tinta propia.
-  secundario: 'border border-linea-fuerte bg-superficie text-tinta hover:bg-hundido',
-  // Lo que borra o descarta se anuncia antes de que la persona lo pulse.
-  peligro: 'border border-critico-tinte bg-critico-tinte text-critico hover:border-critico',
+  /** Manda en la pantalla. El color es el relleno, no solo la tinta. */
+  principal: 'bg-primario text-white shadow-alzado hover:brightness-105',
+  /** Misma arcilla, relieve propio: presente sin competir. */
+  secundario: 'bg-arcilla text-tinta shadow-alzado hover:shadow-suave',
+  /** Ya está tallado: para lo que está activo o seleccionado. */
+  hundido: 'bg-arcilla text-primario-texto shadow-hundido',
+  /** Lo que borra o descarta se anuncia antes de pulsarlo. */
+  peligro: 'bg-arcilla text-critico shadow-alzado hover:shadow-suave',
 } as const
 
 export function Enviar({
@@ -38,7 +45,7 @@ export function Enviar({
       type="submit"
       disabled={pending}
       aria-busy={pending}
-      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTES[variante]}`}
+      className={`${BASE} ${VARIANTES[variante]} ${pending ? 'shadow-pulsado' : ''}`}
     >
       {pending ? (
         <>
@@ -52,7 +59,7 @@ export function Enviar({
   )
 }
 
-/** Que algo se mueva mientras se espera es la diferencia entre "trabajando" y "colgado". */
+/** Que algo se mueva es la diferencia entre "trabajando" y "colgado". */
 function Girando() {
   return (
     <svg className="size-3.5 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -75,11 +82,7 @@ export function Boton({
   tipo?: 'button' | 'reset'
 }) {
   return (
-    <button
-      type={tipo}
-      onClick={onClick}
-      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors ${VARIANTES[variante]}`}
-    >
+    <button type={tipo} onClick={onClick} className={`${BASE} ${VARIANTES[variante]}`}>
       {children}
     </button>
   )
@@ -97,8 +100,8 @@ export function Aviso({ resultado }: { resultado: { ok: boolean; mensaje: string
     <p
       role={resultado.ok ? 'status' : 'alert'}
       aria-live={resultado.ok ? 'polite' : 'assertive'}
-      className={`rounded-lg px-3 py-2 text-sm ${
-        resultado.ok ? 'bg-bien-tinte text-bien' : 'bg-critico-tinte text-critico'
+      className={`rounded-silk bg-arcilla px-4 py-3 text-sm shadow-hundido ${
+        resultado.ok ? 'text-bien' : 'text-critico'
       }`}
     >
       {resultado.mensaje}
@@ -118,12 +121,13 @@ export function Campo({
 }) {
   return (
     <label className="block">
-      <span className="text-xs font-medium text-tinta-2">{etiqueta}</span>
-      <div className="mt-1.5">{children}</div>
-      {ayuda ? <span className="mt-1.5 block text-xs text-tinta-3">{ayuda}</span> : null}
+      <span className="text-[13px] font-medium text-tinta-2">{etiqueta}</span>
+      <div className="mt-2">{children}</div>
+      {ayuda ? <span className="mt-2 block text-xs text-tinta-3">{ayuda}</span> : null}
     </label>
   )
 }
 
+/** Tallado en la arcilla: recibe algo, así que se hunde en lugar de sobresalir. */
 export const ENTRADA =
-  'w-full rounded-lg border border-linea-fuerte bg-superficie px-3 py-2 text-sm text-tinta placeholder:text-tinta-3 disabled:bg-hundido disabled:text-tinta-3'
+  'w-full rounded-silk bg-arcilla px-4 py-2.5 text-sm text-tinta shadow-hundido outline-none placeholder:text-tinta-3 focus:shadow-pulsado disabled:text-tinta-3'

@@ -164,15 +164,12 @@ describe('esquemaRecurso y esquemaNuevaPieza', () => {
 
   it('rechaza un tipo de recurso que no está en la lista', () => {
     expect(
-      esquemaRecurso.safeParse({ marcaId: UUID, titulo: 'Guía', tipo: 'audio', url: 'https://x.co' })
-        .success,
+      esquemaRecurso.safeParse({ marcaId: UUID, titulo: 'Guía', tipo: 'audio', url: 'https://x.co' }).success,
     ).toBe(false)
   })
 
   it('acepta la pieza nueva sin fecha', () => {
-    expect(esquemaNuevaPieza.safeParse({ marcaId: UUID, tema: 'Meta Ads', fecha: null }).success).toBe(
-      true,
-    )
+    expect(esquemaNuevaPieza.safeParse({ marcaId: UUID, tema: 'Meta Ads', fecha: null }).success).toBe(true)
   })
 })
 

@@ -16,9 +16,9 @@ export function Emblema({ tamano = 40 }: { tamano?: number }) {
       role="img"
       aria-label="Motor Orgánico"
     >
-      <rect width="32" height="32" rx="8" fill="var(--color-tinta)" />
-      <circle cx="16" cy="16" r="3.2" fill="var(--color-superficie)" />
-      <g stroke="var(--color-superficie)" strokeWidth="1.8" fill="none" opacity="0.9">
+      <rect width="32" height="32" rx="8" fill="#2a2c38" />
+      <circle cx="16" cy="16" r="3.2" fill="#ffffff" />
+      <g stroke="#ffffff" strokeWidth="1.8" fill="none" opacity="0.9">
         <ellipse cx="16" cy="16" rx="10.5" ry="5" transform="rotate(45 16 16)" />
         <ellipse cx="16" cy="16" rx="10.5" ry="5" transform="rotate(-45 16 16)" />
       </g>
@@ -46,17 +46,17 @@ export function Panel() {
     <aside className="relative hidden flex-col justify-center overflow-hidden bg-tinta px-12 py-16 lg:flex xl:px-20">
       {/* Un halo muy leve: da fondo sin competir con el texto. */}
       <span
-        className="pointer-events-none absolute -right-40 top-1/4 size-[32rem] rounded-full bg-superficie/[0.04] blur-3xl"
+        className="pointer-events-none absolute -right-40 top-1/4 size-[32rem] rounded-full bg-arcilla/[0.04] blur-3xl"
         aria-hidden
       />
 
       <div className="relative max-w-md">
         <div className="flex items-center gap-3">
           <Emblema tamano={32} />
-          <span className="text-[15px] font-semibold text-superficie">Motor Orgánico</span>
+          <span className="text-[15px] font-semibold text-white">Motor Orgánico</span>
         </div>
 
-        <p className="mt-12 text-[28px] font-semibold leading-tight tracking-tight text-superficie">
+        <p className="mt-12 text-[28px] font-semibold leading-tight tracking-tight text-white">
           Publica, escucha y responde
           <br />
           sin estar encima.
@@ -66,22 +66,20 @@ export function Panel() {
           {PASOS.map((paso, i) => (
             <li key={paso.titulo} className="flex gap-4">
               <span
-                className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-superficie/15 text-[11px] font-semibold text-superficie"
+                className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-arcilla/15 text-[11px] font-semibold text-white"
                 aria-hidden
               >
                 {i + 1}
               </span>
               <span>
-                <span className="block text-sm font-medium text-superficie">{paso.titulo}</span>
-                <span className="mt-0.5 block text-[13px] leading-relaxed text-superficie/60">
-                  {paso.detalle}
-                </span>
+                <span className="block text-sm font-medium text-white">{paso.titulo}</span>
+                <span className="mt-0.5 block text-[13px] leading-relaxed text-white/60">{paso.detalle}</span>
               </span>
             </li>
           ))}
         </ul>
 
-        <p className="mt-12 text-xs text-superficie/40">SaleADS · Juanads</p>
+        <p className="mt-12 text-xs text-white/40">SaleADS · Juanads</p>
       </div>
     </aside>
   )

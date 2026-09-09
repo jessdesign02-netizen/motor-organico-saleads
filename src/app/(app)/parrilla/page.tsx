@@ -10,11 +10,7 @@ import { NuevaPieza } from './nueva'
 
 export const dynamic = 'force-dynamic'
 
-export default async function Parrilla({
-  searchParams,
-}: {
-  searchParams: Promise<{ semana?: string }>
-}) {
+export default async function Parrilla({ searchParams }: { searchParams: Promise<{ semana?: string }> }) {
   const { semana } = await searchParams
   const lunes = semana ?? lunesDe(new Date())
   const dias = diasDeLaSemana(lunes)
@@ -65,7 +61,8 @@ export default async function Parrilla({
     return fecha.toISOString().slice(0, 10)
   }
 
-  const navegar = 'rounded-lg px-2.5 py-1.5 text-sm text-tinta-2 transition-colors hover:bg-hundido hover:text-tinta'
+  const navegar =
+    'rounded-silk px-2.5 py-1.5 text-sm text-tinta-2 transition-colors hover:bg-arcilla-alta hover:text-tinta'
 
   return (
     <div className="space-y-8">

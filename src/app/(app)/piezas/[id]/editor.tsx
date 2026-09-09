@@ -37,7 +37,10 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
 
   const propuestas = palabra.trim() === '' ? [] : generarVariantes(palabra)
 
-  async function correr(accion: (datos: FormData) => Promise<{ ok: boolean; mensaje: string }>, datos: FormData) {
+  async function correr(
+    accion: (datos: FormData) => Promise<{ ok: boolean; mensaje: string }>,
+    datos: FormData,
+  ) {
     setAviso(await accion(datos))
   }
 
@@ -46,11 +49,21 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
       <Aviso resultado={aviso} />
 
       <Tarjeta titulo="Contenido">
-        <form action={(datos) => correr(guardarPieza, datos)} className="space-y-3" aria-label="Contenido de la pieza">
+        <form
+          action={(datos) => correr(guardarPieza, datos)}
+          className="space-y-3"
+          aria-label="Contenido de la pieza"
+        >
           <input type="hidden" name="piezaId" value={pieza.id} />
 
           <Campo etiqueta="Tema">
-            <input name="tema" defaultValue={pieza.tema} required className={ENTRADA} disabled={!puedeEditar} />
+            <input
+              name="tema"
+              defaultValue={pieza.tema}
+              required
+              className={ENTRADA}
+              disabled={!puedeEditar}
+            />
           </Campo>
 
           <Campo etiqueta="Hook">
@@ -87,7 +100,12 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
               />
             </Campo>
             <Campo etiqueta="Recurso que se entrega">
-              <select name="recursoId" defaultValue={pieza.resource_id ?? ''} className={ENTRADA} disabled={!puedeEditar}>
+              <select
+                name="recursoId"
+                defaultValue={pieza.resource_id ?? ''}
+                className={ENTRADA}
+                disabled={!puedeEditar}
+              >
                 <option value="">sin recurso</option>
                 {recursos.map((recurso) => (
                   <option key={recurso.id} value={recurso.id}>
@@ -102,7 +120,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
         </form>
 
         {pieza.estado === 'borrador' && puedeEditar ? (
-          <form action={(datos) => correr(enviarARevision, datos)} className="mt-3 border-t border-linea pt-3">
+          <form action={(datos) => correr(enviarARevision, datos)} className="mt-3 pt-3">
             <input type="hidden" name="piezaId" value={pieza.id} />
             <Enviar variante="secundario" haciendo="Enviando">
               Enviar a revisión
@@ -112,7 +130,11 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
       </Tarjeta>
 
       <Tarjeta titulo="Caption por red">
-        <form action={(datos) => correr(guardarCaptionsPorRed, datos)} className="space-y-3" aria-label="Caption por red">
+        <form
+          action={(datos) => correr(guardarCaptionsPorRed, datos)}
+          className="space-y-3"
+          aria-label="Caption por red"
+        >
           <input type="hidden" name="piezaId" value={pieza.id} />
 
           <div className="flex gap-1" role="tablist" aria-label="Red social">
@@ -124,7 +146,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
                 aria-selected={red === opcion}
                 onClick={() => setRed(opcion)}
                 className={`rounded-md px-3 py-1.5 text-xs font-medium ${
-                  red === opcion ? 'bg-tinta text-superficie' : 'border border-linea-fuerte'
+                  red === opcion ? 'bg-tinta text-white' : 'shadow-alzado'
                 }`}
               >
                 {opcion}
@@ -134,7 +156,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
           </div>
 
           {/* Los tres campos viven a la vez para que el guardado sea uno solo.
-              La pestaña decide cuál se ve. */}
+ La pestaña decide cuál se ve. */}
           {REDES.map((opcion) => (
             <div key={opcion} className={red === opcion ? 'block' : 'hidden'}>
               <textarea
@@ -145,9 +167,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
                 className={ENTRADA}
                 disabled={!puedeEditar}
               />
-              <p className="mt-1 text-xs text-tinta-3">
-                {LIMITES[opcion]} · vacío hereda el caption base
-              </p>
+              <p className="mt-1 text-xs text-tinta-3">{LIMITES[opcion]} · vacío hereda el caption base</p>
             </div>
           ))}
 
@@ -156,7 +176,11 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
       </Tarjeta>
 
       <Tarjeta titulo="Automatización de comentarios">
-        <form action={(datos) => correr(guardarAutomatizacion, datos)} className="space-y-3" aria-label="Automatización de comentarios">
+        <form
+          action={(datos) => correr(guardarAutomatizacion, datos)}
+          className="space-y-3"
+          aria-label="Automatización de comentarios"
+        >
           <input type="hidden" name="piezaId" value={pieza.id} />
 
           <Campo etiqueta="Palabra clave">
@@ -182,8 +206,8 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
               disabled={!puedeAutomatizar}
             />
             <p className="mt-1 text-xs text-tinta-3">
-              Vacío deja las que el sistema deriva solo. La coincidencia ya ignora tildes, mayúsculas, signos y
-              letras repetidas, así que aquí van las que se escriben distinto de verdad.
+              Vacío deja las que el sistema deriva solo. La coincidencia ya ignora tildes, mayúsculas, signos
+              y letras repetidas, así que aquí van las que se escriben distinto de verdad.
             </p>
           </Campo>
 
@@ -219,7 +243,11 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
 
       {puedeResolver ? (
         <Tarjeta titulo="Revisión">
-          <form action={(datos) => correr(resolverPieza, datos)} className="space-y-3" aria-label="Revisión de la pieza">
+          <form
+            action={(datos) => correr(resolverPieza, datos)}
+            className="space-y-3"
+            aria-label="Revisión de la pieza"
+          >
             <input type="hidden" name="piezaId" value={pieza.id} />
             <Campo etiqueta="Comentario, obligatorio al devolver">
               <input name="comentario" className={ENTRADA} />
@@ -229,7 +257,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
                 type="submit"
                 name="accion"
                 value="aprobar"
-                className="rounded-md bg-tinta px-3 py-2 text-sm font-medium text-superficie"
+                className="rounded-md bg-tinta px-3 py-2 text-sm font-medium text-white"
               >
                 Aprobar
               </button>
@@ -237,7 +265,7 @@ export function Editor({ pieza, clave, plantilla, enlace, recursos, whatsapp, ro
                 type="submit"
                 name="accion"
                 value="devolver"
-                className="rounded-md border border-linea-fuerte px-3 py-2 text-sm font-medium"
+                className="rounded-md shadow-alzado px-3 py-2 text-sm font-medium"
               >
                 Devolver
               </button>
@@ -257,4 +285,3 @@ const LIMITES: Record<RedSocial, string> = {
   tiktok: 'hasta 2.200 caracteres',
   youtube: 'título de 100 y descripción de 5.000',
 }
-

@@ -27,19 +27,15 @@ export default async function Avisos() {
     <div className="space-y-6">
       <Encabezado
         titulo="Avisos"
-        bajada={
-          pendientes.length === 0
-            ? 'Nada sin atender'
-            : `${pendientes.length} sin atender`
-        }
+        bajada={pendientes.length === 0 ? 'Nada sin atender' : `${pendientes.length} sin atender`}
       >
         {pendientes.length > 0 ? <ArchivarTodo /> : null}
       </Encabezado>
 
       {pendientes.length === 0 ? (
         <Vacio>
-          Todo en orden. Aquí aparecen las publicaciones que fallaron, los videos que no bajaron de
-          Drive y los accesos por vencer.
+          Todo en orden. Aquí aparecen las publicaciones que fallaron, los videos que no bajaron de Drive y
+          los accesos por vencer.
         </Vacio>
       ) : null}
 
@@ -47,7 +43,7 @@ export default async function Avisos() {
         {pendientes.map((aviso) => (
           <article
             key={aviso.id}
-            className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-linea bg-superficie shadow-carta p-4"
+            className="flex flex-wrap items-start justify-between gap-4 rounded-silk shadow-alzado bg-arcilla shadow-alzado p-4"
           >
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -62,7 +58,7 @@ export default async function Avisos() {
               {aviso.piece_id ? (
                 <Link
                   href={`/piezas/${aviso.piece_id}`}
-                  className="rounded-lg border border-linea-fuerte bg-superficie px-3 py-1.5 text-xs font-medium text-tinta transition-colors hover:bg-hundido"
+                  className="rounded-silk shadow-alzado bg-arcilla px-3 py-1.5 text-xs font-medium text-tinta transition-colors hover:bg-arcilla-alta"
                 >
                   Abrir la pieza
                 </Link>
@@ -74,11 +70,11 @@ export default async function Avisos() {
       </div>
 
       {archivados.length > 0 ? (
-        <details className="rounded-xl border border-linea bg-superficie shadow-carta">
+        <details className="rounded-silk shadow-alzado bg-arcilla shadow-alzado">
           <summary className="cursor-pointer px-5 py-3 text-sm text-tinta-2 hover:text-tinta">
             Archivados ({archivados.length})
           </summary>
-          <ul className="divide-y divide-linea border-t border-linea">
+          <ul className="divide-y divide-white/40">
             {archivados.map((aviso) => (
               <li key={aviso.id} className="flex items-baseline justify-between gap-4 px-5 py-2.5">
                 <span className="text-sm text-tinta-2">{aviso.titulo}</span>

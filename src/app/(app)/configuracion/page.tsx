@@ -30,11 +30,7 @@ export default async function Ajustes() {
         {(cuentas ?? []).length === 0 ? (
           <Vacio>Sin canales conectados todavía.</Vacio>
         ) : (
-          <Canales
-            cuentas={cuentas ?? []}
-            marcas={marcas ?? []}
-            puedeAjustar={esEditora}
-          />
+          <Canales cuentas={cuentas ?? []} marcas={marcas ?? []} puedeAjustar={esEditora} />
         )}
       </Tarjeta>
 
@@ -48,31 +44,24 @@ export default async function Ajustes() {
         titulo="Quién puede entrar"
         bajada="Sin estar en esta lista, el alta falla en la base: venga por Google, por clave o por el panel de Supabase"
       >
-        <Invitaciones
-          invitaciones={invitaciones ?? []}
-          puedeInvitar={esEditora}
-          yo={perfil?.email ?? ''}
-        />
+        <Invitaciones invitaciones={invitaciones ?? []} puedeInvitar={esEditora} yo={perfil?.email ?? ''} />
       </Tarjeta>
 
       <Tarjeta titulo="Equipo">
-        <Equipo
-          equipo={equipo ?? []}
-          yo={perfil?.id ?? ''}
-          puedeAjustar={esEditora}
-        />
+        <Equipo equipo={equipo ?? []} yo={perfil?.id ?? ''} puedeAjustar={esEditora} />
         <p className="mt-3 text-xs text-tinta-3">
-          Se entra por invitación: crea la persona en Supabase, en Authentication, y aquí le das su rol. Ema, Diego e
-          Iván trabajan sobre la hoja, así que no necesitan cuenta.
+          Se entra por invitación: crea la persona en Supabase, en Authentication, y aquí le das su rol. Ema,
+          Diego e Iván trabajan sobre la hoja, así que no necesitan cuenta.
         </p>
       </Tarjeta>
 
       <Tarjeta titulo="Cómo se guardan las credenciales">
         <p className="text-sm text-tinta-2">
-          El token vive en una variable de entorno, y la base guarda solo el nombre de esa variable. Así el secreto
-          queda fuera de la base de datos y fuera del navegador. Para la cuenta con referencia{' '}
-          <code className="rounded bg-hundido px-1">META_TOKEN_SALEADS</code>, el token va en esa variable y el id
-          de la Página en <code className="rounded bg-hundido px-1">META_TOKEN_SALEADS_PAGE_ID</code>.
+          El token vive en una variable de entorno, y la base guarda solo el nombre de esa variable. Así el
+          secreto queda fuera de la base de datos y fuera del navegador. Para la cuenta con referencia{' '}
+          <code className="rounded bg-arcilla-alta px-1">META_TOKEN_SALEADS</code>, el token va en esa
+          variable y el id de la Página en{' '}
+          <code className="rounded bg-arcilla-alta px-1">META_TOKEN_SALEADS_PAGE_ID</code>.
         </p>
       </Tarjeta>
     </div>

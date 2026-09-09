@@ -44,11 +44,11 @@ export function PedirEnlace() {
    */
   if (listo) {
     return (
-      <div className="rounded-xl border border-linea bg-superficie p-5 shadow-carta">
+      <div className="rounded-silk shadow-alzado bg-arcilla p-5 shadow-alzado">
         <p className="text-sm font-medium text-tinta">Revisa tu correo</p>
         <p className="mt-1.5 text-[13px] leading-relaxed text-tinta-2">
-          Si <span className="font-medium text-tinta">{correo}</span> tiene cuenta, le acaba de
-          llegar un enlace para poner una clave nueva. Vence en una hora.
+          Si <span className="font-medium text-tinta">{correo}</span> tiene cuenta, le acaba de llegar un
+          enlace para poner una clave nueva. Vence en una hora.
         </p>
         <p className="mt-3 text-[13px] text-tinta-3">
           ¿No aparece? Mira en el correo no deseado antes de volver a pedirlo.
@@ -60,7 +60,7 @@ export function PedirEnlace() {
   return (
     <form onSubmit={pedir} className="space-y-4" noValidate>
       {vencido ? (
-        <p role="status" className="rounded-lg bg-aviso-tinte px-3 py-2.5 text-[13px] text-aviso">
+        <p role="status" className="rounded-silk bg-arcilla px-3 py-2.5 text-[13px] text-aviso">
           Ese enlace ya venció o se usó. Pide uno nuevo.
         </p>
       ) : null}
@@ -74,12 +74,12 @@ export function PedirEnlace() {
           placeholder="tu@saleads.co"
           value={correo}
           onChange={(e) => setCorreo(e.target.value)}
-          className="mt-1.5 w-full rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2.5 text-sm text-tinta placeholder:text-tinta-3 focus:border-acento-1"
+          className="mt-1.5 w-full rounded-silk shadow-alzado bg-arcilla px-3.5 py-2.5 text-sm text-tinta placeholder:text-tinta-3 focus:shadow-pulsado"
         />
       </label>
 
       {error ? (
-        <p role="alert" className="rounded-lg bg-critico-tinte px-3 py-2.5 text-[13px] text-critico">
+        <p role="alert" className="rounded-silk bg-arcilla px-3 py-2.5 text-[13px] text-critico">
           {error}
         </p>
       ) : null}
@@ -88,7 +88,7 @@ export function PedirEnlace() {
         type="submit"
         disabled={enviando}
         aria-busy={enviando}
-        className="w-full rounded-lg bg-tinta px-4 py-2.5 text-sm font-semibold text-superficie transition-colors hover:bg-acento-1 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-silk bg-tinta px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primario disabled:cursor-not-allowed disabled:opacity-60"
       >
         {enviando ? 'Enviando' : 'Enviar el enlace'}
       </button>

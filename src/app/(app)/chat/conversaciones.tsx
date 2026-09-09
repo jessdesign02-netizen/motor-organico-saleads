@@ -107,10 +107,10 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
                 role="tab"
                 aria-selected={filtro === f.clave}
                 onClick={() => setFiltro(f.clave)}
-                className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                className={`rounded-silk px-3 py-1.5 text-sm transition-colors ${
                   filtro === f.clave
-                    ? 'bg-hundido font-medium text-tinta'
-                    : 'text-tinta-2 hover:bg-hundido hover:text-tinta'
+                    ? 'bg-arcilla-alta font-medium text-tinta'
+                    : 'text-tinta-2 hover:bg-arcilla-alta hover:text-tinta'
                 }`}
               >
                 {f.texto}
@@ -123,7 +123,7 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
         <button
           type="button"
           onClick={() => setVivo(!vivo)}
-          className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-tinta-2 transition-colors hover:bg-hundido"
+          className="flex items-center gap-2 rounded-silk px-2.5 py-1.5 text-xs text-tinta-2 transition-colors hover:bg-arcilla-alta"
           aria-pressed={vivo}
         >
           <span
@@ -136,11 +136,11 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
 
       <div className="grid gap-4 lg:grid-cols-[20rem_1fr]">
         {/* Lista de conversaciones */}
-        <div className="max-h-[34rem] overflow-y-auto rounded-xl border border-linea bg-superficie shadow-carta">
+        <div className="max-h-[34rem] overflow-y-auto rounded-silk shadow-alzado bg-arcilla shadow-alzado">
           {visibles.length === 0 ? (
             <p className="px-4 py-10 text-center text-sm text-tinta-3">Nada por aquí todavía.</p>
           ) : null}
-          <ul className="divide-y divide-linea">
+          <ul className="divide-y divide-white/40">
             {visibles.map((conversacion) => {
               const puesta = hilo?.clave === conversacion.clave
               const ultimo = conversacion.mensajes.at(-1)
@@ -151,21 +151,15 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
                     onClick={() => setAbierta(conversacion.clave)}
                     aria-current={puesta ? 'true' : undefined}
                     className={`w-full px-4 py-3 text-left transition-colors ${
-                      puesta ? 'bg-hundido' : 'hover:bg-hundido'
+                      puesta ? 'bg-arcilla-alta' : 'hover:bg-arcilla-alta'
                     }`}
                   >
                     <span className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-sm font-medium text-tinta">
-                        @{conversacion.autor}
-                      </span>
-                      <span className="shrink-0 text-[11px] text-tinta-3">
-                        {hace(conversacion.ultimoAt)}
-                      </span>
+                      <span className="truncate text-sm font-medium text-tinta">@{conversacion.autor}</span>
+                      <span className="shrink-0 text-[11px] text-tinta-3">{hace(conversacion.ultimoAt)}</span>
                     </span>
                     <span className="mt-0.5 block truncate text-xs text-tinta-2">
-                      {ultimo && !ultimo.deLaPersona ? (
-                        <span className="text-tinta-3">Tú: </span>
-                      ) : null}
+                      {ultimo && !ultimo.deLaPersona ? <span className="text-tinta-3">Tú: </span> : null}
                       {ultimo?.texto ?? ''}
                     </span>
                     <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
@@ -183,8 +177,8 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
 
         {/* El hilo */}
         {hilo ? (
-          <div className="flex max-h-[34rem] flex-col rounded-xl border border-linea bg-superficie shadow-carta">
-            <div className="flex flex-wrap items-start justify-between gap-3 border-b border-linea px-5 py-3.5">
+          <div className="flex max-h-[34rem] flex-col rounded-silk shadow-alzado bg-arcilla shadow-alzado">
+            <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-3.5">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-tinta">@{hilo.autor}</p>
                 <p className="mt-0.5 text-xs text-tinta-2">
@@ -204,7 +198,7 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
                     href={hilo.permalink}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-lg border border-linea-fuerte bg-superficie px-3 py-1.5 text-xs font-medium text-tinta transition-colors hover:bg-hundido"
+                    className="rounded-silk shadow-alzado bg-arcilla px-3 py-1.5 text-xs font-medium text-tinta transition-colors hover:bg-arcilla-alta"
                   >
                     Ver el post
                   </a>
@@ -229,7 +223,7 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
             </div>
 
             {/* Los datos que hacen de esto un CRM y no un chat suelto. */}
-            <dl className="flex flex-wrap gap-x-6 gap-y-1 border-b border-linea px-5 py-2.5 text-xs">
+            <dl className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-2.5 text-xs">
               <div className="flex gap-1.5">
                 <dt className="text-tinta-3">Palabra</dt>
                 <dd className="font-medium text-tinta">{hilo.palabra ?? '—'}</dd>
@@ -256,8 +250,8 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
                     <div
                       className={`rounded-2xl px-3.5 py-2 text-sm ${
                         mensaje.deLaPersona
-                          ? 'rounded-bl-sm bg-hundido text-tinta'
-                          : 'rounded-br-sm bg-info-tinte text-info'
+                          ? 'rounded-bl-sm bg-arcilla-alta text-tinta'
+                          : 'rounded-br-sm bg-arcilla text-info'
                       }`}
                     >
                       {mensaje.texto}
@@ -280,12 +274,10 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
               ))}
 
               {hilo.necesitaMano ? (
-                <div className="rounded-xl border border-dashed border-linea-fuerte px-4 py-3">
-                  <p className="text-xs font-medium text-tinta-2">
-                    El sistema no pudo responder aquí
-                  </p>
+                <div className="rounded-silk shadow-hundido px-4 py-3">
+                  <p className="text-xs font-medium text-tinta-2">El sistema no pudo responder aquí</p>
                   <p className="mt-0.5 text-xs text-tinta-3">{hilo.mensajes.at(-1)?.motivo ?? ''}</p>
-                  <p className="mt-2 rounded-lg bg-hundido px-3 py-2 text-xs text-tinta-2">
+                  <p className="mt-2 rounded-silk bg-arcilla-alta px-3 py-2 text-xs text-tinta-2">
                     {hilo.sugerida}
                   </p>
                 </div>
@@ -293,7 +285,7 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center rounded-xl border border-dashed border-linea-fuerte px-6 py-16">
+          <div className="flex items-center justify-center rounded-silk shadow-hundido px-6 py-16">
             <p className="text-sm text-tinta-3">Elige una conversación de la lista.</p>
           </div>
         )}

@@ -15,7 +15,7 @@ export function NuevaPieza({ marcas, semana }: { marcas: Marca[]; semana: string
       <button
         type="button"
         onClick={() => setAbierto(true)}
-        className="rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-hundido"
+        className="rounded-silk shadow-alzado bg-arcilla px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-arcilla-alta"
       >
         + Nueva pieza
       </button>
@@ -25,7 +25,7 @@ export function NuevaPieza({ marcas, semana }: { marcas: Marca[]; semana: string
   return (
     <form
       action={async (datos) => setAviso(await crearPieza(datos))}
-      className="space-y-3 rounded-xl border border-dashed border-linea-fuerte bg-superficie p-4"
+      className="space-y-3 rounded-silk shadow-hundido bg-arcilla p-4"
       aria-label="Crear una pieza"
     >
       <div className="flex items-baseline justify-between gap-3">

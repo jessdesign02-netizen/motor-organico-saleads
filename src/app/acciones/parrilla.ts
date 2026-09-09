@@ -22,15 +22,13 @@ export async function crearPieza(datos: FormData): Promise<Respuesta> {
     await exigirRol(...PUEDE_EDITAR)
 
     const entrada = esquemaNuevaPieza.parse({
-        marcaId: datos.get('marcaId'),
-        tema: datos.get('tema'),
-        fecha: datos.get('fecha') || null,
-      })
+      marcaId: datos.get('marcaId'),
+      tema: datos.get('tema'),
+      fecha: datos.get('fecha') || null,
+    })
 
     const supabase = await clienteServidor()
-    const semana = entrada.fecha
-      ? lunesDe(new Date(`${entrada.fecha}T12:00:00Z`))
-      : lunesDe(new Date())
+    const semana = entrada.fecha ? lunesDe(new Date(`${entrada.fecha}T12:00:00Z`)) : lunesDe(new Date())
 
     exigirEscritura(
       await supabase
@@ -57,7 +55,10 @@ export async function aprobarSeleccion(datos: FormData): Promise<Respuesta> {
   return envolver('Aprobar la selección', async () => {
     const perfil = await exigirRol(...PUEDE_APROBAR)
 
-    const ids = datos.getAll('piezaId').map(String).filter((id) => id !== '')
+    const ids = datos
+      .getAll('piezaId')
+      .map(String)
+      .filter((id) => id !== '')
     if (ids.length === 0) throw new Error('Marca al menos una pieza')
 
     const supabase = await clienteServidor()
@@ -242,7 +243,9 @@ export async function resolverCambioDeHoja(datos: FormData): Promise<Respuesta> 
 
     // `visto_at` es marca de la sincronización, así que no viaja a la pieza.
     const campos = Object.fromEntries(
-      Object.entries(pieza.sheet_pendiente as Record<string, unknown>).filter(([campo]) => campo !== 'visto_at'),
+      Object.entries(pieza.sheet_pendiente as Record<string, unknown>).filter(
+        ([campo]) => campo !== 'visto_at',
+      ),
     )
     exigirEscritura(
       await supabase
@@ -289,11 +292,7 @@ export async function guardarCaptionsPorRed(datos: FormData): Promise<Respuesta>
 
     const supabase = await clienteServidor()
     exigirEscritura(
-      await supabase
-        .from('pieces')
-        .update({ captions_red: captions })
-        .eq('id', entrada.piezaId)
-        .select('id'),
+      await supabase.from('pieces').update({ captions_red: captions }).eq('id', entrada.piezaId).select('id'),
       'Guardar los captions',
     )
 
@@ -308,13 +307,13 @@ export async function crearRecurso(datos: FormData): Promise<Respuesta> {
     await exigirRol(...PUEDE_EDITAR)
 
     const entrada = esquemaRecurso.parse({
-        marcaId: datos.get('marcaId'),
-        titulo: datos.get('titulo'),
-        tipo: datos.get('tipo'),
-        url: datos.get('url'),
-        seccion: datos.get('seccion') || undefined,
-        descripcion: datos.get('descripcion') || undefined,
-      })
+      marcaId: datos.get('marcaId'),
+      titulo: datos.get('titulo'),
+      tipo: datos.get('tipo'),
+      url: datos.get('url'),
+      seccion: datos.get('seccion') || undefined,
+      descripcion: datos.get('descripcion') || undefined,
+    })
 
     const supabase = await clienteServidor()
     exigirEscritura(

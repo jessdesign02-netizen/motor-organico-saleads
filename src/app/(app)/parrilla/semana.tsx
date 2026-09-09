@@ -2,7 +2,12 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { aplicarCalendario, aprobarSeleccion, descartarCalendario, proponerCalendario } from '@/app/acciones/parrilla'
+import {
+  aplicarCalendario,
+  aprobarSeleccion,
+  descartarCalendario,
+  proponerCalendario,
+} from '@/app/acciones/parrilla'
 import { DIAS } from '@/lib/dominio/semana'
 import type { Marca, Pieza, PropuestaCalendario } from '@/lib/database.types'
 import { ESTADO_PIEZA, enumerar, fechaLarga, hora } from '@/lib/etiquetas'
@@ -20,7 +25,16 @@ type Props = {
   puedeAprobar: boolean
 }
 
-export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, propuesta, puedeAprobar }: Props) {
+export function SemanaDeLaMarca({
+  marca,
+  semana,
+  dias,
+  hoy,
+  piezas,
+  faltantes,
+  propuesta,
+  puedeAprobar,
+}: Props) {
   const [marcadas, setMarcadas] = useState<string[]>([])
   const [aviso, setAviso] = useState<{ ok: boolean; mensaje: string } | null>(null)
 
@@ -28,7 +42,10 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
   const aprobables = piezas.filter((p) => p.estado === 'revision' || p.estado === 'borrador')
   const sinFecha = piezas.filter((p) => p.fecha_publicacion === null)
 
-  async function correr(accion: (datos: FormData) => Promise<{ ok: boolean; mensaje: string }>, datos: FormData) {
+  async function correr(
+    accion: (datos: FormData) => Promise<{ ok: boolean; mensaje: string }>,
+    datos: FormData,
+  ) {
     setAviso(await accion(datos))
     setMarcadas([])
   }
@@ -55,10 +72,14 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
             ))}
             <button
               type="button"
-              onClick={() => setMarcadas(marcadas.length === aprobables.length ? [] : aprobables.map((p) => p.id))}
-              className="rounded-lg px-2 py-1 text-xs text-tinta-2 transition-colors hover:bg-hundido hover:text-tinta"
+              onClick={() =>
+                setMarcadas(marcadas.length === aprobables.length ? [] : aprobables.map((p) => p.id))
+              }
+              className="rounded-silk px-2 py-1 text-xs text-tinta-2 transition-colors hover:bg-arcilla-alta hover:text-tinta"
             >
-              {marcadas.length === aprobables.length ? 'Quitar la selección' : `Marcar las ${aprobables.length}`}
+              {marcadas.length === aprobables.length
+                ? 'Quitar la selección'
+                : `Marcar las ${aprobables.length}`}
             </button>
             <Enviar haciendo="Aprobando">
               {marcadas.length > 0 ? `Aprobar ${marcadas.length}` : 'Aprobar'}
@@ -79,12 +100,8 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
           return (
             <div
               key={dia}
-              className={`flex min-h-24 flex-col rounded-xl border p-2 ${
-                esHoy
-                  ? 'border-tinta bg-superficie'
-                  : delDia.length === 0
-                    ? 'border-linea bg-plano'
-                    : 'border-linea bg-superficie'
+              className={`flex min-h-24 flex-col rounded-silk border p-2 ${
+                esHoy ? 'border-tinta bg-arcilla' : delDia.length === 0 ? ' bg-arcilla' : ' bg-arcilla'
               }`}
             >
               <p className="flex items-baseline gap-1.5 px-1 pb-2">
@@ -102,15 +119,16 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
               <div className="flex flex-1 flex-col gap-1.5">
                 {delDia.map((pieza) => {
                   const falta = faltantes[pieza.id] ?? []
-                  const marcable = puedeAprobar && (pieza.estado === 'revision' || pieza.estado === 'borrador')
+                  const marcable =
+                    puedeAprobar && (pieza.estado === 'revision' || pieza.estado === 'borrador')
 
                   return (
                     <div
                       key={pieza.id}
-                      className={`rounded-lg p-2 transition-colors ${
+                      className={`rounded-silk p-2 transition-colors ${
                         marcadas.includes(pieza.id)
-                          ? 'bg-hundido ring-1 ring-tinta'
-                          : 'bg-hundido/60 hover:bg-hundido'
+                          ? 'bg-arcilla-alta ring-1 ring-tinta'
+                          : 'bg-arcilla hover:bg-arcilla-alta'
                       }`}
                     >
                       <div className="flex items-start gap-1.5">
@@ -168,7 +186,7 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
       </div>
 
       {sinFecha.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-linea bg-superficie shadow-carta px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2 rounded-silk shadow-alzado bg-arcilla shadow-alzado px-4 py-3">
           <span className="text-xs font-medium text-tinta-2">
             Sin fecha ({sinFecha.length}) · no van a salir hasta que se les ponga día
           </span>
@@ -176,7 +194,7 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
             <Link
               key={pieza.id}
               href={`/piezas/${pieza.id}`}
-              className="rounded-lg border border-linea px-2 py-1 text-xs text-tinta transition-colors hover:border-linea-fuerte hover:bg-hundido"
+              className="rounded-silk shadow-alzado px-2 py-1 text-xs text-tinta transition-colors hover: hover:bg-arcilla-alta"
             >
               {pieza.tema}
             </Link>
@@ -186,7 +204,7 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
 
       {/* Módulo 3 · el recorrido de fechas asistido, tras una devolución. */}
       {puedeAprobar && propuesta ? (
-        <div className="rounded-xl border border-linea border-l-2 border-l-info bg-superficie shadow-carta p-4">
+        <div className="rounded-silk shadow-alzado border-l-2 border-l-info bg-arcilla shadow-alzado p-4">
           <p className="text-sm font-medium text-tinta">Propuesta de calendario</p>
           <p className="mt-0.5 text-xs text-tinta-2">
             {propuesta.motivo}. Nada se mueve hasta que lo confirmes.
@@ -217,15 +235,17 @@ export function SemanaDeLaMarca({ marca, semana, dias, hoy, piezas, faltantes, p
       {puedeAprobar && !propuesta && enRevision.length > 0 ? (
         <form
           action={(datos) => correr(proponerCalendario, datos)}
-          className="flex flex-wrap items-center gap-2 rounded-xl border border-linea bg-superficie shadow-carta px-4 py-3"
+          className="flex flex-wrap items-center gap-2 rounded-silk shadow-alzado bg-arcilla shadow-alzado px-4 py-3"
         >
           <input type="hidden" name="marcaId" value={marca.id} />
           <input type="hidden" name="semana" value={semana} />
-          <span className="text-xs text-tinta-2">Si una pieza volvió a revisión, corre el resto de la semana:</span>
+          <span className="text-xs text-tinta-2">
+            Si una pieza volvió a revisión, corre el resto de la semana:
+          </span>
           <select
             name="devueltaId"
             aria-label="Pieza que volvió a revisión"
-            className="rounded-lg border border-linea-fuerte bg-superficie px-2 py-1 text-xs text-tinta"
+            className="rounded-silk shadow-alzado bg-arcilla px-2 py-1 text-xs text-tinta"
           >
             {enRevision.map((pieza) => (
               <option key={pieza.id} value={pieza.id}>

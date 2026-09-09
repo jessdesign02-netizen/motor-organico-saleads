@@ -53,7 +53,7 @@ export function ClaveNueva() {
             value={clave}
             onChange={(e) => setClave(e.target.value)}
             aria-describedby="pista-clave"
-            className="w-full rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2.5 pr-16 text-sm text-tinta focus:border-acento-1"
+            className="w-full rounded-silk shadow-alzado bg-arcilla px-3.5 py-2.5 pr-16 text-sm text-tinta focus:shadow-pulsado"
           />
           <button
             type="button"
@@ -63,16 +63,13 @@ export function ClaveNueva() {
             {ver ? 'Ocultar' : 'Ver'}
           </button>
         </span>
-        <span
-          id="pista-clave"
-          className={`mt-1.5 block text-xs ${corta ? 'text-critico' : 'text-tinta-3'}`}
-        >
+        <span id="pista-clave" className={`mt-1.5 block text-xs ${corta ? 'text-critico' : 'text-tinta-3'}`}>
           {corta ? `Le faltan ${MINIMO - clave.length} caracteres` : `Mínimo ${MINIMO} caracteres`}
         </span>
       </label>
 
       {error ? (
-        <p role="alert" className="rounded-lg bg-critico-tinte px-3 py-2.5 text-[13px] text-critico">
+        <p role="alert" className="rounded-silk bg-arcilla px-3 py-2.5 text-[13px] text-critico">
           {error}
         </p>
       ) : null}
@@ -81,7 +78,7 @@ export function ClaveNueva() {
         type="submit"
         disabled={enviando || clave.length < MINIMO}
         aria-busy={enviando}
-        className="w-full rounded-lg bg-tinta px-4 py-2.5 text-sm font-semibold text-superficie transition-colors hover:bg-acento-1 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-silk bg-tinta px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primario disabled:cursor-not-allowed disabled:opacity-60"
       >
         {enviando ? 'Guardando' : 'Guardar y entrar'}
       </button>

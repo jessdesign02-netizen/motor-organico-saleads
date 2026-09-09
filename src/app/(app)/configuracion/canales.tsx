@@ -24,7 +24,7 @@ export function Canales({
         <form
           key={cuenta.id}
           action={async (datos) => setAviso(await ajustarCuenta(datos))}
-          className="flex flex-wrap items-center gap-4 rounded-lg border border-linea p-3 text-sm"
+          className="flex flex-wrap items-center gap-4 rounded-silk shadow-alzado p-3 text-sm"
           aria-label={`Canal ${cuenta.handle} en ${cuenta.red}`}
         >
           <input type="hidden" name="cuentaId" value={cuenta.id} />
@@ -42,7 +42,10 @@ export function Canales({
           </label>
 
           {cuenta.red === 'tiktok' ? (
-            <label className="flex items-center gap-2 text-xs" title="Se enciende cuando pasa la auditoría de TikTok">
+            <label
+              className="flex items-center gap-2 text-xs"
+              title="Se enciende cuando pasa la auditoría de TikTok"
+            >
               <input
                 type="checkbox"
                 name="publicacionDirecta"
@@ -63,7 +66,7 @@ export function Canales({
                 name="cupo"
                 min={1}
                 defaultValue={cuenta.cupo_respuestas_dia ?? 150}
-                className="w-20 rounded-md border border-linea-fuerte px-2 py-1"
+                className="w-20 rounded-md shadow-alzado px-2 py-1"
                 disabled={!puedeAjustar}
               />
             </label>
@@ -92,7 +95,7 @@ export function NuevaCuenta({ marcas }: { marcas: Marca[] }) {
   return (
     <form
       action={async (datos) => setAviso(await registrarCuenta(datos))}
-      className="space-y-3 rounded-lg border border-dashed border-linea-fuerte p-4"
+      className="space-y-3 rounded-silk shadow-hundido p-4"
       aria-label="Conectar un canal"
     >
       <p className="text-sm font-medium">Conectar un canal</p>

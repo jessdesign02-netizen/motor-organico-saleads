@@ -7,10 +7,7 @@ export default function NoEncontrado() {
       <p className="text-sm text-tinta-2">
         Puede que la pieza se haya eliminado, o que el enlace venga con un error de copia.
       </p>
-      <Link
-        href="/parrilla"
-        className="w-fit rounded-md bg-tinta px-4 py-2 text-sm font-medium text-superficie"
-      >
+      <Link href="/parrilla" className="w-fit rounded-md bg-tinta px-4 py-2 text-sm font-medium text-white">
         Volver a la parrilla
       </Link>
     </main>

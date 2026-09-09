@@ -15,11 +15,7 @@ import {
 export const dynamic = 'force-dynamic'
 
 /** Módulo 6 · Resultados: qué trajo cada pieza, y cómo va la semana por marca. */
-export default async function Resultados({
-  searchParams,
-}: {
-  searchParams: Promise<{ semana?: string }>
-}) {
+export default async function Resultados({ searchParams }: { searchParams: Promise<{ semana?: string }> }) {
   const { semana } = await searchParams
   const lunes = semana ?? lunesDe(new Date())
   const supabase = await clienteServidor()
@@ -110,14 +106,16 @@ export default async function Resultados({
       </div>
 
       {enBandeja > 0 || enCola > 0 ? (
-        <p className="rounded-xl border border-aviso-tinte bg-aviso-tinte px-4 py-3 text-sm text-aviso">
-          {enBandeja > 0 ? `${enBandeja} ${enBandeja === 1 ? 'comentario espera' : 'comentarios esperan'} tu respuesta. ` : ''}
+        <p className="rounded-silk bg-arcilla shadow-hundido px-4 py-3 text-sm text-aviso">
+          {enBandeja > 0
+            ? `${enBandeja} ${enBandeja === 1 ? 'comentario espera' : 'comentarios esperan'} tu respuesta. `
+            : ''}
           {enCola > 0 ? `${enCola} ${enCola === 1 ? 'vuelve' : 'vuelven'} a intentarse solos.` : ''}
         </p>
       ) : null}
 
       {hora ? (
-        <p className="rounded-xl border border-linea bg-superficie shadow-carta px-4 py-3 text-sm text-tinta">
+        <p className="rounded-silk shadow-alzado bg-arcilla shadow-alzado px-4 py-3 text-sm text-tinta">
           La franja de las <span className="font-semibold">{hora.hora}</span> es la que más gente trajo:{' '}
           {hora.enviados} mensajes sobre {hora.piezas} piezas.
         </p>
@@ -140,7 +138,9 @@ export default async function Resultados({
         bajada="Cada red lleva su propio estado: una pieza puede salir en una y fallar en otra"
         ajustado
       >
-        <Tabla cabeceras={['Marca', 'Red', 'Publicadas', 'No salieron', 'Detectados', 'Enviados', 'En bandeja']}>
+        <Tabla
+          cabeceras={['Marca', 'Red', 'Publicadas', 'No salieron', 'Detectados', 'Enviados', 'En bandeja']}
+        >
           {comparativa.flatMap(({ marca, porRed }) =>
             porRed.map((fila) => (
               <tr key={`${marca.id}-${fila.red}`}>
@@ -149,12 +149,18 @@ export default async function Resultados({
                   {RED[fila.red]}
                   {fila.conectada ? '' : ' · sin conectar'}
                 </Celda>
-                <Celda numero apagado={fila.publicadas === 0}>{fila.publicadas}</Celda>
+                <Celda numero apagado={fila.publicadas === 0}>
+                  {fila.publicadas}
+                </Celda>
                 <Celda numero apagado={fila.fallidas === 0}>
                   {fila.fallidas > 0 ? <span className="text-critico">{fila.fallidas}</span> : 0}
                 </Celda>
-                <Celda numero apagado={fila.detectados === 0}>{fila.detectados}</Celda>
-                <Celda numero apagado={fila.enviados === 0}>{fila.enviados}</Celda>
+                <Celda numero apagado={fila.detectados === 0}>
+                  {fila.detectados}
+                </Celda>
+                <Celda numero apagado={fila.enviados === 0}>
+                  {fila.enviados}
+                </Celda>
                 <Celda numero apagado={fila.enBandeja === 0}>
                   {fila.enBandeja > 0 ? <span className="text-aviso">{fila.enBandeja}</span> : 0}
                 </Celda>
@@ -179,20 +185,25 @@ export default async function Resultados({
               return (
                 <tr key={medida.piezaId}>
                   <Celda>
-                    <Link
-                      href={`/piezas/${medida.piezaId}`}
-                      className="underline-offset-2 hover:underline"
-                    >
+                    <Link href={`/piezas/${medida.piezaId}`} className="underline-offset-2 hover:underline">
                       {medida.tema}
                     </Link>
                   </Celda>
-                  <Celda numero apagado>{marca?.nombre}</Celda>
+                  <Celda numero apagado>
+                    {marca?.nombre}
+                  </Celda>
                   <Celda numero apagado={suyas.length === 0}>
                     {suyas.filter((p) => p.estado === 'publicado').length}/{suyas.length}
                   </Celda>
-                  <Celda numero apagado={medida.detectados === 0}>{medida.detectados}</Celda>
-                  <Celda numero apagado={medida.enviados === 0}>{medida.enviados}</Celda>
-                  <Celda numero apagado={medida.clics === 0}>{medida.clics}</Celda>
+                  <Celda numero apagado={medida.detectados === 0}>
+                    {medida.detectados}
+                  </Celda>
+                  <Celda numero apagado={medida.enviados === 0}>
+                    {medida.enviados}
+                  </Celda>
+                  <Celda numero apagado={medida.clics === 0}>
+                    {medida.clics}
+                  </Celda>
                 </tr>
               )
             })}

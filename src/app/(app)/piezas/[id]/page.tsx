@@ -39,10 +39,7 @@ export default async function DetallePieza({ params }: { params: Promise<{ id: s
   return (
     <div className="space-y-6">
       <div>
-        <Link
-          href="/parrilla"
-          className="text-xs text-tinta-2 underline underline-offset-2 hover:text-tinta"
-        >
+        <Link href="/parrilla" className="text-xs text-tinta-2 underline underline-offset-2 hover:text-tinta">
           ← Volver a la parrilla
         </Link>
       </div>
@@ -61,13 +58,13 @@ export default async function DetallePieza({ params }: { params: Promise<{ id: s
       </Encabezado>
 
       {faltan.length > 0 ? (
-        <p className="rounded-xl border border-aviso-tinte bg-aviso-tinte px-4 py-3 text-sm text-aviso">
+        <p className="rounded-silk bg-arcilla shadow-hundido px-4 py-3 text-sm text-aviso">
           Para poder programarse le falta {enumerar(faltan)}.
         </p>
       ) : null}
 
       {pieza.video_error ? (
-        <p className="rounded-xl border border-serio-tinte bg-serio-tinte px-4 py-3 text-sm text-serio">
+        <p className="rounded-silk bg-arcilla shadow-hundido px-4 py-3 text-sm text-serio">
           El video no se pudo bajar de Drive: {pieza.video_error}
         </p>
       ) : null}

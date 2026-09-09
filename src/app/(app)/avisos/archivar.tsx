@@ -29,7 +29,10 @@ export function ArchivarTodo() {
   const [aviso, setAviso] = useState<string | null>(null)
 
   return (
-    <form action={async () => setAviso((await marcarTodosLeidos()).mensaje)} className="flex items-center gap-2">
+    <form
+      action={async () => setAviso((await marcarTodosLeidos()).mensaje)}
+      className="flex items-center gap-2"
+    >
       <Enviar variante="secundario" haciendo="Archivando">
         Archivar todo
       </Enviar>

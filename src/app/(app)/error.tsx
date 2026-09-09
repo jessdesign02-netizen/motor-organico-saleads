@@ -15,7 +15,7 @@ export default function ErrorDeSeccion({
   }, [error])
 
   return (
-    <div className="rounded-lg border border-linea bg-critico-tinte p-6">
+    <div className="rounded-silk shadow-alzado bg-arcilla p-6">
       <h2 className="text-sm font-semibold text-critico">Esta sección no cargó</h2>
       <p className="mt-1 text-sm text-critico">
         Casi siempre es la conexión con la base. El resto de la herramienta sigue disponible desde el menú.
@@ -24,7 +24,7 @@ export default function ErrorDeSeccion({
       <button
         type="button"
         onClick={reset}
-        className="mt-3 rounded-md bg-red-900 px-3 py-1.5 text-sm font-medium text-superficie"
+        className="mt-3 rounded-md bg-red-900 px-3 py-1.5 text-sm font-medium text-white"
       >
         Reintentar
       </button>

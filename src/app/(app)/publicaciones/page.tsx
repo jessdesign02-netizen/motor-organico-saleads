@@ -96,16 +96,14 @@ export default async function Publicaciones() {
       >
         <Link
           href="/dia"
-          className="rounded-lg border border-linea-fuerte bg-superficie px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-hundido"
+          className="rounded-silk shadow-alzado bg-arcilla px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-arcilla-alta"
         >
           Panel del día
         </Link>
       </Encabezado>
 
       {publicaciones.length === 0 ? (
-        <Vacio>
-          Todavía no hay salidas. Una pieza genera su publicación cuando se aprueba el día.
-        </Vacio>
+        <Vacio>Todavía no hay salidas. Una pieza genera su publicación cuando se aprueba el día.</Vacio>
       ) : null}
 
       {/* Lo que falló va primero: es lo único que pide algo de alguien. */}

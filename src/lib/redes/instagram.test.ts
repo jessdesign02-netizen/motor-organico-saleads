@@ -1,10 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ComentarioEntrante, CredencialCuenta } from './tipos'
-import {
-  leerComentariosInstagram,
-  publicarEnInstagram,
-  responderPrivadoInstagram,
-} from './instagram'
+import { leerComentariosInstagram, publicarEnInstagram, responderPrivadoInstagram } from './instagram'
 
 const credencial: CredencialCuenta = {
   cuentaId: 'c1',

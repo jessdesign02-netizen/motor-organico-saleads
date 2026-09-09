@@ -8,12 +8,7 @@ import { captionDeLaRed } from '@/lib/dominio/caption'
 import { instanteDe } from '@/lib/dominio/hora'
 import { destinoPermitido } from '@/lib/seguridad'
 import { generarVariantes, normalizar } from '@/lib/dominio/clave'
-import {
-  esquemaAutomatizacion,
-  esquemaPieza,
-  esquemaRevision,
-  partirVariantes,
-} from './esquemas'
+import { esquemaAutomatizacion, esquemaPieza, esquemaRevision, partirVariantes } from './esquemas'
 import { envolver, exigirEscritura, type Respuesta } from './comunes'
 
 /**
@@ -22,7 +17,6 @@ import { envolver, exigirEscritura, type Respuesta } from './comunes'
  * Cada regla se valida aquí y otra vez en la base. Zod atrapa lo que llega mal
  * escrito, y los triggers atrapan lo que llegue por otro camino.
  */
-
 
 export async function guardarPieza(datos: FormData): Promise<Respuesta> {
   return envolver('Guardar la pieza', async () => {
@@ -60,7 +54,6 @@ export async function guardarPieza(datos: FormData): Promise<Respuesta> {
     return 'Pieza guardada'
   })
 }
-
 
 /** Slug corto y estable para el enlace rastreado. */
 function slugDe(palabra: string, piezaId: string): string {
@@ -124,7 +117,10 @@ export async function guardarAutomatizacion(datos: FormData): Promise<Respuesta>
     exigirEscritura(
       await supabase
         .from('tracked_links')
-        .upsert({ piece_id: entrada.piezaId, slug, destino_url: destino.toString() }, { onConflict: 'piece_id' })
+        .upsert(
+          { piece_id: entrada.piezaId, slug, destino_url: destino.toString() },
+          { onConflict: 'piece_id' },
+        )
         .select('id'),
       'Guardar el enlace rastreado',
     )
@@ -166,10 +162,10 @@ export async function resolverPieza(datos: FormData): Promise<Respuesta> {
     const perfil = await exigirRol(...PUEDE_APROBAR)
 
     const entrada = esquemaRevision.parse({
-        piezaId: datos.get('piezaId'),
-        accion: datos.get('accion'),
-        comentario: datos.get('comentario') || undefined,
-      })
+      piezaId: datos.get('piezaId'),
+      accion: datos.get('accion'),
+      comentario: datos.get('comentario') || undefined,
+    })
 
     if (entrada.accion === 'devolver' && !entrada.comentario) {
       throw new Error('Una devolución va con el motivo escrito')
@@ -234,18 +230,16 @@ export async function programarDia(datos: FormData): Promise<Respuesta> {
       for (const cuenta of cuentas ?? []) {
         const captionFinal = captionDeLaRed(cuenta.red, pieza.captions_red, pieza.caption_base)
 
-        await supabase
-          .from('publications')
-          .upsert(
-            {
-              piece_id: pieza.id,
-              social_account_id: cuenta.id,
-              estado: 'pendiente',
-              programado_at: programadoAt,
-              caption_final: captionFinal,
-            },
-            { onConflict: 'piece_id,social_account_id' },
-          )
+        await supabase.from('publications').upsert(
+          {
+            piece_id: pieza.id,
+            social_account_id: cuenta.id,
+            estado: 'pendiente',
+            programado_at: programadoAt,
+            caption_final: captionFinal,
+          },
+          { onConflict: 'piece_id,social_account_id' },
+        )
       }
 
       // El trigger de la base exige palabra clave, mensaje y enlace aquí.

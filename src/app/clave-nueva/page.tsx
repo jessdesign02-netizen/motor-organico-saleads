@@ -14,7 +14,7 @@ export default async function PonerClaveNueva() {
   const perfil = await exigirSesion()
 
   return (
-    <div className="grid min-h-screen bg-superficie lg:grid-cols-2">
+    <div className="grid min-h-screen bg-arcilla lg:grid-cols-2">
       <main className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-[22rem]">
           <div className="flex items-center gap-3 lg:hidden">
@@ -26,8 +26,7 @@ export default async function PonerClaveNueva() {
             Pon una clave nueva
           </h1>
           <p className="mt-1 text-sm text-tinta-2">
-            Para <span className="font-medium text-tinta">{perfil.email}</span>. Al guardarla
-            entras directo.
+            Para <span className="font-medium text-tinta">{perfil.email}</span>. Al guardarla entras directo.
           </p>
 
           <div className="mt-8">

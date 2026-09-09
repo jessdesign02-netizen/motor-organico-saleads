@@ -38,7 +38,11 @@ export const ESTADO_PIEZA: Record<EstadoPieza, Rotulo> = {
   aprobado: { texto: 'Aprobada', tono: 'info', explica: 'Lista para programarse el día que salga' },
   programado: { texto: 'Programada', tono: 'info', explica: 'Ya está en la cola, sale a su hora' },
   publicado: { texto: 'Publicada', tono: 'bien', explica: 'En vivo, con su automatización encendida' },
-  fallido: { texto: 'No salió', tono: 'critico', explica: 'La plataforma la rechazó. El motivo está en Avisos' },
+  fallido: {
+    texto: 'No salió',
+    tono: 'critico',
+    explica: 'La plataforma la rechazó. El motivo está en Avisos',
+  },
 }
 
 export const ESTADO_PUBLICACION: Record<EstadoPublicacion, Rotulo> = {
@@ -88,11 +92,20 @@ export function motivoLegible(motivo: string | null): string | null {
  * una explicación para un error desconocido sería peor que mostrarlo crudo.
  */
 const ERRORES: Array<{ señal: RegExp; texto: string }> = [
-  { señal: /#613|rate limit/i, texto: 'La plataforma frenó el envío por exceso de mensajes. Se reintenta solo.' },
-  { señal: /#4\b|#17\b|request limit/i, texto: 'Se alcanzó el tope de llamadas de la app. Se reintenta solo.' },
+  {
+    señal: /#613|rate limit/i,
+    texto: 'La plataforma frenó el envío por exceso de mensajes. Se reintenta solo.',
+  },
+  {
+    señal: /#4\b|#17\b|request limit/i,
+    texto: 'Se alcanzó el tope de llamadas de la app. Se reintenta solo.',
+  },
   { señal: /#32\b|page request limit/i, texto: 'La cuenta llegó a su tope por hora. Se reintenta solo.' },
   { señal: /quotaExceeded/i, texto: 'Se acabó la cuota diaria de YouTube. Vuelve mañana.' },
-  { señal: /expired|invalid.*token|session has expired/i, texto: 'El acceso venció. Renuévalo en Configuración.' },
+  {
+    señal: /expired|invalid.*token|session has expired/i,
+    texto: 'El acceso venció. Renuévalo en Configuración.',
+  },
   { señal: /sigue en proceso/i, texto: 'El video seguía procesándose después de dos minutos.' },
   { señal: /permission|#200\b/i, texto: 'Faltan permisos en la app de Meta para hacer esto.' },
 ]
@@ -115,7 +128,11 @@ export const RED: Record<RedSocial, string> = {
 export const ROL: Record<RolApp, Rotulo> = {
   editora: { texto: 'Editora', tono: 'info', explica: 'Define la automatización y aprueba el día' },
   aprobadora: { texto: 'Aprobadora', tono: 'info', explica: 'Revisa la semana, aprueba y devuelve' },
-  audiovisual: { texto: 'Audiovisual', tono: 'neutro', explica: 'Carga el video y deja la pieza en revisión' },
+  audiovisual: {
+    texto: 'Audiovisual',
+    tono: 'neutro',
+    explica: 'Carga el video y deja la pieza en revisión',
+  },
   observador: { texto: 'Observador', tono: 'neutro', explica: 'Solo lectura' },
 }
 
@@ -141,8 +158,18 @@ export const TIPO_AVISO: Record<TipoAviso, Rotulo> = {
 // ---------------------------------------------------------------------------
 
 const MESES = [
-  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
 ]
 const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
@@ -185,9 +212,7 @@ export function fechaConDia(iso: string | null): string {
 export function rangoDeSemana(lunesIso: string): string {
   const inicio = partes(lunesIso)
   if (!inicio) return lunesIso
-  const fin = partes(
-    new Date(Date.UTC(inicio.ano, inicio.mes, inicio.dia + 6)).toISOString().slice(0, 10),
-  )
+  const fin = partes(new Date(Date.UTC(inicio.ano, inicio.mes, inicio.dia + 6)).toISOString().slice(0, 10))
   if (!fin) return lunesIso
 
   if (inicio.mes === fin.mes) {
