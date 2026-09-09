@@ -21,13 +21,13 @@ export async function registrarCuenta(datos: FormData): Promise<Respuesta> {
     await exigirRol('editora')
 
     const entrada = esquemaCuenta.parse({
-        marcaId: datos.get('marcaId'),
-        red: datos.get('red'),
-        handle: datos.get('handle'),
-        externalAccountId: datos.get('externalAccountId'),
-        credentialRef: datos.get('credentialRef'),
-        tokenExpiraAt: datos.get('tokenExpiraAt') || null,
-      })
+      marcaId: datos.get('marcaId'),
+      red: datos.get('red'),
+      handle: datos.get('handle'),
+      externalAccountId: datos.get('externalAccountId'),
+      credentialRef: datos.get('credentialRef'),
+      tokenExpiraAt: datos.get('tokenExpiraAt') || null,
+    })
 
     const supabase = await clienteServidor()
     exigirEscritura(
@@ -49,7 +49,7 @@ export async function registrarCuenta(datos: FormData): Promise<Respuesta> {
       'Registrar la cuenta',
     )
 
-    revalidatePath('/ajustes')
+    revalidatePath('/configuracion')
     return `${entrada.handle} conectada en ${entrada.red}`
   })
 }
@@ -86,7 +86,7 @@ export async function ajustarCuenta(datos: FormData): Promise<Respuesta> {
       'Ajustar la cuenta',
     )
 
-    revalidatePath('/ajustes')
+    revalidatePath('/configuracion')
     return 'Canal actualizado'
   })
 }

@@ -1,19 +1,11 @@
 import Link from 'next/link'
 import { clienteServidor } from '@/lib/supabase/server'
-import { Vacio } from '@/app/ui'
+import { Encabezado, Etiqueta, Vacio } from '@/app/ui'
 import { filas } from '@/lib/consulta'
+import { TIPO_AVISO, hace } from '@/lib/etiquetas'
 import { Archivar, ArchivarTodo } from './archivar'
 
 export const dynamic = 'force-dynamic'
-
-const TITULOS: Record<string, string> = {
-  publicacion_fallida: 'Publicación fallida',
-  borrador_tiktok: 'Borrador en TikTok',
-  token_por_vencer: 'Acceso por vencer',
-  bandeja_con_espera: 'Bandeja con espera',
-  cupo_agotado: 'Cupo agotado',
-  pieza_devuelta: 'Pieza devuelta',
-}
 
 export default async function Avisos() {
   const supabase = await clienteServidor()
@@ -33,37 +25,42 @@ export default async function Avisos() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-baseline justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Avisos</h1>
-          <p className="text-sm text-neutral-500">
-            {pendientes.length} sin atender
-          </p>
-        </div>
+      <Encabezado
+        titulo="Avisos"
+        bajada={pendientes.length === 0 ? 'Nada sin atender' : `${pendientes.length} sin atender`}
+      >
         {pendientes.length > 0 ? <ArchivarTodo /> : null}
-      </header>
+      </Encabezado>
 
-      {pendientes.length === 0 ? <Vacio>Nada pendiente por ahora.</Vacio> : null}
+      {pendientes.length === 0 ? (
+        <Vacio>
+          Todo en orden. Aquí aparecen las publicaciones que fallaron, los videos que no bajaron de Drive y
+          los accesos por vencer.
+        </Vacio>
+      ) : null}
 
       <div className="space-y-2">
         {pendientes.map((aviso) => (
           <article
             key={aviso.id}
-            className="flex items-start justify-between gap-4 rounded-lg border border-neutral-200 bg-white p-4"
+            className="flex flex-wrap items-start justify-between gap-4 rounded-silk shadow-alzado bg-arcilla shadow-alzado p-4"
           >
-            <div className="min-w-0">
-              <p className="text-xs text-neutral-500">{TITULOS[aviso.tipo] ?? aviso.tipo}</p>
-              <p className="text-sm font-medium">{aviso.titulo}</p>
-              {aviso.detalle ? <p className="mt-1 text-sm text-neutral-600">{aviso.detalle}</p> : null}
-              <p className="mt-1 text-xs text-neutral-400">{aviso.creado_at.slice(0, 16).replace('T', ' ')}</p>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <Etiqueta rotulo={TIPO_AVISO[aviso.tipo]} />
+                <span className="text-xs text-tinta-3">{hace(aviso.creado_at)}</span>
+              </div>
+              <p className="mt-1.5 text-sm font-medium text-tinta">{aviso.titulo}</p>
+              {aviso.detalle ? <p className="mt-0.5 text-sm text-tinta-2">{aviso.detalle}</p> : null}
             </div>
+
             <div className="flex shrink-0 items-center gap-2">
               {aviso.piece_id ? (
                 <Link
                   href={`/piezas/${aviso.piece_id}`}
-                  className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs"
+                  className="rounded-silk shadow-alzado bg-arcilla px-3 py-1.5 text-xs font-medium text-tinta transition-colors hover:bg-arcilla-alta"
                 >
-                  Abrir
+                  Abrir la pieza
                 </Link>
               ) : null}
               <Archivar avisoId={aviso.id} />
@@ -73,11 +70,16 @@ export default async function Avisos() {
       </div>
 
       {archivados.length > 0 ? (
-        <details>
-          <summary className="cursor-pointer text-sm text-neutral-500">Archivados</summary>
-          <ul className="mt-2 space-y-1 text-sm text-neutral-500">
+        <details className="rounded-silk shadow-alzado bg-arcilla shadow-alzado">
+          <summary className="cursor-pointer px-5 py-3 text-sm text-tinta-2 hover:text-tinta">
+            Archivados ({archivados.length})
+          </summary>
+          <ul className="divide-y divide-white/40">
             {archivados.map((aviso) => (
-              <li key={aviso.id}>{aviso.titulo}</li>
+              <li key={aviso.id} className="flex items-baseline justify-between gap-4 px-5 py-2.5">
+                <span className="text-sm text-tinta-2">{aviso.titulo}</span>
+                <span className="shrink-0 text-xs text-tinta-3">{hace(aviso.leido_at)}</span>
+              </li>
             ))}
           </ul>
         </details>

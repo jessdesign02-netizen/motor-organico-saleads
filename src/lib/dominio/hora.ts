@@ -15,11 +15,7 @@ export function zonaDelEquipo(): string {
 }
 
 /** Toma la fecha y la hora tal como las escribió la persona, y devuelve el instante real. */
-export function instanteDe(
-  fechaIso: string,
-  hora: string | null,
-  zona: string = zonaDelEquipo(),
-): Date {
+export function instanteDe(fechaIso: string, hora: string | null, zona: string = zonaDelEquipo()): Date {
   const horaCompleta = (hora ?? '18:00').slice(0, 5)
   return fromZonedTime(`${fechaIso}T${horaCompleta}:00`, zona)
 }

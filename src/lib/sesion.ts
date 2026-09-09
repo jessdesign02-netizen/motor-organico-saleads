@@ -1,6 +1,7 @@
 import 'server-only'
 import { redirect } from 'next/navigation'
 import { clienteServidor } from '@/lib/supabase/server'
+import { modoDemo, perfilDemo } from '@/lib/demo/cliente'
 import type { Perfil, RolApp } from '@/lib/database.types'
 
 /**
@@ -8,6 +9,10 @@ import type { Perfil, RolApp } from '@/lib/database.types'
  * ocultar un botón, y eso no es una barrera.
  */
 export async function perfilActual(): Promise<Perfil | null> {
+  // Modo demo: se entra como editora, que es el rol que ve todo. El doble no
+  // tiene auth, así que la sesión se resuelve aquí y no contra Supabase.
+  if (modoDemo()) return perfilDemo()
+
   const supabase = await clienteServidor()
   const {
     data: { user },

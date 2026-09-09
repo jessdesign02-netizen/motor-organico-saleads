@@ -15,12 +15,12 @@ export default function ErrorDeSeccion({
   }, [error])
 
   return (
-    <div className="rounded-lg border border-red-200 bg-red-50 p-6">
-      <h2 className="text-sm font-semibold text-red-900">Esta sección no cargó</h2>
-      <p className="mt-1 text-sm text-red-800">
+    <div className="rounded-silk shadow-alzado bg-arcilla p-6">
+      <h2 className="text-sm font-semibold text-critico">Esta sección no cargó</h2>
+      <p className="mt-1 text-sm text-critico">
         Casi siempre es la conexión con la base. El resto de la herramienta sigue disponible desde el menú.
       </p>
-      {error.digest ? <p className="mt-1 text-xs text-red-700">Referencia: {error.digest}</p> : null}
+      {error.digest ? <p className="mt-1 text-xs text-critico">Referencia: {error.digest}</p> : null}
       <button
         type="button"
         onClick={reset}

@@ -90,7 +90,11 @@ export async function publicarEnYoutube(
       permalink: `https://www.youtube.com/shorts/${datos.id}`,
     }
   } catch (error) {
-    return { estado: 'fallido', error: error instanceof Error ? error.message : String(error), reintentable: true }
+    return {
+      estado: 'fallido',
+      error: error instanceof Error ? error.message : String(error),
+      reintentable: true,
+    }
   }
 }
 
@@ -165,7 +169,11 @@ export async function responderEnYoutube(
     }
     return { estado: 'enviado', referencia: datos.id ?? null }
   } catch (error) {
-    return { estado: 'fallido', error: error instanceof Error ? error.message : String(error), reintentable: true }
+    return {
+      estado: 'fallido',
+      error: error instanceof Error ? error.message : String(error),
+      reintentable: true,
+    }
   }
 }
 

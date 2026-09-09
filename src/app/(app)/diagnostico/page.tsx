@@ -59,7 +59,8 @@ export default async function Diagnostico() {
       entrega: '1 · Fundación',
       asunto: 'Conexión con Supabase',
       listo: variable('NEXT_PUBLIC_SUPABASE_URL') && variable('SUPABASE_SERVICE_ROLE_KEY'),
-      comoSeArregla: 'Llena NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY y SUPABASE_SERVICE_ROLE_KEY',
+      comoSeArregla:
+        'Llena NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY y SUPABASE_SERVICE_ROLE_KEY',
     },
     {
       entrega: '2 · Esquema',
@@ -89,7 +90,8 @@ export default async function Diagnostico() {
       entrega: '6 · Publicación',
       asunto: 'Cuentas de red conectadas',
       listo: (cuentas ?? 0) > 0,
-      comoSeArregla: 'Registra las cuentas en social_accounts, con su credential_ref apuntando a una variable',
+      comoSeArregla:
+        'Registra las cuentas en social_accounts, con su credential_ref apuntando a una variable',
     },
     {
       entrega: '6 · Publicación',
@@ -108,7 +110,8 @@ export default async function Diagnostico() {
       entrega: '7 · Motor',
       asunto: 'Trabajos programados',
       listo: variable('CRON_SECRET'),
-      comoSeArregla: 'Define CRON_SECRET y despliega en Vercel para que corran los cuatro cron de vercel.json',
+      comoSeArregla:
+        'Define CRON_SECRET y despliega en Vercel para que corran los cuatro cron de vercel.json',
     },
     {
       entrega: 'Fase 2 · TikTok',
@@ -150,20 +153,20 @@ export default async function Diagnostico() {
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-semibold tracking-tight">Diagnóstico</h1>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-tinta-3">
           {listos} de {puntos.length} puntos en verde
         </p>
       </header>
 
       <Tarjeta titulo="Estado por entrega">
-        <ul className="divide-y divide-neutral-100">
+        <ul className="divide-y divide-white/40">
           {puntos.map((punto) => (
             <li key={`${punto.entrega}-${punto.asunto}`} className="flex items-start gap-3 py-3">
-              <span className={punto.listo ? 'text-emerald-600' : 'text-amber-600'}>{punto.listo ? '●' : '○'}</span>
+              <span className={punto.listo ? 'text-bien' : 'text-aviso'}>{punto.listo ? '●' : '○'}</span>
               <div>
                 <p className="text-sm font-medium">{punto.asunto}</p>
-                <p className="text-xs text-neutral-500">{punto.entrega}</p>
-                {punto.listo ? null : <p className="mt-1 text-xs text-neutral-700">{punto.comoSeArregla}</p>}
+                <p className="text-xs text-tinta-3">{punto.entrega}</p>
+                {punto.listo ? null : <p className="mt-1 text-xs text-tinta-2">{punto.comoSeArregla}</p>}
               </div>
             </li>
           ))}
@@ -184,7 +187,7 @@ export default async function Diagnostico() {
 
       <Tarjeta titulo="Última sincronización">
         {(sync ?? []).length === 0 ? (
-          <p className="text-sm text-neutral-500">Todavía sin corridas registradas.</p>
+          <p className="text-sm text-tinta-3">Todavía sin corridas registradas.</p>
         ) : (
           (sync ?? []).map((registro) => (
             <div key={registro.id} className="text-sm">
@@ -193,7 +196,7 @@ export default async function Diagnostico() {
                 {registro.filas_creadas} creadas, {registro.filas_actualizadas} actualizadas,{' '}
                 {registro.filas_ignoradas} ignoradas
               </p>
-              <ul className="mt-2 space-y-1 text-xs text-neutral-600">
+              <ul className="mt-2 space-y-1 text-xs text-tinta-2">
                 {registro.detalle.map((linea, indice) => (
                   <li key={indice}>
                     {linea.fila}: {linea.motivo}

@@ -14,7 +14,7 @@ export function AltaRecurso({ marcas }: { marcas: Marca[] }) {
       <button
         type="button"
         onClick={() => setAbierto(true)}
-        className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium"
+        className="rounded-md shadow-alzado bg-arcilla px-3 py-2 text-sm font-medium"
       >
         Agregar un recurso
       </button>
@@ -28,7 +28,7 @@ export function AltaRecurso({ marcas }: { marcas: Marca[] }) {
         setAviso(salida)
         if (salida.ok) setAbierto(false)
       }}
-      className="space-y-3 rounded-lg border border-neutral-200 bg-white p-5"
+      className="space-y-3 rounded-silk shadow-alzado bg-arcilla p-5"
       aria-label="Agregar un recurso"
     >
       <div className="grid gap-3 md:grid-cols-2">
@@ -65,7 +65,7 @@ export function AltaRecurso({ marcas }: { marcas: Marca[] }) {
       </div>
       <div className="flex items-center gap-3">
         <Enviar haciendo="Guardando">Guardar</Enviar>
-        <button type="button" onClick={() => setAbierto(false)} className="text-sm text-neutral-500">
+        <button type="button" onClick={() => setAbierto(false)} className="text-sm text-tinta-3">
           Cancelar
         </button>
         <Aviso resultado={aviso} />

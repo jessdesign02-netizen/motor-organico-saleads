@@ -181,9 +181,10 @@ class Consulta implements PromiseLike<{ data: unknown; error: { message: string 
           }
         }
 
-        const choque = (UNICOS[this.tabla] ?? []).find((llave) =>
-          llave.every((campo) => fila[campo] !== undefined && fila[campo] !== null) &&
-          this.filas.some((f) => llave.every((campo) => comparar(f[campo], fila[campo]))),
+        const choque = (UNICOS[this.tabla] ?? []).find(
+          (llave) =>
+            llave.every((campo) => fila[campo] !== undefined && fila[campo] !== null) &&
+            this.filas.some((f) => llave.every((campo) => comparar(f[campo], fila[campo]))),
         )
         if (choque) {
           return {
@@ -221,7 +222,13 @@ class Consulta implements PromiseLike<{ data: unknown; error: { message: string 
   }
 
   then<R1 = unknown, R2 = never>(
-    alListo?: ((valor: { data: unknown; error: { message: string } | null; count?: number }) => R1 | PromiseLike<R1>) | null,
+    alListo?:
+      | ((valor: {
+          data: unknown
+          error: { message: string } | null
+          count?: number
+        }) => R1 | PromiseLike<R1>)
+      | null,
     alFallar?: ((razon: unknown) => R2 | PromiseLike<R2>) | null,
   ): PromiseLike<R1 | R2> {
     return Promise.resolve(this.ejecutar()).then(alListo, alFallar)

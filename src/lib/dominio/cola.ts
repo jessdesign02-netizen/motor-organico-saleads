@@ -25,9 +25,7 @@ export function proximoIntentoAt(intento: number, desde: Date = new Date()): Dat
   return new Date(desde.getTime() + espera)
 }
 
-export type ResultadoTarea<T> =
-  | { estado: 'listo'; valor: T }
-  | { estado: 'fallido'; error: string }
+export type ResultadoTarea<T> = { estado: 'listo'; valor: T } | { estado: 'fallido'; error: string }
 
 export type OpcionesCola = {
   porSegundo?: number

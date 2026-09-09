@@ -24,6 +24,8 @@ const esquemaServidor = z.object({
     .regex(/^[0-9a-f]{64}$/i, 'TOKEN_ENCRYPTION_KEY debe ser 64 caracteres hexadecimales')
     .optional(),
   CRON_SECRET: z.string().min(16).optional(),
+  /** Cabecera del agente de mensajes directos que corre en n8n. */
+  AGENTE_SECRET: z.string().min(16).optional(),
 
   APP_URL: z.string().url().default('http://localhost:3000'),
   ZONA_HORARIA: z.string().default('America/Bogota'),
@@ -37,9 +39,7 @@ export function env(): EnvServidor {
   if (cache) return cache
   const resultado = esquemaServidor.safeParse(process.env)
   if (!resultado.success) {
-    const faltantes = resultado.error.issues
-      .map((i) => `${i.path.join('.')}: ${i.message}`)
-      .join('\n  ')
+    const faltantes = resultado.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('\n  ')
     throw new Error(`Faltan variables de entorno:\n  ${faltantes}`)
   }
   cache = resultado.data

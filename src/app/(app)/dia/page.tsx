@@ -2,18 +2,15 @@ import Link from 'next/link'
 import { clienteServidor } from '@/lib/supabase/server'
 import { perfilActual } from '@/lib/sesion'
 import { hoyDelEquipo } from '@/lib/dominio/semana'
-import { Etiqueta, Tarjeta, Vacio } from '@/app/ui'
+import { ESTADO_PIEZA, ESTADO_PUBLICACION, RED, fechaLarga, hora } from '@/lib/etiquetas'
+import { Encabezado, Etiqueta, Vacio } from '@/app/ui'
 import { filas } from '@/lib/consulta'
 import { AprobarDia } from './aprobar'
 
 export const dynamic = 'force-dynamic'
 
 /** Módulo 4 · el panel del día: lo que va a salir, en una sola pantalla. */
-export default async function PanelDelDia({
-  searchParams,
-}: {
-  searchParams: Promise<{ fecha?: string }>
-}) {
+export default async function PanelDelDia({ searchParams }: { searchParams: Promise<{ fecha?: string }> }) {
   const { fecha } = await searchParams
   const dia = fecha ?? hoyDelEquipo()
   const perfil = await perfilActual()
@@ -29,28 +26,55 @@ export default async function PanelDelDia({
   )
 
   const ids = piezas.map((p) => p.id)
-  const [{ data: claves }, { data: plantillas }, { data: publicaciones }, { data: marcas }] = await Promise.all([
+  const [
+    { data: claves },
+    { data: plantillas },
+    { data: publicaciones },
+    { data: marcas },
+    { data: cuentas },
+  ] = await Promise.all([
     ids.length ? supabase.from('keywords').select('*').in('piece_id', ids) : { data: [] },
     ids.length ? supabase.from('dm_templates').select('*').in('piece_id', ids) : { data: [] },
     ids.length ? supabase.from('publications').select('*').in('piece_id', ids) : { data: [] },
     supabase.from('brands').select('*'),
+    supabase.from('social_accounts').select('id, red, handle'),
   ])
 
   const listas = piezas.filter((p) => p.estado === 'aprobado')
 
   return (
     <div className="space-y-6">
-      <header className="flex items-baseline justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">El día</h1>
-          <p className="text-sm text-neutral-500">{dia} · hora de Bogotá</p>
-        </div>
-        <Link href="/parrilla" className="text-sm text-neutral-600 hover:text-neutral-900">
+      <Encabezado
+        titulo="El día"
+        bajada={`${dia === hoyDelEquipo() ? 'Hoy, ' : ''}${fechaLarga(dia)} · hora de Bogotá`}
+      >
+        <Link
+          href="/parrilla"
+          className="rounded-silk px-2.5 py-1.5 text-sm text-tinta-2 transition-colors hover:bg-arcilla-alta hover:text-tinta"
+        >
           Ver la semana
         </Link>
-      </header>
+      </Encabezado>
 
-      {piezas.length === 0 ? <Vacio>Nada programado para este día.</Vacio> : null}
+      {/* La decisión del día va arriba: es a lo que se entra a esta pantalla. */}
+      {perfil?.rol === 'editora' && listas.length > 0 ? (
+        <AprobarDia fecha={dia} cuantas={listas.length} />
+      ) : null}
+
+      {piezas.length === 0 ? (
+        <Vacio
+          accion={
+            <Link
+              href="/parrilla"
+              className="rounded-silk shadow-alzado bg-arcilla px-3.5 py-2 text-sm font-medium text-tinta transition-colors hover:bg-arcilla-alta"
+            >
+              Ir a la parrilla
+            </Link>
+          }
+        >
+          Nada sale este día. Lo que se programe en la parrilla aparece aquí.
+        </Vacio>
+      ) : null}
 
       {piezas.map((pieza) => {
         const clave = (claves ?? []).find((k) => k.piece_id === pieza.id)
@@ -59,56 +83,88 @@ export default async function PanelDelDia({
         const marca = (marcas ?? []).find((m) => m.id === pieza.brand_id)
 
         return (
-          <Tarjeta key={pieza.id} titulo={`${pieza.hora_publicacion?.slice(0, 5) ?? '--:--'} · ${pieza.tema}`}>
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="md:col-span-2 space-y-3">
-                <p className="text-xs text-neutral-500">
-                  {marca?.nombre} · <Etiqueta>{pieza.estado}</Etiqueta>
-                </p>
+          <article
+            key={pieza.id}
+            className="overflow-hidden rounded-silk shadow-alzado bg-arcilla shadow-alzado"
+          >
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3.5">
+              <span className="text-lg font-semibold tabular-nums tracking-tight text-tinta">
+                {hora(pieza.hora_publicacion)}
+              </span>
+              <h2 className="flex-1 text-sm font-medium text-tinta">{pieza.tema}</h2>
+              <span className="text-xs text-tinta-3">{marca?.nombre}</span>
+              <Etiqueta rotulo={ESTADO_PIEZA[pieza.estado]} titulo />
+            </div>
+
+            <div className="grid gap-6 p-5 md:grid-cols-[1fr_18rem]">
+              <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-medium text-neutral-600">Caption</p>
-                  <p className="mt-1 whitespace-pre-wrap text-sm">{pieza.caption_base ?? 'sin caption'}</p>
+                  <p className="text-xs font-medium text-tinta-2">Caption</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-tinta">
+                    {pieza.caption_base ?? <span className="text-tinta-3">Sin caption</span>}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-neutral-600">Mensaje directo</p>
-                  <p className="mt-1 whitespace-pre-wrap text-sm">{plantilla?.mensaje ?? 'sin mensaje'}</p>
+                  <p className="text-xs font-medium text-tinta-2">
+                    Mensaje que recibe quien comente la palabra
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap rounded-silk bg-arcilla-alta px-3 py-2 text-sm text-tinta">
+                    {plantilla?.mensaje ?? <span className="text-tinta-3">Sin mensaje</span>}
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-3 text-sm">
+              <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-medium text-neutral-600">Palabra clave</p>
-                  <p className="mt-1 font-mono text-sm">{clave?.palabra ?? 'sin definir'}</p>
-                  {clave?.variantes.length ? (
-                    <p className="mt-1 text-xs text-neutral-500">{clave.variantes.slice(0, 6).join(', ')}</p>
-                  ) : null}
+                  <p className="text-xs font-medium text-tinta-2">Palabra clave</p>
+                  {clave ? (
+                    <>
+                      <p className="mt-1 text-base font-semibold tracking-wide text-tinta">{clave.palabra}</p>
+                      {clave.variantes.length > 0 ? (
+                        <p className="mt-1 text-xs leading-relaxed text-tinta-3">
+                          también responde a {clave.variantes.slice(0, 5).join(', ')}
+                        </p>
+                      ) : null}
+                    </>
+                  ) : (
+                    <p className="mt-1 text-sm text-tinta-3">Sin definir · la pieza no puede programarse</p>
+                  )}
                 </div>
+
                 <div>
-                  <p className="text-xs font-medium text-neutral-600">Salidas</p>
-                  <ul className="mt-1 space-y-1 text-xs">
-                    {suyas.length === 0 ? <li className="text-neutral-500">sin programar</li> : null}
-                    {suyas.map((publicacion) => (
-                      <li key={publicacion.id} className="flex items-center gap-2">
-                        <Etiqueta>{publicacion.estado}</Etiqueta>
-                        {publicacion.ultimo_error ? (
-                          <span className="text-red-700">{publicacion.ultimo_error}</span>
-                        ) : null}
-                      </li>
-                    ))}
+                  <p className="text-xs font-medium text-tinta-2">Salidas</p>
+                  <ul className="mt-1.5 space-y-1.5">
+                    {suyas.length === 0 ? (
+                      <li className="text-xs text-tinta-3">Sin programar todavía</li>
+                    ) : null}
+                    {suyas.map((publicacion) => {
+                      const cuenta = (cuentas ?? []).find((c) => c.id === publicacion.social_account_id)
+                      return (
+                        <li key={publicacion.id} className="text-xs">
+                          <span className="flex items-center gap-2">
+                            <span className="flex-1 text-tinta">{cuenta ? RED[cuenta.red] : 'Cuenta'}</span>
+                            <Etiqueta rotulo={ESTADO_PUBLICACION[publicacion.estado]} />
+                          </span>
+                          {publicacion.ultimo_error ? (
+                            <span className="mt-0.5 block text-tinta-3">{publicacion.ultimo_error}</span>
+                          ) : null}
+                        </li>
+                      )
+                    })}
                   </ul>
                 </div>
-                <Link href={`/piezas/${pieza.id}`} className="inline-block text-xs text-neutral-600 underline">
+
+                <Link
+                  href={`/piezas/${pieza.id}`}
+                  className="inline-block text-xs text-tinta-2 underline underline-offset-2 hover:text-tinta"
+                >
                   Abrir la pieza
                 </Link>
               </div>
             </div>
-          </Tarjeta>
+          </article>
         )
       })}
-
-      {perfil?.rol === 'editora' && listas.length > 0 ? (
-        <AprobarDia fecha={dia} cuantas={listas.length} />
-      ) : null}
     </div>
   )
 }

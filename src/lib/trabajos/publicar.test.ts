@@ -51,7 +51,13 @@ function escenario(extra: { publicacion?: Record<string, unknown>; cuenta?: Reco
       },
     ],
     pieces: [
-      { id: 'pieza-1', tema: 'Meta Ads', brand_id: 'marca-1', caption_base: 'base', drive_url: 'https://drive/x' },
+      {
+        id: 'pieza-1',
+        tema: 'Meta Ads',
+        brand_id: 'marca-1',
+        caption_base: 'base',
+        drive_url: 'https://drive/x',
+      },
     ],
     notices: [],
   }
@@ -69,7 +75,11 @@ afterEach(() => {
 describe('publicarPendientes · cuando sale bien', () => {
   it('publica y guarda el identificador que devuelve la plataforma', async () => {
     base = crearSupabaseFalso(escenario())
-    publicar.mockResolvedValue({ estado: 'publicado', externalPostId: 'IG_POST_1', permalink: 'https://ig/p/1' })
+    publicar.mockResolvedValue({
+      estado: 'publicado',
+      externalPostId: 'IG_POST_1',
+      permalink: 'https://ig/p/1',
+    })
 
     const resumen = await publicarPendientes(AHORA)
 
@@ -162,7 +172,9 @@ describe('publicarPendientes · cuando algo falla', () => {
 
   it('espera su turno cuando el reintento aún no toca', async () => {
     base = crearSupabaseFalso(
-      escenario({ publicacion: { estado: 'fallido', intentos: 1, proximo_intento_at: '2026-09-10T19:00:00Z' } }),
+      escenario({
+        publicacion: { estado: 'fallido', intentos: 1, proximo_intento_at: '2026-09-10T19:00:00Z' },
+      }),
     )
 
     const resumen = await publicarPendientes(AHORA)

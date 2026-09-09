@@ -11,11 +11,7 @@ import { google } from 'googleapis'
 
 /** Acepta las tres formas en que Drive comparte un archivo. */
 export function idDeDrive(enlace: string): string | null {
-  const formas = [
-    /\/file\/d\/([a-zA-Z0-9_-]+)/,
-    /[?&]id=([a-zA-Z0-9_-]+)/,
-    /\/open\?id=([a-zA-Z0-9_-]+)/,
-  ]
+  const formas = [/\/file\/d\/([a-zA-Z0-9_-]+)/, /[?&]id=([a-zA-Z0-9_-]+)/, /\/open\?id=([a-zA-Z0-9_-]+)/]
 
   for (const forma of formas) {
     const encontrado = forma.exec(enlace)

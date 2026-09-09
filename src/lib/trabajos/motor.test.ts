@@ -52,7 +52,10 @@ function almacenDePrueba(gastadasHoy = 0, intentosMaximos = 3) {
     },
     async anotarEnvio(comentarioId, datos) {
       // La base admite varios intentos y un solo envío con resultado "enviado".
-      if (datos.estado === 'enviado' && envios.some((e) => e.comentarioId === comentarioId && e.estado === 'enviado')) {
+      if (
+        datos.estado === 'enviado' &&
+        envios.some((e) => e.comentarioId === comentarioId && e.estado === 'enviado')
+      ) {
         throw new Error('la base rechaza el segundo mensaje entregado para el mismo comentario')
       }
       envios.push({ comentarioId, estado: datos.estado })
@@ -112,7 +115,9 @@ const automatizacion: Automatizacion = {
   claveActivaHasta: null,
 }
 
-function comentario(parcial: Partial<ComentarioEntrante> & { externalCommentId: string }): ComentarioEntrante {
+function comentario(
+  parcial: Partial<ComentarioEntrante> & { externalCommentId: string },
+): ComentarioEntrante {
   return {
     externalPostId: 'IG_POST_1',
     autorUsername: 'alguien',
@@ -144,7 +149,13 @@ describe('motor de comentarios · reglas una por una', () => {
     const { adaptador, enviados } = adaptadorFalso()
 
     const resumen = await procesarComentarios(
-      [comentario({ externalCommentId: 'C1', texto: 'hola, me interesa, AutomatiZá 🙏', autorExternalId: 'U1' })],
+      [
+        comentario({
+          externalCommentId: 'C1',
+          texto: 'hola, me interesa, AutomatiZá 🙏',
+          autorExternalId: 'U1',
+        }),
+      ],
       automatizacion,
       adaptador,
       credencial,
@@ -234,7 +245,13 @@ describe('motor de comentarios · reglas una por una', () => {
     const { adaptador, enviados } = adaptadorFalso()
 
     const resumen = await procesarComentarios(
-      [comentario({ externalCommentId: 'C1', autorExternalId: 'U1', creadoEn: new Date('2026-09-01T10:00:00Z') })],
+      [
+        comentario({
+          externalCommentId: 'C1',
+          autorExternalId: 'U1',
+          creadoEn: new Date('2026-09-01T10:00:00Z'),
+        }),
+      ],
       automatizacion,
       adaptador,
       credencial,
@@ -252,7 +269,13 @@ describe('motor de comentarios · reglas una por una', () => {
     const { adaptador } = adaptadorFalso()
 
     const resumen = await procesarComentarios(
-      [comentario({ externalCommentId: 'C1', autorExternalId: 'U1', creadoEn: new Date('2026-09-10T09:00:00Z') })],
+      [
+        comentario({
+          externalCommentId: 'C1',
+          autorExternalId: 'U1',
+          creadoEn: new Date('2026-09-10T09:00:00Z'),
+        }),
+      ],
       { ...automatizacion, claveActivaDesde: new Date('2026-06-01T10:00:00Z') },
       adaptador,
       credencial,
@@ -422,7 +445,9 @@ describe('motor de comentarios · cupo de la plataforma', () => {
     const { adaptador, enviados } = adaptadorFalso({ cupo: 150 })
 
     await procesarComentarios(
-      Array.from({ length: 4 }, (_, i) => comentario({ externalCommentId: `C${i}`, autorExternalId: `U${i}` })),
+      Array.from({ length: 4 }, (_, i) =>
+        comentario({ externalCommentId: `C${i}`, autorExternalId: `U${i}` }),
+      ),
       automatizacion,
       adaptador,
       { ...credencial, cupoRespuestasDia: 2 },
@@ -438,7 +463,9 @@ describe('motor de comentarios · cupo de la plataforma', () => {
     const { adaptador, enviados } = adaptadorFalso({ cupo: 150 })
 
     const resumen = await procesarComentarios(
-      Array.from({ length: 5 }, (_, i) => comentario({ externalCommentId: `C${i}`, autorExternalId: `U${i}` })),
+      Array.from({ length: 5 }, (_, i) =>
+        comentario({ externalCommentId: `C${i}`, autorExternalId: `U${i}` }),
+      ),
       automatizacion,
       adaptador,
       credencial,
@@ -455,7 +482,9 @@ describe('motor de comentarios · cupo de la plataforma', () => {
     const { adaptador, enviados } = adaptadorFalso({ cupo: null })
 
     await procesarComentarios(
-      Array.from({ length: 3 }, (_, i) => comentario({ externalCommentId: `C${i}`, autorExternalId: `U${i}` })),
+      Array.from({ length: 3 }, (_, i) =>
+        comentario({ externalCommentId: `C${i}`, autorExternalId: `U${i}` }),
+      ),
       automatizacion,
       adaptador,
       credencial,
@@ -483,7 +512,13 @@ describe('motor de comentarios · el pico real de 300 comentarios', () => {
     for (let i = 0; i < 200; i++) {
       lote.push(comentario({ externalCommentId: `OK${i}`, autorExternalId: `A${i}`, texto: 'automatiza' }))
     }
-    const malEscritas = ['AUTOMATIZAAA', 'automatizas', 'Automatizá!!', 'quiero automatiza ya 🔥', 'auto matiza']
+    const malEscritas = [
+      'AUTOMATIZAAA',
+      'automatizas',
+      'Automatizá!!',
+      'quiero automatiza ya 🔥',
+      'auto matiza',
+    ]
     for (let i = 0; i < 40; i++) {
       lote.push(
         comentario({
@@ -494,10 +529,14 @@ describe('motor de comentarios · el pico real de 300 comentarios', () => {
       )
     }
     for (let i = 0; i < 30; i++) {
-      lote.push(comentario({ externalCommentId: `NO${i}`, autorExternalId: `C${i}`, texto: 'qué buen video 👏' }))
+      lote.push(
+        comentario({ externalCommentId: `NO${i}`, autorExternalId: `C${i}`, texto: 'qué buen video 👏' }),
+      )
     }
     for (let i = 0; i < 20; i++) {
-      lote.push(comentario({ externalCommentId: `REP${i}`, autorExternalId: `A${i}`, texto: 'automatiza otra vez' }))
+      lote.push(
+        comentario({ externalCommentId: `REP${i}`, autorExternalId: `A${i}`, texto: 'automatiza otra vez' }),
+      )
     }
     for (let i = 0; i < 10; i++) {
       lote.push(comentario({ externalCommentId: `OK${i}`, autorExternalId: `A${i}`, texto: 'automatiza' }))

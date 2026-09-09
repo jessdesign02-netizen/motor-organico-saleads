@@ -20,10 +20,7 @@ export function exigirEscritura<T>(
 
 export type Respuesta = { ok: true; mensaje: string } | { ok: false; mensaje: string }
 
-export async function envolver(
-  queHacia: string,
-  trabajo: () => Promise<string>,
-): Promise<Respuesta> {
+export async function envolver(queHacia: string, trabajo: () => Promise<string>): Promise<Respuesta> {
   try {
     return { ok: true, mensaje: await trabajo() }
   } catch (error) {

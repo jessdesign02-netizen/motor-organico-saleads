@@ -81,7 +81,11 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
 
     if (!cuenta || !cuenta.activa) {
       resumen.pausadas++
-      resumen.detalle.push({ publicacion: publicacion.id, estado: 'pausada', nota: 'la cuenta está en pausa' })
+      resumen.detalle.push({
+        publicacion: publicacion.id,
+        estado: 'pausada',
+        nota: 'la cuenta está en pausa',
+      })
       continue
     }
 
@@ -115,11 +119,7 @@ export async function publicarPendientes(ahora: Date = new Date()): Promise<Resu
       continue
     }
 
-    const { data: pieza } = await supabase
-      .from('pieces')
-      .select('*')
-      .eq('id', publicacion.piece_id)
-      .single()
+    const { data: pieza } = await supabase.from('pieces').select('*').eq('id', publicacion.piece_id).single()
 
     if (!pieza) {
       resumen.fallidas++

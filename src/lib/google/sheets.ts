@@ -30,12 +30,7 @@ function cliente() {
 
 /** Compara encabezados ignorando tildes, mayúsculas y espacios de sobra. */
 export function normalizarEncabezado(texto: string): string {
-  return texto
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '_')
+  return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase().replace(/\s+/g, '_')
 }
 
 export async function leerHoja(sheetId: string, pestana: string): Promise<FilaHoja[]> {

@@ -65,7 +65,11 @@ export type AdaptadorRed = {
     | ((credencial: CredencialCuenta, externalPostId: string, desde: Date) => Promise<ComentarioEntrante[]>)
     | null
   responder:
-    | ((credencial: CredencialCuenta, comentario: ComentarioEntrante, mensaje: string) => Promise<ResultadoRespuesta>)
+    | ((
+        credencial: CredencialCuenta,
+        comentario: ComentarioEntrante,
+        mensaje: string,
+      ) => Promise<ResultadoRespuesta>)
     | null
   /** Cuántos envíos por segundo tolera la plataforma. */
   enviosPorSegundo: number

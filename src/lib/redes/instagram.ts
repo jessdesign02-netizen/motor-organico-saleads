@@ -27,7 +27,12 @@ export const ENVIOS_POR_SEGUNDO_IG = 2
 const ESPERA_CONTENEDOR_MS = 5000
 const INTENTOS_CONTENEDOR = 24 // hasta dos minutos de procesamiento
 
-type RespuestaMeta = { id?: string; permalink?: string; status_code?: string; error?: { message?: string; code?: number } }
+type RespuestaMeta = {
+  id?: string
+  permalink?: string
+  status_code?: string
+  error?: { message?: string; code?: number }
+}
 
 async function llamar(url: string, init?: RequestInit): Promise<RespuestaMeta> {
   const respuesta = await fetch(url, init)
@@ -88,7 +93,8 @@ export async function publicarEnInstagram(
       contenedorId = contenedor.id
     }
 
-    if (!contenedorId) return { estado: 'fallido', error: 'Meta devolvió el contenedor sin id', reintentable: true }
+    if (!contenedorId)
+      return { estado: 'fallido', error: 'Meta devolvió el contenedor sin id', reintentable: true }
 
     // El video pasa por un procesado que puede tardar. Publicar antes de tiempo
     // devuelve un error que parece de permisos y no lo es.
@@ -153,7 +159,10 @@ export async function leerComentariosInstagram(
     `?fields=id,text,timestamp,username,from&limit=100&access_token=${encodeURIComponent(credencial.token)}`
 
   const respuesta = await fetch(url)
-  const cuerpo = (await respuesta.json().catch(() => ({}))) as { data?: ComentarioMeta[]; error?: { message?: string } }
+  const cuerpo = (await respuesta.json().catch(() => ({}))) as {
+    data?: ComentarioMeta[]
+    error?: { message?: string }
+  }
   if (!respuesta.ok) throw new Error(cuerpo.error?.message ?? `HTTP ${respuesta.status}`)
 
   return (cuerpo.data ?? [])

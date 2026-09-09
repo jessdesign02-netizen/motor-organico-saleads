@@ -55,7 +55,9 @@ export function almacenReal(
       .eq('estado', 'respondido')
       .not('autor_external_id', 'is', null)
 
-    const conjunto = new Set((data ?? []).map((c) => c.autor_external_id).filter((id): id is string => id !== null))
+    const conjunto = new Set(
+      (data ?? []).map((c) => c.autor_external_id).filter((id): id is string => id !== null),
+    )
     atendidosPorPublicacion.set(publicationId, conjunto)
     return conjunto
   }
@@ -132,11 +134,7 @@ export function almacenReal(
     },
 
     async anotarIntentoFallido(comentarioId, error) {
-      const { data } = await supabase
-        .from('comments')
-        .select('intentos_dm')
-        .eq('id', comentarioId)
-        .single()
+      const { data } = await supabase.from('comments').select('intentos_dm').eq('id', comentarioId).single()
 
       const intentos = (data?.intentos_dm ?? 0) + 1
       const siguiente = proximoIntentoAt(intentos)
