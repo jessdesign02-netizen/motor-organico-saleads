@@ -3,17 +3,28 @@ import { clienteServidor } from '@/lib/supabase/server'
 import { Encabezado, Vacio } from '@/app/ui'
 import { filas } from '@/lib/consulta'
 import { RED, motivoLegible } from '@/lib/etiquetas'
+import type { AutorMensaje } from '@/lib/database.types'
 import { Conversaciones, type Conversacion, type Mensaje } from './conversaciones'
 
 export const dynamic = 'force-dynamic'
 
+/** El agente calla mientras la fecha guardada siga en el futuro. */
+function enPausa(hasta: string | null): boolean {
+  return Boolean(hasta && new Date(hasta) > new Date())
+}
+
 /**
  * Chat en vivo.
  *
- * El motor ya detecta el comentario y manda el mensaje. Lo que faltaba era
- * verlo: quién escribió, qué le contestamos, si abrió el enlace. Se arma
- * uniendo lo que ya está guardado —`comments` con `dm_log`— por persona y
- * publicación, que es como se lee una conversación.
+ * Dos cosas distintas se leen igual, así que se muestran juntas.
+ *
+ * La primera es el motor de comentarios: alguien comentó la palabra clave y el
+ * sistema le mandó el enlace. Se arma uniendo `comments` con `dm_log` por
+ * persona y publicación, y ahí termina — es un turno, no una conversación.
+ *
+ * La segunda son los mensajes directos que atiende el agente desde n8n, en
+ * `dm_threads` y `dm_messages`. Esos sí siguen: van y vienen, y el equipo puede
+ * tomarlos a mano.
  */
 export default async function ChatEnVivo() {
   const supabase = await clienteServidor()
@@ -76,6 +87,7 @@ export default async function ChatEnVivo() {
         deLaPersona: true,
         texto: comentario.texto,
         cuando: comentario.detectado_at,
+        rotulo: 'Comentó',
         estado: comentario.estado,
         motivo: motivoLegible(comentario.motivo),
         fallo: null,
@@ -89,6 +101,7 @@ export default async function ChatEnVivo() {
         deLaPersona: false,
         texto: envio.mensaje,
         cuando: envio.enviado_at,
+        rotulo: 'El sistema respondió',
         estado: null,
         motivo: null,
         fallo: envio.estado === 'fallido' ? (envio.error ?? 'no salió') : null,
@@ -106,6 +119,8 @@ export default async function ChatEnVivo() {
 
     porHilo.set(hiloId, {
       clave: hiloId,
+      origen: 'comentario',
+      pausado: false,
       autor,
       red: cuenta ? RED[cuenta.red] : null,
       pieza: pieza?.tema ?? 'pieza sin nombre',
@@ -121,6 +136,63 @@ export default async function ChatEnVivo() {
         enlace ? `/r/${enlace.slug}` : (plantilla?.destino_url ?? ''),
       ),
       mensajes,
+    })
+  }
+
+  // Los mensajes directos. A diferencia del comentario, aquí la conversación
+  // sigue: cada hilo es una persona, no una persona en una publicación.
+  const hilosDm = filas(
+    await supabase.from('dm_threads').select('*').order('ultimo_at', { ascending: false }).limit(100),
+    'los mensajes directos',
+  )
+
+  const { data: mensajesDm } = hilosDm.length
+    ? await supabase
+        .from('dm_messages')
+        .select('*')
+        .in(
+          'thread_id',
+          hilosDm.map((h) => h.id),
+        )
+        .order('enviado_at', { ascending: true })
+    : { data: [] }
+
+  const ROTULO: Record<AutorMensaje, string> = {
+    persona: 'Escribió',
+    agente: 'Respondió el agente',
+    humano: 'Respondió el equipo',
+  }
+
+  for (const hilo of hilosDm) {
+    const suyos = (mensajesDm ?? []).filter((m) => m.thread_id === hilo.id)
+
+    porHilo.set(`dm:${hilo.id}`, {
+      clave: `dm:${hilo.id}`,
+      origen: 'dm',
+      pausado: enPausa(hilo.agente_pausado_hasta),
+      autor: hilo.contacto_username ?? hilo.contacto_external_id,
+      red: RED.instagram,
+      // Nada de esto aplica a un mensaje directo: no hay pieza, ni palabra
+      // clave, ni enlace que contar. La pantalla los omite cuando vienen vacíos.
+      pieza: null,
+      piezaId: null,
+      permalink: null,
+      palabra: null,
+      clics: null,
+      ultimoAt: hilo.ultimo_at,
+      estado: null,
+      necesitaMano: false,
+      sugerida: '',
+      mensajes: suyos.map((mensaje) => ({
+        id: mensaje.id,
+        deLaPersona: mensaje.autor === 'persona',
+        texto: mensaje.texto,
+        cuando: mensaje.enviado_at,
+        rotulo: ROTULO[mensaje.autor],
+        estado: null,
+        motivo: null,
+        fallo: mensaje.error,
+      })),
     })
   }
 
@@ -156,8 +228,8 @@ export default async function ChatEnVivo() {
 
       {conversaciones.length === 0 ? (
         <Vacio>
-          Aquí aparece cada persona que comenta la palabra clave y el mensaje que el sistema le envía. Se
-          llena solo, en cuanto salga la primera publicación.
+          Aquí aparecen dos cosas: quien comenta la palabra clave con el mensaje que el sistema le envía, y
+          las conversaciones por mensaje directo que atiende el agente. Se llena solo.
         </Vacio>
       ) : (
         <Conversaciones conversaciones={conversaciones} />

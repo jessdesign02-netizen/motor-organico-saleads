@@ -28,6 +28,8 @@ export type Mensaje = {
   deLaPersona: boolean
   texto: string
   cuando: string
+  /** Quién habló, en palabras: "Comentó", "Respondió el agente". */
+  rotulo: string
   estado: EstadoComentario | null
   motivo: string | null
   fallo: string | null
@@ -35,24 +37,43 @@ export type Mensaje = {
 
 export type Conversacion = {
   clave: string
+  /** De dónde viene el hilo. Un comentario es un turno; un DM, una conversación. */
+  origen: 'comentario' | 'dm'
+  /** Solo en los DM: el equipo tomó el hilo y el agente calla. */
+  pausado: boolean
   autor: string
   red: string | null
-  pieza: string
+  /** Los cinco de abajo son del mundo del comentario. En un DM vienen vacíos. */
+  pieza: string | null
   piezaId: string | null
   permalink: string | null
   palabra: string | null
   clics: number | null
   ultimoAt: string
-  estado: EstadoComentario
+  estado: EstadoComentario | null
   necesitaMano: boolean
   sugerida: string
   mensajes: Mensaje[]
 }
 
+/** Un hilo de mensaje directo no tiene estado de comentario: tiene agente. */
+const HILO_ATENDIDO = {
+  texto: 'Mensaje directo',
+  tono: 'info',
+  explica: 'El agente atiende esta conversación',
+} as const
+
+const HILO_PAUSADO = {
+  texto: 'Agente en pausa',
+  tono: 'aviso',
+  explica: 'Alguien del equipo tomó el hilo y el agente no responde aquí',
+} as const
+
 const FILTROS = [
   { clave: 'todas', texto: 'Todas' },
+  { clave: 'dm', texto: 'Mensajes directos' },
+  { clave: 'comentarios', texto: 'Comentarios' },
   { clave: 'mano', texto: 'Necesitan tu mano' },
-  { clave: 'respondidas', texto: 'Respondidas' },
 ] as const
 
 export function Conversaciones({ conversaciones }: { conversaciones: Conversacion[] }) {
@@ -73,7 +94,8 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
 
   const visibles = conversaciones.filter((c) => {
     if (filtro === 'mano') return c.necesitaMano
-    if (filtro === 'respondidas') return c.estado === 'respondido'
+    if (filtro === 'dm') return c.origen === 'dm'
+    if (filtro === 'comentarios') return c.origen === 'comentario'
     return true
   })
 
@@ -97,9 +119,11 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
             const cuantas =
               f.clave === 'mano'
                 ? conversaciones.filter((c) => c.necesitaMano).length
-                : f.clave === 'respondidas'
-                  ? conversaciones.filter((c) => c.estado === 'respondido').length
-                  : conversaciones.length
+                : f.clave === 'dm'
+                  ? conversaciones.filter((c) => c.origen === 'dm').length
+                  : f.clave === 'comentarios'
+                    ? conversaciones.filter((c) => c.origen === 'comentario').length
+                    : conversaciones.length
             return (
               <button
                 key={f.clave}
@@ -163,7 +187,11 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
                       {ultimo?.texto ?? ''}
                     </span>
                     <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                      <Etiqueta rotulo={ESTADO_COMENTARIO[conversacion.estado]} />
+                      {conversacion.estado ? (
+                        <Etiqueta rotulo={ESTADO_COMENTARIO[conversacion.estado]} />
+                      ) : (
+                        <Etiqueta rotulo={conversacion.pausado ? HILO_PAUSADO : HILO_ATENDIDO} />
+                      )}
                       {conversacion.red ? (
                         <span className="text-[11px] text-tinta-3">{conversacion.red}</span>
                       ) : null}
@@ -188,7 +216,7 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
                       {hilo.pieza}
                     </Link>
                   ) : (
-                    hilo.pieza
+                    (hilo.pieza ?? 'Mensaje directo')
                   )}
                 </p>
               </div>
@@ -222,23 +250,37 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
               </div>
             </div>
 
-            {/* Los datos que hacen de esto un CRM y no un chat suelto. */}
-            <dl className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-2.5 text-xs">
-              <div className="flex gap-1.5">
-                <dt className="text-tinta-3">Palabra</dt>
-                <dd className="font-medium text-tinta">{hilo.palabra ?? '—'}</dd>
-              </div>
-              <div className="flex gap-1.5">
-                <dt className="text-tinta-3">Clics al enlace</dt>
-                <dd className="font-medium tabular-nums text-tinta">{hilo.clics ?? 0}</dd>
-              </div>
-              <div className="flex gap-1.5">
-                <dt className="text-tinta-3">Estado</dt>
-                <dd>
-                  <Etiqueta rotulo={ESTADO_COMENTARIO[hilo.estado]} titulo />
-                </dd>
-              </div>
-            </dl>
+            {/* Los datos que hacen de esto un CRM y no un chat suelto. El mundo
+                del comentario: palabra, clics, estado. Un DM no tiene nada de eso. */}
+            {hilo.origen === 'comentario' && hilo.estado ? (
+              <dl className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-2.5 text-xs">
+                <div className="flex gap-1.5">
+                  <dt className="text-tinta-3">Palabra</dt>
+                  <dd className="font-medium text-tinta">{hilo.palabra ?? '—'}</dd>
+                </div>
+                <div className="flex gap-1.5">
+                  <dt className="text-tinta-3">Clics al enlace</dt>
+                  <dd className="font-medium tabular-nums text-tinta">{hilo.clics ?? 0}</dd>
+                </div>
+                <div className="flex gap-1.5">
+                  <dt className="text-tinta-3">Estado</dt>
+                  <dd>
+                    <Etiqueta rotulo={ESTADO_COMENTARIO[hilo.estado]} titulo />
+                  </dd>
+                </div>
+              </dl>
+            ) : (
+              <dl className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-2.5 text-xs">
+                <div className="flex gap-1.5">
+                  <dt className="text-tinta-3">Mensajes</dt>
+                  <dd className="font-medium tabular-nums text-tinta">{hilo.mensajes.length}</dd>
+                </div>
+                <div className="flex gap-1.5">
+                  <dt className="text-tinta-3">Agente</dt>
+                  <dd className="font-medium text-tinta">{hilo.pausado ? 'En pausa' : 'Atendiendo'}</dd>
+                </div>
+              </dl>
+            )}
 
             <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
               {hilo.mensajes.map((mensaje) => (
@@ -261,7 +303,7 @@ export function Conversaciones({ conversaciones }: { conversaciones: Conversacio
                         mensaje.deLaPersona ? '' : 'justify-end'
                       }`}
                     >
-                      <span>{mensaje.deLaPersona ? 'Comentó' : 'El sistema respondió'}</span>
+                      <span>{mensaje.rotulo}</span>
                       <span>{hace(mensaje.cuando)}</span>
                     </p>
                     {mensaje.fallo ? (

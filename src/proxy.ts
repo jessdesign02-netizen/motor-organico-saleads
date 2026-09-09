@@ -17,6 +17,8 @@ export const RUTAS_PUBLICAS = [
   // El webhook lo firma Meta, y los cron llevan su propia cabecera.
   '/api/webhooks',
   '/api/cron',
+  // El agente de mensajes directos corre en n8n, sin sesión, y entra con AGENTE_SECRET.
+  '/api/agente',
   // La biblioteca pública de recursos la consume bio.saleads.co, sin sesión.
   '/api/recursos',
   // El redirector lo abre quien recibió el mensaje.
