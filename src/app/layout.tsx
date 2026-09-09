@@ -15,7 +15,7 @@ const jakarta = Plus_Jakarta_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Motor Orgánico · SaleADS',
+  title: 'ClaveChat · SaleADS',
   description: 'Publicación y respuesta automática del contenido orgánico de SaleADS y Juanads',
 }
 

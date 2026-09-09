@@ -12,7 +12,7 @@ idioma del prompt, y esta herramienta la usa un equipo que trabaja en español.
 ## Prompt principal
 
 ```
-Diseña una aplicación web de escritorio en español llamada "Motor Orgánico".
+Diseña una aplicación web de escritorio en español llamada "ClaveChat".
 
 QUÉ ES
 Una herramienta interna de operaciones para una agencia de marketing. Publica el
@@ -25,7 +25,7 @@ observadores.
 ESTRUCTURA
 Barra lateral fija a la izquierda de 240px, con fondo blanco roto y una línea fina de
 separación. De arriba abajo:
-- Nombre "Motor Orgánico" y debajo, en gris pequeño, "SaleADS · Juanads"
+- Nombre "ClaveChat" y debajo, en gris pequeño, "SaleADS · Juanads"
 - Bloque de usuario: avatar circular con la inicial, nombre y rol debajo en gris
 - Menú principal con icono de línea a la izquierda de cada nombre:
   Dashboard, Contactos, Chat en vivo, Publicaciones, Parrilla, Resultados,

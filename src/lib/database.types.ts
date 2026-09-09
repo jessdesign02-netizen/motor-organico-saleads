@@ -12,6 +12,7 @@ export type EstadoDm = 'enviado' | 'fallido'
 export type AccionAprobacion = 'aprobar' | 'devolver'
 export type TipoRecurso = 'pdf' | 'skill' | 'html' | 'artefacto' | 'video'
 export type OrigenPieza = 'sheet' | 'app'
+export type AutorMensaje = 'persona' | 'agente' | 'humano'
 
 // supabase-js exige Relationships: sin él, el cliente resuelve cada tabla a never.
 type Fila<T> = { Row: T; Insert: Partial<T>; Update: Partial<T>; Relationships: [] }
@@ -201,6 +202,30 @@ export type RegistroDm = {
   error: string | null
 }
 
+/** Una conversación por mensaje directo. No cuelga de una publicación. */
+export type HiloDm = {
+  id: string
+  social_account_id: string | null
+  /** IGSID de la persona. Único por sí solo: Meta lo emite por cuenta receptora. */
+  contacto_external_id: string
+  contacto_username: string | null
+  /** Con fecha futura, el agente no contesta este hilo. Vacío: sí contesta. */
+  agente_pausado_hasta: string | null
+  ultimo_at: string
+  creado_at: string
+}
+
+export type MensajeDm = {
+  id: string
+  thread_id: string
+  autor: AutorMensaje
+  texto: string
+  external_message_id: string | null
+  error: string | null
+  enviado_at: string
+  creado_at: string
+}
+
 export type Aprobacion = {
   id: string
   piece_id: string
@@ -244,6 +269,8 @@ export type Database = {
       publications: Fila<Publicacion>
       comments: Fila<Comentario>
       dm_log: Fila<RegistroDm>
+      dm_threads: Fila<HiloDm>
+      dm_messages: Fila<MensajeDm>
       approvals: Fila<Aprobacion>
       sync_logs: Fila<RegistroSync>
       calendar_proposals: Fila<PropuestaCalendario>
@@ -262,6 +289,7 @@ export type Database = {
       accion_aprobacion: AccionAprobacion
       tipo_recurso: TipoRecurso
       origen_pieza: OrigenPieza
+      autor_mensaje: AutorMensaje
     }
     CompositeTypes: Record<string, never>
   }

@@ -14,7 +14,7 @@ export function Emblema({ tamano = 40 }: { tamano?: number }) {
       height={tamano}
       className="shrink-0"
       role="img"
-      aria-label="Motor Orgánico"
+      aria-label="ClaveChat"
     >
       <rect width="32" height="32" rx="8" fill="#2a2c38" />
       <circle cx="16" cy="16" r="3.2" fill="#ffffff" />
@@ -53,7 +53,7 @@ export function Panel() {
       <div className="relative max-w-md">
         <div className="flex items-center gap-3">
           <Emblema tamano={32} />
-          <span className="text-[15px] font-semibold text-white">Motor Orgánico</span>
+          <span className="text-[15px] font-semibold text-white">ClaveChat</span>
         </div>
 
         <p className="mt-12 text-[28px] font-semibold leading-tight tracking-tight text-white">

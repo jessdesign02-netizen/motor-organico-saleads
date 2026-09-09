@@ -2,7 +2,7 @@ import { Emblema, Panel } from '@/app/ingresar/marca'
 import { exigirSesion } from '@/lib/sesion'
 import { ClaveNueva } from './formulario'
 
-export const metadata = { title: 'Clave nueva · Motor Orgánico' }
+export const metadata = { title: 'Clave nueva · ClaveChat' }
 export const dynamic = 'force-dynamic'
 
 /**
@@ -19,7 +19,7 @@ export default async function PonerClaveNueva() {
         <div className="w-full max-w-[22rem]">
           <div className="flex items-center gap-3 lg:hidden">
             <Emblema tamano={36} />
-            <span className="text-[15px] font-semibold text-tinta">Motor Orgánico</span>
+            <span className="text-[15px] font-semibold text-tinta">ClaveChat</span>
           </div>
 
           <h1 className="mt-8 text-[1.75rem] font-bold leading-tight tracking-[-0.02em] text-tinta lg:mt-0">

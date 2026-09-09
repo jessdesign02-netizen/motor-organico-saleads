@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { Emblema, Panel } from '@/app/ingresar/marca'
 import { PedirEnlace } from './formulario'
 
-export const metadata = { title: 'Recuperar la clave · Motor Orgánico' }
+export const metadata = { title: 'Recuperar la clave · ClaveChat' }
 
 export default function Recuperar() {
   return (
@@ -12,7 +12,7 @@ export default function Recuperar() {
         <div className="w-full max-w-[22rem]">
           <div className="flex items-center gap-3 lg:hidden">
             <Emblema tamano={36} />
-            <span className="text-[15px] font-semibold text-tinta">Motor Orgánico</span>
+            <span className="text-[15px] font-semibold text-tinta">ClaveChat</span>
           </div>
 
           <h1 className="mt-8 text-[1.75rem] font-bold leading-tight tracking-[-0.02em] text-tinta lg:mt-0">

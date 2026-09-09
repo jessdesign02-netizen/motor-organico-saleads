@@ -134,7 +134,7 @@ export function BarraLateral({ nombre, rol, cuentas }: { nombre: string; rol: st
         }`}
       >
         <div className="px-5 py-4">
-          <p className="text-[15px] font-semibold tracking-tight text-tinta">Motor Orgánico</p>
+          <p className="text-[15px] font-semibold tracking-tight text-tinta">ClaveChat</p>
           <p className="text-xs text-tinta-3">SaleADS · Juanads</p>
         </div>
 
